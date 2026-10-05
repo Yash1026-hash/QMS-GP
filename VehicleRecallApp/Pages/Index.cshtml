@@ -1,0 +1,19 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "QMS";
+}
+
+<section class="landing-container text-center">
+    <p class="eyebrow">QMS</p>
+    <h1 class="h2">Welcome</h1>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <p class="text-muted">Signed in as @User.Identity.Name.</p>
+    }
+    else
+    {
+        <p class="text-muted">Sign in to continue.</p>
+        <a asp-page="/Account/Login" class="btn btn-primary">Sign in</a>
+    }
+</section>

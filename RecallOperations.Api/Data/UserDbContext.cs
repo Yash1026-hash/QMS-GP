@@ -1,0 +1,43 @@
+using Microsoft.EntityFrameworkCore;
+using VehicleRecall.Shared.Models;
+
+namespace RecallOperations.Api.Data;
+
+public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(options)
+{
+    public DbSet<UserAccount> Users => Set<UserAccount>();
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<UserRole> UserRoles => Set<UserRole>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<UserAccount>(entity =>
+        {
+            entity.ToTable("KS_RecallUsers", "dbo");
+            entity.HasKey(user => user.UserId);
+            entity.HasIndex(user => user.Username).IsUnique();
+        });
+
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.ToTable("KS_Roles", "dbo");
+            entity.HasKey(role => role.RoleId);
+            entity.Property(role => role.Name).HasMaxLength(50).IsRequired();
+            entity.HasIndex(role => role.Name).IsUnique();
+        });
+
+        modelBuilder.Entity<UserRole>(entity =>
+        {
+            entity.ToTable("KS_UserRoles", "dbo");
+            entity.HasKey(userRole => new { userRole.UserId, userRole.RoleId });
+            entity.HasOne(userRole => userRole.User)
+                .WithMany(user => user.UserRoles)
+                .HasForeignKey(userRole => userRole.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(userRole => userRole.Role)
+                .WithMany(role => role.UserRoles)
+                .HasForeignKey(userRole => userRole.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+    }
+}

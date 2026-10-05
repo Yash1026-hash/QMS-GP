@@ -1,0 +1,5 @@
+@model VehicleRecallApp.Models.AlertMessageModel
+
+<div class="alert alert-@Model.Type" role="@(Model.Type == "danger" ? "alert" : "status")">
+    @Model.Message
+</div>
