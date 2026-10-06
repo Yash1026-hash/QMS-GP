@@ -1,4 +1,3 @@
-using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -26,12 +25,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddHttpClient("ApiClient", client =>
 {
     client.BaseAddress = new Uri("http://localhost:5070");
-    client.DefaultRequestHeaders.Accept.Add(
-        new MediaTypeWithQualityHeaderValue("application/json"));
-}).AddHttpMessageHandler<QMSSystem.Web.Services.BearerTokenForwardingHandler>();
-
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddTransient<QMSSystem.Web.Services.BearerTokenForwardingHandler>();
+});
 
 builder.Services.AddRazorPages(options =>
 {
