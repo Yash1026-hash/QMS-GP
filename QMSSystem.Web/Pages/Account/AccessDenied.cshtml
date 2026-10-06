@@ -1,0 +1,13 @@
+@page
+@model QMSSystem.Web.Pages.Account.AccessDeniedModel
+
+@{
+    ViewData["Title"] = "Access denied";
+}
+
+<div class="container py-5 text-center">
+    <p class="eyebrow">403 · Access denied</p>
+    <h1 class="h2">You do not have access to this page</h1>
+    <p class="text-muted">Sign in with an account that has the required role, or return to a page you can access.</p>
+    <a asp-page="/Index" class="btn btn-primary">Return home</a>
+</div>
