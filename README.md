@@ -1,25 +1,45 @@
 # QMS
 
-QMS is a .NET 10 starter containing a basic landing page, login page, JWT authentication, and role-based access control. The previous domain-specific pages, controllers, data, and migrations have been removed so new features can be built on this foundation.
+QMS is a .NET 10 application with a Razor Pages website, an API, database-backed login, JWT authentication, and role-based access control.
 
 ## Projects
 
-- `QMSSystem.Web` - ASP.NET Core Razor Pages frontend with the landing, login, and access-denied pages.
-- `QMSSystem.Api` - ASP.NET Core API with the login endpoint, JWT issuance, and role authorization.
-- `QMSSystem.Shared` - shared login and user/role models.
+- `QMSSystem.Web` - Razor Pages website.
+- `QMSSystem.Api` - login API and JWT issuer.
+- `QMSSystem.Shared` - shared login, user, and role models.
 
-The configured roles are `Admin`, `Operator`, and `Supervisor`. Empty page folders for these roles are under `QMSSystem.Web/Pages`.
-
-## Requirements
+## Prerequisites
 
 - .NET 10 SDK
-- Network access to the shared SQL Server and Windows credentials with access to `TRG_CORE`
+- Network access to SQL Server `cqmprddev1` (connect to your organization’s network or VPN if required)
+- A Windows account granted access to the `TRG_CORE` database
 
-## Configuration
+## Clone and configure
 
-In Development, the API uses the shared `TRG_CORE` database on `cqmprddev1` with Windows Integrated Authentication. Each developer must be on a network that can reach that SQL Server and must have database permissions. The committed Development connection string contains no SQL username or password. Set `ConnectionStrings:DefaultConnection` in User Secrets or an environment variable to override it for another database.
+Clone the repository and open PowerShell in the repository directory:
 
-The API also requires a private JWT signing key. Generate a unique key and save it in .NET User Secrets from the repository root:
+```powershell
+git clone https://github.com/Yash1026-hash/QMS-GP.git
+cd QMS-GP
+```
+
+The Development API configuration points to the shared database using Windows Integrated Authentication:
+
+- Server: `cqmprddev1`
+- Database: `TRG_CORE`
+- Authentication: Windows / Integrated Security
+
+In SQL Server Management Studio, connect using the server name `cqmprddev1`, choose **Windows Authentication**, and select `TRG_CORE`. Your Windows account must already have permission to access the server and database; the application cannot grant database permissions.
+
+If you need to use a different server or database locally, override the connection string with your own value in User Secrets. Do not commit credentials:
+
+```powershell
+dotnet user-secrets set --project .\QMSSystem.Api\QMSSystem.Api.csproj "ConnectionStrings:DefaultConnection" "Server=<server>;Database=<database>;Integrated Security=True;TrustServerCertificate=True;"
+```
+
+## Create a local JWT signing key
+
+Each developer creates a private signing key in .NET User Secrets. Run this from the repository directory in PowerShell; it generates a random key and does not put the key in the repository:
 
 ```powershell
 $bytes = New-Object byte[] 32
@@ -32,35 +52,56 @@ $rng.Dispose()
 $key = $null
 ```
 
-Do not commit signing keys or other credentials. JWT issuer and audience default to `QMS.Api` and `QMS.Web`; configure `Jwt:Issuer` and `Jwt:Audience` in User Secrets if needed.
+The API requires this key at startup. Do not share or commit it. JWT issuer and audience default to `QMS.Api` and `QMS.Web`.
 
-### Login database tables
+## Login database tables
 
-The API maps login data to `dbo.KS_RecallUsers`, `dbo.KS_Roles`, and `dbo.KS_UserRoles`. To create any of these tables that are missing and add the standard roles, connect to `TRG_CORE` in SQL Server Management Studio and run [`database/login-schema.sql`](database/login-schema.sql). The script leaves existing tables unchanged; it does not create users or modify existing accounts.
+The API reads login information from these tables in the `TRG_CORE` database:
 
-Login requires a user row with `RegistrationStatus = 'Registered'` and `IsActive = 1`. Assign at least one role through `KS_UserRoles`; supported role names are `Admin`, `Operator`, and `Supervisor`. There is no user registration flow, so accounts must be provisioned separately.
+| Table | Purpose |
+| --- | --- |
+| `dbo.KS_RecallUsers` | Usernames, password hashes, account status, and profile details |
+| `dbo.KS_Roles` | Available role names |
+| `dbo.KS_UserRoles` | Links users to roles |
+
+If these tables are not present, ask the database owner to review and run [`database/login-schema.sql`](database/login-schema.sql) against `TRG_CORE`. Do not run a schema script against a shared database unless you have permission. The script creates missing tables and inserts the standard roles (`Admin`, `Operator`, and `Supervisor`); it does not create user accounts.
+
+To sign in, use an existing provisioned account with `RegistrationStatus = 'Registered'` and `IsActive = 1`, assigned to a role through `dbo.KS_UserRoles`. This starter does not include user registration or account creation.
 
 ## Run locally
 
-Start the API in one terminal:
+Open two PowerShell terminals at the repository directory. In the first terminal, start the API:
 
 ```powershell
-dotnet run --project QMSSystem.Api
+dotnet run --project .\QMSSystem.Api\QMSSystem.Api.csproj
 ```
 
-The API listens at `http://localhost:5070` with the included HTTP launch profile. Swagger is at `http://localhost:5070/swagger`. Each cloned developer checkout needs its own JWT signing key in User Secrets; the shared Development database setting is already in the repository.
+The API runs at `http://localhost:5070`; Swagger is at `http://localhost:5070/swagger`.
 
-Start the frontend in another terminal:
+The API signing key is not an access token. After the API is running, a successful login issues a JWT. To test the login endpoint from PowerShell, use your own account:
 
 ```powershell
-dotnet run --project QMSSystem.Web
+$loginBody = @{
+    username = "<your username>"
+    password = "<your password>"
+} | ConvertTo-Json
+$login = Invoke-RestMethod -Uri "http://localhost:5070/api/users/login" -Method Post -ContentType "application/json" -Body $loginBody
+$login.AccessToken
 ```
 
-The frontend listens at `http://localhost:5048`. It sends login requests to the API at `http://localhost:5070`, and forwards the issued bearer token on authenticated API requests.
+Keep the returned token private. The website handles this API login for you.
+
+In the second terminal, start the website:
+
+```powershell
+dotnet run --project .\QMSSystem.Web\QMSSystem.Web.csproj
+```
+
+Open `http://localhost:5048` and sign in with an account from the shared user list. Keep both terminal processes running while using the site.
 
 ## Build
 
 ```powershell
-dotnet build QMSSystem.Api
-dotnet build QMSSystem.Web
+dotnet build .\QMSSystem.Api\QMSSystem.Api.csproj
+dotnet build .\QMSSystem.Web\QMSSystem.Web.csproj
 ```
