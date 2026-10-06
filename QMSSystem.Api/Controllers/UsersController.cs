@@ -7,7 +7,8 @@ namespace QMSSystem.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public sealed class UsersController(
-    UserStore userStore) : ControllerBase
+    UserStore userStore,
+    JwtTokenService jwtTokenService) : ControllerBase
 {
     [HttpPost("login")]
     public ActionResult<LoginResponse> Login([FromBody] LoginRequest request)
@@ -23,26 +24,8 @@ public sealed class UsersController(
         }
 
         var user = userStore.ValidateCredentials(request.Username, request.Password);
-        if (user is null)
-        {
-            return Unauthorized(new { message = "Invalid username or password." });
-        }
-
-        var roles = user.UserRoles
-            .Select(userRole => userRole.Role.Name)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-        if (roles.Count == 0)
-        {
-            roles.Add(user.Role);
-        }
-
-        return Ok(new LoginResponse(
-            user.UserId,
-            user.Username,
-            user.Role,
-            user.FullName,
-            user.Email,
-            roles));
+        return user is null
+            ? Unauthorized(new { message = "Invalid username or password." })
+            : Ok(jwtTokenService.Create(user));
     }
 }

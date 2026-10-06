@@ -59,8 +59,8 @@ public class LoginModel : PageModel
 
             var claims = new List<Claim>
             {
-                new(ClaimTypes.NameIdentifier, login.UserId.ToString()),
-                new(ClaimTypes.Name, string.IsNullOrWhiteSpace(login.FullName) ? login.Username : login.FullName)
+                new(ClaimTypes.Name, string.IsNullOrWhiteSpace(login.FullName) ? login.Username : login.FullName),
+                new("access_token", login.AccessToken)
             };
             claims.AddRange((login.Roles.Count > 0 ? login.Roles : [login.Role])
                 .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -72,7 +72,8 @@ public class LoginModel : PageModel
 
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(identity));
+                new ClaimsPrincipal(identity),
+                new AuthenticationProperties { ExpiresUtc = login.ExpiresAt });
 
             if (!string.IsNullOrWhiteSpace(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
             {
