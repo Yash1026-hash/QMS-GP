@@ -15,11 +15,11 @@ public sealed class WorkflowController(WorkflowQueries queries, WorkflowService 
     public async Task<ActionResult<List<ActiveDocumentDto>>> GetActiveDocuments() =>
         await queries.GetActiveDocumentsAsync();
 
-    // /Deviations/SubmitReport picker.
-    [HttpGet("deviations/ready-for-report")]
-    public async Task<ActionResult<List<DeviationReadyForReportDto>>> GetDeviationsReadyForReport(
-        [FromQuery] int? reportedByUserId) =>
-        await queries.GetDeviationsReadyForReportAsync(reportedByUserId);
+    // // /Deviations/SubmitReport picker.
+    // [HttpGet("deviations/ready-for-report")]
+    // public async Task<ActionResult<List<DeviationReadyForReportDto>>> GetDeviationsReadyForReport(
+    //     [FromQuery] int? reportedByUserId) =>
+    //     await queries.GetDeviationsReadyForReportAsync(reportedByUserId);
 
     // /ChangeRequests/Edit picker.
     [HttpGet("reports/ready-for-change-request")]
