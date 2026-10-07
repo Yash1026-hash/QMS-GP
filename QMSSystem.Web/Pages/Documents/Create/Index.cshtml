@@ -5,78 +5,43 @@
     ViewData["Title"] = "Create Document";
 }
 
-<div class="container mt-4">
+<h2>Create Document</h2>
 
-    <h2>Create Document</h2>
+<form method="post" enctype="multipart/form-data">
 
-    <p class="text-muted">
-        Create a new controlled document.
-    </p>
+    <div asp-validation-summary="All" class="text-danger"></div>
 
-    <form method="post">
+    <div>
+        <label asp-for="Document.DocumentNumber"></label>
+        <input asp-for="Document.DocumentNumber" />
+        <span asp-validation-for="Document.DocumentNumber"></span>
+    </div>
 
-        <div asp-validation-summary="ModelOnly"
-             class="text-danger mb-3">
-        </div>
+    <div>
+        <label asp-for="Document.Title"></label>
+        <input asp-for="Document.Title" />
+        <span asp-validation-for="Document.Title"></span>
+    </div>
 
-        <!-- Document Title -->
-        <div class="mb-3">
-            <label asp-for="Document.Title" class="form-label">
-                Document Title
-            </label>
+    <div>
+        <label asp-for="Document.Department"></label>
+        <input asp-for="Document.Department" />
+        <span asp-validation-for="Document.Department"></span>
+    </div>
 
-            <input asp-for="Document.Title"
-                   class="form-control"
-                   placeholder="Enter document title" />
+    <div>
+        <label>Document File</label>
+        <input type="file"
+               asp-for="DocumentFile"
+               accept=".pdf,.doc,.docx" />
+    </div>
 
-            <span asp-validation-for="Document.Title"
-                  class="text-danger">
-            </span>
-        </div>
+    <div>
+        <label asp-for="Comment"></label>
+        <textarea asp-for="Comment"></textarea>
+        <span asp-validation-for="Comment"></span>
+    </div>
 
-        <!-- Department -->
-        <div class="mb-3">
-            <label asp-for="Document.Department"
-                   class="form-label">
-                Department
-            </label>
+    <button type="submit">Submit</button>
 
-            <select asp-for="Document.Department"
-                    class="form-select">
-
-                <option value="">Select Department</option>
-                <option value="HR">HR</option>
-                <option value="Finance">Finance</option>
-                <option value="IT">IT</option>
-                <option value="Quality">Quality</option>
-                <option value="Operations">Operations</option>
-
-            </select>
-
-            <span asp-validation-for="Document.Department"
-                  class="text-danger">
-            </span>
-        </div>
-
-        <!-- Buttons -->
-        <div class="mt-4">
-
-            <button type="submit"
-                    class="btn btn-primary">
-                Create Document
-            </button>
-
-            <a asp-page="Index"
-               class="btn btn-secondary ms-2">
-                Cancel
-            </a>
-
-        </div>
-
-    </form>
-
-</div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+</form>

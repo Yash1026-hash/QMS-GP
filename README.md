@@ -52,6 +52,8 @@ The API reads login information from these tables in the `TRG_CORE` database:
 
 If the tables are missing, ask the database owner to review and run [`database/login-schema.sql`](database/login-schema.sql) against `TRG_CORE`. The script creates missing tables and adds `Admin`, `Operator`, and `Supervisor`; it does not create user accounts or modify existing tables.
 
+Document uploads use the existing `dbo.Documents` table. If it does not yet have the upload fields, run [`database/document-file-columns.sql`](database/document-file-columns.sql) against the configured database before creating documents. The script only adds missing columns and preserves existing document rows.
+
 Use an existing provisioned account with `RegistrationStatus = 'Registered'` and `IsActive = 1`, assigned to a role through `dbo.KS_UserRoles`. This starter has no self-registration or account-creation flow. Ask the QMS/database administrator to provision an account if you do not already have one.
 
 ## Run locally
