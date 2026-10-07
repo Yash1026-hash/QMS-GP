@@ -83,44 +83,6 @@ public sealed class QmsDbContext(DbContextOptions<QmsDbContext> options) : DbCon
 
         modelBuilder.Entity<OperatorChangeRequest>(entity =>
         {
-            entity.ToTable("KS_ChangeRequests", "dbo");
-            entity.Property(changeRequest => changeRequest.Title).HasMaxLength(200);
-            entity.Property(changeRequest => changeRequest.ChangeType).HasMaxLength(20);
-            entity.Property(changeRequest => changeRequest.Status).HasMaxLength(20);
-            entity.HasOne<Document>()
-                .WithMany()
-                .HasForeignKey(changeRequest => changeRequest.DocumentId)
-                .OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne<Deviation>()
-                .WithMany()
-                .HasForeignKey(changeRequest => changeRequest.DeviationId)
-                .OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne<DeviationReport>()
-                .WithMany()
-                .HasForeignKey(changeRequest => changeRequest.DeviationReportId)
-                .OnDelete(DeleteBehavior.Restrict);
-        });
-
-        modelBuilder.Entity<ApprovalRecord>(entity =>
-        {
-            entity.ToTable("KS_ApprovalRecords", "dbo");
-            entity.Property(record => record.ItemType).HasMaxLength(30).IsRequired();
-            entity.Property(record => record.Decision).HasMaxLength(20).IsRequired();
-            // One decision per item (change request rule 4). Each report attempt is its own item.
-            entity.HasIndex(record => new { record.ItemType, record.ItemId }).IsUnique();
-        });
-
-        modelBuilder.Entity<AuditLog>(entity =>
-        {
-            entity.ToTable("KS_AuditLogs", "dbo");
-            entity.Property(log => log.ItemType).HasMaxLength(30).IsRequired();
-            entity.Property(log => log.Action).HasMaxLength(100).IsRequired();
-            entity.HasIndex(log => log.DeviationId);
-            entity.HasIndex(log => new { log.ItemType, log.ItemId });
-        });
-
-        modelBuilder.Entity<OperatorChangeRequest>(entity =>
-        {
             entity.ToTable("OperatorChangeRequests", "dbo");
 
             entity.HasKey(x => x.Id);
@@ -152,6 +114,27 @@ public sealed class QmsDbContext(DbContextOptions<QmsDbContext> options) : DbCon
             entity.Property(x => x.DeviationId)
                 .IsRequired();
         });
+
+
+        modelBuilder.Entity<ApprovalRecord>(entity =>
+        {
+            entity.ToTable("KS_ApprovalRecords", "dbo");
+            entity.Property(record => record.ItemType).HasMaxLength(30).IsRequired();
+            entity.Property(record => record.Decision).HasMaxLength(20).IsRequired();
+            // One decision per item (change request rule 4). Each report attempt is its own item.
+            entity.HasIndex(record => new { record.ItemType, record.ItemId }).IsUnique();
+        });
+
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.ToTable("KS_AuditLogs", "dbo");
+            entity.Property(log => log.ItemType).HasMaxLength(30).IsRequired();
+            entity.Property(log => log.Action).HasMaxLength(100).IsRequired();
+            entity.HasIndex(log => log.DeviationId);
+            entity.HasIndex(log => new { log.ItemType, log.ItemId });
+        });
+
+       
 
     }
 }
