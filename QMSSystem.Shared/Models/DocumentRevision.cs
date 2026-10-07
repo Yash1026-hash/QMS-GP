@@ -13,6 +13,10 @@ namespace QMSSystem.Shared.Models
         public string? ApprovedBy { get; set; }
         public DateTime? ApprovalDate { get; set; }
 
+        // Integration field: the approved change request that this revision implements.
+        // Empty for version 1 of a new document.
+        public int? ChangeRequestId { get; set; }
+
         public Document Document { get; set; } = null!;
     }
 }

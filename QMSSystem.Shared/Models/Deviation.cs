@@ -14,6 +14,11 @@ public class Deviation : BaseEntity
 
     public DeviationStatus Status { get; set; } = DeviationStatus.Open;
 
+    // Integration fields, set when the deviation is closed.
+    public string? ClosedBy { get; set; }
+
+    public DateTime? ClosedDate { get; set; }
+
     public ICollection<DeviationAttachment> Attachments { get; set; }
         = new List<DeviationAttachment>();
 
