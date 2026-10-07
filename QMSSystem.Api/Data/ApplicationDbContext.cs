@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using QMSSystem.Shared.Models;
 
-namespace QMSSystem.API.Data;
+namespace QMSSystem.Api.Data;
 
 public class ApplicationDbContext : DbContext
 {
@@ -17,6 +17,11 @@ public class ApplicationDbContext : DbContext
     {
         entity.ToTable("Documents", "dbo");
     });
+        modelBuilder.Entity<DocumentRevision>(entity =>
+        {
+            entity.ToTable("DocumentRevisions","dbo");
+        });
 }
     public DbSet<Document> Documents { get; set; }
+    public DbSet<DocumentRevision> DocumentRevisions {get; set;}
 }
