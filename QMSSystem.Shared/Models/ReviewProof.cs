@@ -1,10 +1,12 @@
-namespace QMS.API.Models
+namespace QMSSystem.Shared.Models
 {
+    // A proof file attached to a deviation report review.
     public class ReviewProof
     {
         public int Id { get; set; }
 
-        public int ReviewReportId { get; set; }
+        // The report being reviewed (KS_DeviationReports.Id).
+        public int DeviationReportId { get; set; }
 
         public int? FindingId { get; set; }
 
