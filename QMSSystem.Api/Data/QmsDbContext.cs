@@ -14,8 +14,7 @@ public sealed class QmsDbContext(DbContextOptions<QmsDbContext> options) : DbCon
     public DbSet<Deviation> Deviations => Set<Deviation>();
     public DbSet<DeviationAttachment> DeviationAttachments => Set<DeviationAttachment>();
     public DbSet<DeviationReport> DeviationReports => Set<DeviationReport>();
-   public DbSet<OperatorChangeRequest> OperatorChangeRequests { get; set; }
-
+    public DbSet<ChangeRequest> ChangeRequests { get; set; }
     public DbSet<OperatorChangeRequestDeviation> OperatorChangeRequestDeviations { get; set; }
     public DbSet<ApprovalRecord> ApprovalRecords => Set<ApprovalRecord>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
@@ -41,10 +40,7 @@ public sealed class QmsDbContext(DbContextOptions<QmsDbContext> options) : DbCon
                 .WithMany()
                 .HasForeignKey(revision => revision.DocumentId)
                 .OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne<OperatorChangeRequest>()
-                .WithMany()
-                .HasForeignKey(revision => revision.ChangeRequestId)
-                .OnDelete(DeleteBehavior.Restrict);
+            
         });
 
         modelBuilder.Entity<Deviation>(entity =>
@@ -81,7 +77,7 @@ public sealed class QmsDbContext(DbContextOptions<QmsDbContext> options) : DbCon
             entity.HasIndex(report => new { report.DeviationId, report.AttemptNumber }).IsUnique();
         });
 
-        modelBuilder.Entity<OperatorChangeRequest>(entity =>
+        modelBuilder.Entity<ChangeRequest>(entity =>
         {
             entity.ToTable("OperatorChangeRequests", "dbo");
 

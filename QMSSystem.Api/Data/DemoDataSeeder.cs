@@ -159,13 +159,10 @@ public static class DemoDataSeeder
 
     private static ChangeRequest NewChangeRequest(DeviationReport report, Deviation deviation, string title, string changeType, string status, int requestedBy, DateTime requested) => new()
     {
-        DocumentId = deviation.DocumentId,
-        DeviationId = deviation.Id,
-        DeviationReportId = report.Id,
+       DocumentId = deviation.DocumentId,
         Title = title,
         Description = title,
         ChangeType = changeType,
-        Status = status,
         RequestedByUserId = requestedBy,
         RequestedDate = requested
     };
