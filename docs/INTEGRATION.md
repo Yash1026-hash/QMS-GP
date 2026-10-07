@@ -17,6 +17,8 @@ You only need to do three things: use the shared database context, use the share
 3. **"Who" fields hold the user's `UserId`** from login (`ClaimTypes.NameIdentifier`). The API has no login of its own, so the Web page sends the user id in the request body.
 4. **Business rules go in the API service, not in the page.** Hiding a button is not enough.
 5. **Do not rename or remove shared model fields.** If you need a change, tell the integration owner first.
+6. **Pages go in the role folder.** Operator pages in `Pages/Operator/...`, supervisor pages in `Pages/Supervisor/...`. Only those folders get the role check (`QMSSystem.Web/Program.cs`).
+7. **Uploaded files belong to a revision.** The SOP file is on `DocumentRevision` (version 1 is created with the document), not on `Document`.
 
 ## 2. Status words
 
@@ -43,7 +45,11 @@ DeviationReport 1 ──< ChangeRequest        (ChangeRequest.DeviationReportId;
 ChangeRequest 1 ──< DocumentRevision       (DocumentRevision.ChangeRequestId; empty for version 1)
 ApprovalRecord: one supervisor decision per item (ItemType + ItemId)
 AuditLog: every action, with DeviationId when it belongs to a deviation
+DeviationReport 1 ──< ReviewComment       (ReviewComment.DeviationReportId; supervisor comments)
+DeviationReport 1 ──< ReviewProof         (ReviewProof.DeviationReportId; supervisor proof files)
 ```
+
+Every supervisor **decision** (accept, reject, approve) is an `ApprovalRecord`. Do not make a separate approval table for your module: `ChangeRequestApproval` and `ReviewApproval` are not mapped and must not be used.
 
 New fields added for integration: `Deviation.ClosedBy`, `Deviation.ClosedDate`, `DeviationReport.RootCause`, `DeviationReport.CorrectiveAction`, `DeviationReport.ChangeRequired`, `ChangeRequest.Status`, `ChangeRequest.DeviationReportId`, `DocumentRevision.ChangeRequestId`, and the status value `DeviationStatus.AwaitingChange`.
 

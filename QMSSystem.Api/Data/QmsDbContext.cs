@@ -17,6 +17,8 @@ public sealed class QmsDbContext(DbContextOptions<QmsDbContext> options) : DbCon
     public DbSet<ChangeRequest> ChangeRequests => Set<ChangeRequest>();
     public DbSet<ApprovalRecord> ApprovalRecords => Set<ApprovalRecord>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<ReviewComment> ReviewComments => Set<ReviewComment>();
+    public DbSet<ReviewProof> ReviewProofs => Set<ReviewProof>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -115,6 +117,29 @@ public sealed class QmsDbContext(DbContextOptions<QmsDbContext> options) : DbCon
             entity.Property(log => log.Action).HasMaxLength(100).IsRequired();
             entity.HasIndex(log => log.DeviationId);
             entity.HasIndex(log => new { log.ItemType, log.ItemId });
+        });
+
+        // Supervisor review of a deviation report: comments and proof files.
+        // The accept or reject decision itself is an ApprovalRecord (ItemType Report).
+        modelBuilder.Entity<ReviewComment>(entity =>
+        {
+            entity.ToTable("KS_ReviewComments", "dbo");
+            entity.Property(comment => comment.CommentedBy).HasMaxLength(50);
+            entity.HasOne<DeviationReport>()
+                .WithMany()
+                .HasForeignKey(comment => comment.DeviationReportId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<ReviewProof>(entity =>
+        {
+            entity.ToTable("KS_ReviewProofs", "dbo");
+            entity.Property(proof => proof.ProofName).HasMaxLength(260);
+            entity.Property(proof => proof.ProofType).HasMaxLength(50);
+            entity.HasOne<DeviationReport>()
+                .WithMany()
+                .HasForeignKey(proof => proof.DeviationReportId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
