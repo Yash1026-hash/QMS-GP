@@ -1,44 +1,205 @@
+/* =====================================================
+   SUPERVISOR PAGE
+===================================================== */
+
 .supervisor-container {
-    max-width: 1000px;
-    margin: 50px auto;
+    max-width: 1100px;
+    margin: 45px auto;
     padding: 0 25px;
 }
+
+
+/* =====================================================
+   HEADER
+===================================================== */
 
 .supervisor-header {
     margin-bottom: 35px;
 }
 
 .supervisor-header h1 {
+    margin: 0 0 8px;
     font-size: 32px;
     font-weight: 600;
-    margin-bottom: 8px;
+    color: #111827;
 }
 
 .supervisor-header p {
+    margin: 0;
     color: #6b7280;
     font-size: 16px;
 }
 
-/* Options */
 
-.supervisor-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+/* =====================================================
+   OVERVIEW
+===================================================== */
+
+.overview-section {
+    margin-bottom: 42px;
 }
 
-.supervisor-option {
+.overview-header {
+    margin-bottom: 20px;
+}
+
+.overview-header h2 {
+    margin: 0 0 6px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.overview-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+/* =====================================================
+   OVERVIEW CARDS
+===================================================== */
+
+.overview-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.overview-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+
     display: flex;
     align-items: center;
 
-    background: white;
+    gap: 15px;
+
+    min-height: 95px;
+
+    transition: 0.2s ease;
+}
+
+.overview-card:hover {
+    transform: translateY(-2px);
+
+    border-color: #d1d5db;
+
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
+}
+
+
+/* =====================================================
+   OVERVIEW ICON
+===================================================== */
+
+.overview-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #f3f4f6;
+
+    border-radius: 10px;
+
+    font-size: 24px;
+
+    flex-shrink: 0;
+}
+
+
+/* =====================================================
+   OVERVIEW CONTENT
+===================================================== */
+
+.overview-content h3 {
+    margin: 0 0 4px;
+
+    font-size: 25px;
+
+    font-weight: 700;
+
+    color: #111827;
+}
+
+.overview-content p {
+    margin: 0;
+
+    font-size: 13px;
+
+    color: #6b7280;
+}
+
+
+/* =====================================================
+   MODULE SECTION
+===================================================== */
+
+.modules-section {
+    margin-top: 10px;
+}
+
+.modules-header {
+    margin-bottom: 20px;
+}
+
+.modules-header h2 {
+    margin: 0 0 6px;
+
+    font-size: 24px;
+
+    font-weight: 600;
+
+    color: #111827;
+}
+
+.modules-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+
+/* =====================================================
+   MODULE OPTIONS
+===================================================== */
+
+.supervisor-options {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 20px;
+}
+
+
+/* =====================================================
+   MODULE CARD
+===================================================== */
+
+.supervisor-option {
+    display: flex;
+
+    align-items: center;
+
+    background: #ffffff;
 
     border: 1px solid #e5e7eb;
+
     border-radius: 12px;
 
     padding: 22px;
 
     text-decoration: none;
+
     color: #111827;
 
     min-height: 120px;
@@ -54,47 +215,90 @@
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
-.option-icon {
-    font-size: 32px;
 
+/* =====================================================
+   MODULE ICON
+===================================================== */
+
+.option-icon {
     width: 55px;
+
     height: 55px;
 
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
     margin-right: 18px;
+
+    font-size: 32px;
+
+    flex-shrink: 0;
 }
+
+
+/* =====================================================
+   MODULE CONTENT
+===================================================== */
 
 .option-content {
     flex: 1;
 }
 
 .option-content h3 {
-    margin: 0 0 7px 0;
+    margin: 0 0 7px;
 
     font-size: 18px;
+
     font-weight: 600;
+
+    color: #111827;
 }
 
 .option-content p {
     margin: 0;
 
     color: #6b7280;
+
     font-size: 14px;
 }
 
+
+/* =====================================================
+   ARROW
+===================================================== */
+
 .arrow {
     font-size: 24px;
+
     color: #6b7280;
+
+    margin-left: 15px;
+
+    transition: 0.2s ease;
 }
 
 .supervisor-option:hover .arrow {
     color: #2563eb;
+
+    transform: translateX(3px);
 }
 
-/* Mobile */
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 900px) {
+
+    .overview-cards {
+        grid-template-columns: 1fr 1fr;
+    }
+
+}
+
 
 @media (max-width: 700px) {
 
@@ -102,7 +306,19 @@
         grid-template-columns: 1fr;
     }
 
+}
+
+
+@media (max-width: 600px) {
+
+    .overview-cards {
+        grid-template-columns: 1fr;
+    }
+
     .supervisor-container {
         margin: 30px auto;
+
+        padding: 0 15px;
     }
+
 }
