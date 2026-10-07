@@ -1,0 +1,56 @@
+@page
+@model QMSSystem.Web.Pages.Supervisor.IndexModel
+
+@{
+    ViewData["Title"] = "Supervisor";
+}
+
+<link rel="stylesheet" href="~/css/supervisor.css" />
+
+<div class="supervisor-container">
+
+    <div class="supervisor-header">
+        <h1>Supervisor</h1>
+        <p>Select an activity to continue</p>
+    </div>
+
+    <div class="supervisor-options">
+
+        @foreach (var module in Model.Modules)
+        {
+            <a href="@module.Route" class="supervisor-option">
+
+                <div class="option-icon">
+                    @if (module.Name == "Deviation Review")
+                    {
+                        <span>⚠️</span>
+                    }
+                    else if (module.Name == "Change Request Approval")
+                    {
+                        <span>🔄</span>
+                    }
+                    else if (module.Name == "Deviation Review Report")
+                    {
+                        <span>📋</span>
+                    }
+                    else if (module.Name == "Document Review")
+                    {
+                        <span>📄</span>
+                    }
+                </div>
+
+                <div class="option-content">
+                    <h3>@module.Name</h3>
+                    <p>@module.Description</p>
+                </div>
+
+                <div class="arrow">
+                    →
+                </div>
+
+            </a>
+        }
+
+    </div>
+
+</div>
