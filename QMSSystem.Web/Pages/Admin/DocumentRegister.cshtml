@@ -1,0 +1,70 @@
+@page
+@model QMSSystem.Web.Pages.Admin.DocumentRegisterModel
+@{
+    ViewData["Title"] = "Document register";
+    ViewData["AdminSection"] = "DocumentRegister";
+}
+
+<partial name="_AdminNavigation" />
+
+<section class="admin-page">
+    <div class="admin-page-heading">
+        <div>
+            <p class="eyebrow">Controlled documents</p>
+            <h1>Document register</h1>
+            <p class="admin-page-description">Browse controlled documents and their revision and approval history.</p>
+        </div>
+        <a class="btn btn-outline-primary" asp-page="/Admin/MasterData">Manage master data</a>
+    </div>
+
+    <div class="admin-filter-bar" aria-label="Document register filters">
+        <span class="admin-filter-label">Status</span>
+        <button class="admin-filter-chip active" type="button" aria-pressed="true">All</button>
+        <button class="admin-filter-chip" type="button" disabled>Active</button>
+        <button class="admin-filter-chip" type="button" disabled>Inactive</button>
+        <button class="admin-filter-chip" type="button" disabled>Pending</button>
+        <span class="admin-filter-note">Filters will be enabled when the register API is connected.</span>
+    </div>
+
+    <div class="admin-table-card">
+        <div class="admin-table-heading">
+            <div>
+                <h2>Documents</h2>
+                <p>Document details and current controlled version</p>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table admin-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Document</th>
+                        <th scope="col">Department</th>
+                        <th scope="col">Current version</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Created</th>
+                        <th scope="col">Created by</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="7" class="admin-empty-state">
+                            <strong>No document data loaded</strong>
+                            <span>The register will show documents and their versions when connected to the shared QMS data.</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="admin-table-card">
+        <div class="admin-table-heading">
+            <div>
+                <h2>Version history</h2>
+                <p>Select a document to see its versions, files, uploaders, and approval details.</p>
+            </div>
+        </div>
+        <div class="admin-empty-panel">Choose a document from the register to view its version history.</div>
+    </div>
+</section>

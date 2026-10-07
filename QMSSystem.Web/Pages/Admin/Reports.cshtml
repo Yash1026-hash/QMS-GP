@@ -1,0 +1,90 @@
+@page
+@model QMSSystem.Web.Pages.Admin.ReportsModel
+@{
+    ViewData["Title"] = "Deviation reports";
+    ViewData["AdminSection"] = "Reports";
+}
+
+<partial name="_AdminNavigation" />
+
+<section class="admin-page">
+    <div class="admin-page-heading">
+        <div>
+            <p class="eyebrow">Deviation reporting</p>
+            <h1>Reports</h1>
+            <p class="admin-page-description">Review deviation outcomes and reporting activity across controlled documents.</p>
+        </div>
+    </div>
+
+    <div class="admin-stats-grid" aria-label="Deviation summary">
+        <article class="admin-stat-card"><span>Open deviations</span><strong>—</strong></article>
+        <article class="admin-stat-card"><span>Accepted</span><strong>—</strong></article>
+        <article class="admin-stat-card"><span>Rejected</span><strong>—</strong></article>
+        <article class="admin-stat-card"><span>Closed</span><strong>—</strong></article>
+        <article class="admin-stat-card"><span>Pending reports</span><strong>—</strong></article>
+    </div>
+
+    <div class="admin-report-grid">
+        <section class="admin-table-card">
+            <div class="admin-table-heading">
+                <div>
+                    <h2>Deviation outcomes by SOP</h2>
+                    <p>Accepted and rejected deviation decisions per controlled document</p>
+                </div>
+            </div>
+            <div class="admin-chart-placeholder" role="img" aria-label="Deviation outcomes chart will appear after report data is connected">
+                <span>Chart will appear when report data is connected.</span>
+            </div>
+        </section>
+
+        <section class="admin-table-card">
+            <div class="admin-table-heading">
+                <div>
+                    <h2>Version approval timing</h2>
+                    <p>Upload-to-approval duration by SOP</p>
+                </div>
+            </div>
+            <div class="admin-timing-placeholder">
+                <div><span>Shortest</span><strong>—</strong></div>
+                <div><span>Average</span><strong>—</strong></div>
+                <div><span>Longest</span><strong>—</strong></div>
+            </div>
+        </section>
+    </div>
+
+    <div class="admin-table-card">
+        <div class="admin-table-heading">
+            <div>
+                <h2>Deviation activity</h2>
+                <p>Select a deviation to open its shared details page and audit timeline.</p>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table admin-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Deviation</th>
+                        <th scope="col">Document</th>
+                        <th scope="col">Priority</th>
+                        <th scope="col">Raised</th>
+                        <th scope="col">Report attempts</th>
+                        <th scope="col">Rejections</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="7" class="admin-empty-state">
+                            <strong>No deviation data loaded</strong>
+                            <span>Deviation rows and outcomes will appear when the reporting API is connected.</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+}

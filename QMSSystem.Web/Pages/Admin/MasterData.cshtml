@@ -1,0 +1,52 @@
+@page
+@model QMSSystem.Web.Pages.Admin.MasterDataModel
+@{
+    ViewData["Title"] = "Master data";
+    ViewData["AdminSection"] = "MasterData";
+}
+
+<partial name="_AdminNavigation" />
+
+<section class="admin-page">
+    <div class="admin-page-heading">
+        <div>
+            <p class="eyebrow">Controlled documents</p>
+            <h1>Master data</h1>
+            <p class="admin-page-description">Manage department values used by document workflows.</p>
+        </div>
+        <button class="btn btn-primary" type="button" disabled>Add department</button>
+    </div>
+
+    <div class="admin-notice" role="status">
+        Department editing will be enabled after the shared master-data API is available.
+    </div>
+
+    <div class="admin-table-card">
+        <div class="admin-table-heading">
+            <div>
+                <h2>Departments</h2>
+                <p>Shared lookup values available to the QMS modules</p>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table admin-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Department</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Used by</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4" class="admin-empty-state">
+                            <strong>No departments loaded</strong>
+                            <span>Department records will appear here when the master-data API is connected.</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

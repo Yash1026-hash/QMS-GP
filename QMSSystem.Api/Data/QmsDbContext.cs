@@ -14,9 +14,10 @@ public sealed class QmsDbContext(DbContextOptions<QmsDbContext> options) : DbCon
     public DbSet<Deviation> Deviations => Set<Deviation>();
     public DbSet<DeviationAttachment> DeviationAttachments => Set<DeviationAttachment>();
     public DbSet<DeviationReport> DeviationReports => Set<DeviationReport>();
-   public DbSet<OperatorChangeRequest> OperatorChangeRequests { get; set; }
-
-    public DbSet<OperatorChangeRequestDeviation> OperatorChangeRequestDeviations { get; set; }
+    public DbSet<OperatorChangeRequest> OperatorChangeRequests => Set<OperatorChangeRequest>();
+    public DbSet<OperatorChangeRequestDeviation> OperatorChangeRequestDeviations =>
+        Set<OperatorChangeRequestDeviation>();
+    public DbSet<ChangeRequest> ChangeRequests => Set<ChangeRequest>();
     public DbSet<ApprovalRecord> ApprovalRecords => Set<ApprovalRecord>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
@@ -41,7 +42,7 @@ public sealed class QmsDbContext(DbContextOptions<QmsDbContext> options) : DbCon
                 .WithMany()
                 .HasForeignKey(revision => revision.DocumentId)
                 .OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne<OperatorChangeRequest>()
+            entity.HasOne<ChangeRequest>()
                 .WithMany()
                 .HasForeignKey(revision => revision.ChangeRequestId)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -84,38 +85,52 @@ public sealed class QmsDbContext(DbContextOptions<QmsDbContext> options) : DbCon
         modelBuilder.Entity<OperatorChangeRequest>(entity =>
         {
             entity.ToTable("OperatorChangeRequests", "dbo");
-
-            entity.HasKey(x => x.Id);
-
-            entity.Property(x => x.Title)
-                .HasMaxLength(200)
-                .IsRequired();
-
-            entity.Property(x => x.ChangeType)
-                .HasMaxLength(50)
-                .IsRequired();
-
-            entity.Property(x => x.Description)
-                .IsRequired();
-
-            entity.Property(x => x.RequestedDate)
-                .IsRequired();
+            entity.HasKey(request => request.Id);
+            entity.Property(request => request.Title).HasMaxLength(200).IsRequired();
+            entity.Property(request => request.ChangeType).HasMaxLength(50).IsRequired();
+            entity.Property(request => request.Description).IsRequired();
+            entity.Property(request => request.RequestedDate).IsRequired();
+            entity.HasOne<Document>()
+                .WithMany()
+                .HasForeignKey(request => request.DocumentId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<OperatorChangeRequestDeviation>(entity =>
         {
             entity.ToTable("OperatorChangeRequestDeviations", "dbo");
-
-            entity.HasKey(x => x.Id);
-
-            entity.Property(x => x.ChangeRequestId)
-                .IsRequired();
-
-            entity.Property(x => x.DeviationId)
-                .IsRequired();
+            entity.HasKey(link => link.Id);
+            entity.Property(link => link.ChangeRequestId).IsRequired();
+            entity.Property(link => link.DeviationId).IsRequired();
+            entity.HasOne<OperatorChangeRequest>()
+                .WithMany()
+                .HasForeignKey(link => link.ChangeRequestId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Deviation>()
+                .WithMany()
+                .HasForeignKey(link => link.DeviationId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
-
+        modelBuilder.Entity<ChangeRequest>(entity =>
+        {
+            entity.ToTable("KS_ChangeRequests", "dbo");
+            entity.Property(changeRequest => changeRequest.Title).HasMaxLength(200);
+            entity.Property(changeRequest => changeRequest.ChangeType).HasMaxLength(20);
+            entity.Property(changeRequest => changeRequest.Status).HasMaxLength(20);
+            entity.HasOne<Document>()
+                .WithMany()
+                .HasForeignKey(changeRequest => changeRequest.DocumentId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Deviation>()
+                .WithMany()
+                .HasForeignKey(changeRequest => changeRequest.DeviationId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<DeviationReport>()
+                .WithMany()
+                .HasForeignKey(changeRequest => changeRequest.DeviationReportId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
         modelBuilder.Entity<ApprovalRecord>(entity =>
         {
             entity.ToTable("KS_ApprovalRecords", "dbo");
@@ -133,8 +148,6 @@ public sealed class QmsDbContext(DbContextOptions<QmsDbContext> options) : DbCon
             entity.HasIndex(log => log.DeviationId);
             entity.HasIndex(log => new { log.ItemType, log.ItemId });
         });
-
-       
 
     }
 }

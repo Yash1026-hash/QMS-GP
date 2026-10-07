@@ -1,0 +1,48 @@
+@page
+@model QMSSystem.Web.Pages.Admin.UsersModel
+@{
+    ViewData["Title"] = "Users";
+    ViewData["AdminSection"] = "Users";
+}
+
+<partial name="_AdminNavigation" />
+
+<section class="admin-page">
+    <div class="admin-page-heading">
+        <div>
+            <p class="eyebrow">Optional administration</p>
+            <h1>Users and roles</h1>
+            <p class="admin-page-description">Optional supporting feature for viewing users and managing assigned roles.</p>
+        </div>
+        <button class="btn btn-primary" type="button" disabled>Add user</button>
+    </div>
+
+    <div class="admin-notice" role="status">
+        User management is optional. This page is a layout shell only; user data and role changes are not connected.
+    </div>
+
+    <div class="admin-table-card">
+        <div class="table-responsive">
+            <table class="table admin-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Employee ID</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Account status</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="6" class="admin-empty-state">
+                            <strong>No user data loaded</strong>
+                            <span>User information will appear here if the optional user-management feature is implemented.</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

@@ -63,9 +63,11 @@ public class LoginModel : PageModel
                 new(ClaimTypes.Name, string.IsNullOrWhiteSpace(login.FullName) ? login.Username : login.FullName)
             };
 
-            claims.AddRange((login.Roles.Count > 0 ? login.Roles : [login.Role])
+            var roles = (login.Roles.Count > 0 ? login.Roles : [login.Role])
                 .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Select(role => new Claim(ClaimTypes.Role, role)));
+                .ToList();
+
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             var identity = new ClaimsIdentity(
                 claims,
@@ -80,10 +82,19 @@ public class LoginModel : PageModel
                 return Redirect(ReturnUrl);
             }
 
-            // Supervisor goes to Supervisor Inbox
-            if (login.Roles.Contains("Supervisor", StringComparer.OrdinalIgnoreCase))
+            if (roles.Contains("Admin", StringComparer.OrdinalIgnoreCase))
+            {
+                return RedirectToPage("/Admin/Reports");
+            }
+
+            if (roles.Contains("Supervisor", StringComparer.OrdinalIgnoreCase))
             {
                 return RedirectToPage("/Supervisor/Index");
+            }
+
+            if (roles.Contains("Operator", StringComparer.OrdinalIgnoreCase))
+            {
+                return RedirectToPage("/Operator/Index");
             }
 
             return RedirectToPage("/Index");

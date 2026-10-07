@@ -1,0 +1,61 @@
+@page
+@model QMSSystem.Web.Pages.Admin.AuditTrailModel
+@{
+    ViewData["Title"] = "Audit trail";
+    ViewData["AdminSection"] = "AuditTrail";
+}
+
+<partial name="_AdminNavigation" />
+
+<section class="admin-page">
+    <div class="admin-page-heading">
+        <div>
+            <p class="eyebrow">Audit and traceability</p>
+            <h1>Audit trail</h1>
+            <p class="admin-page-description">Search recorded QMS activity. Audit entries are read-only.</p>
+        </div>
+    </div>
+
+    <div class="admin-table-card">
+        <div class="admin-table-heading">
+            <div>
+                <h2>Search activity</h2>
+                <p>Filter the append-only audit history by module, user, date, or action.</p>
+            </div>
+        </div>
+        <div class="admin-search-grid">
+            <label>Module <select class="form-select" disabled><option>All modules</option></select></label>
+            <label>User <input class="form-control" type="search" placeholder="Name or employee ID" disabled /></label>
+            <label>From <input class="form-control" type="date" disabled /></label>
+            <label>To <input class="form-control" type="date" disabled /></label>
+            <label>Action <select class="form-select" disabled><option>All actions</option></select></label>
+            <button class="btn btn-primary align-self-end" type="button" disabled>Search</button>
+        </div>
+        <p class="admin-filter-note mt-3 mb-0">Search controls will be enabled when the audit API is connected.</p>
+    </div>
+
+    <div class="admin-table-card">
+        <div class="table-responsive">
+            <table class="table admin-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Time</th>
+                        <th scope="col">Module</th>
+                        <th scope="col">Item</th>
+                        <th scope="col">Action</th>
+                        <th scope="col">User</th>
+                        <th scope="col">Comment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="6" class="admin-empty-state">
+                            <strong>No audit events loaded</strong>
+                            <span>Matching audit events will appear here when the audit API is connected.</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

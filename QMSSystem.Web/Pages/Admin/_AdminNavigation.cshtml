@@ -1,0 +1,13 @@
+@{
+    var activeSection = ViewData["AdminSection"] as string;
+}
+
+<nav class="admin-navigation" aria-label="Admin sections">
+    <a class="admin-navigation-link @(activeSection == "Overview" ? "active" : "")" asp-page="/Admin/Index">Overview</a>
+    <a class="admin-navigation-link @(activeSection == "DocumentRegister" ? "active" : "")" asp-page="/Admin/DocumentRegister">Document register</a>
+    <a class="admin-navigation-link @(activeSection == "MasterData" ? "active" : "")" asp-page="/Admin/MasterData">Master data</a>
+    <a class="admin-navigation-link @(activeSection == "ChangeRequests" ? "active" : "")" asp-page="/Admin/ChangeRequests">Change requests</a>
+    <a class="admin-navigation-link @(activeSection == "Reports" ? "active" : "")" asp-page="/Admin/Reports">Reports</a>
+    <a class="admin-navigation-link @(activeSection == "AuditTrail" ? "active" : "")" asp-page="/Admin/AuditTrail">Audit trail</a>
+    <a class="admin-navigation-link @(activeSection == "Users" ? "active" : "")" asp-page="/Admin/Users">Users <span class="admin-optional-tag">Optional</span></a>
+</nav>

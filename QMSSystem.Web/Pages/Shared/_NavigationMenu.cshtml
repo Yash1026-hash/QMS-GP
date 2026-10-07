@@ -20,6 +20,13 @@
                 {
                     <span class="badge rounded-pill text-bg-info">Supervisor</span>
                 }
+                @if (User.IsInRole("Admin"))
+                {
+                    <a class="nav-link text-dark" asp-page="/Admin/Reports">Admin reports</a>
+                    <a class="nav-link text-dark" asp-page="/Admin/DocumentRegister">Document register</a>
+                    <a class="nav-link text-dark" asp-page="/Admin/ChangeRequests">Change requests</a>
+                    <a class="nav-link text-dark" asp-page="/Admin/AuditTrail">Audit trail</a>
+                }
                 <form method="post" asp-page="/Account/Login" asp-page-handler="Logout" class="ms-lg-3">
                     <button type="submit" class="nav-link btn btn-link">Sign out</button>
                 </form>

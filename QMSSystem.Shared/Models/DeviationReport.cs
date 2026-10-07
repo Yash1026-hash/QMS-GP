@@ -10,6 +10,10 @@ public class DeviationReport : BaseEntity
 
     public string Summary { get; set; } = string.Empty;
 
+    public string RootCause { get; set; } = string.Empty;
+
+    public string CorrectiveAction { get; set; } = string.Empty;
+
     public string FileName { get; set; } = string.Empty;
 
     public string StoredPath { get; set; } = string.Empty;

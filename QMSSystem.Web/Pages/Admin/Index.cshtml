@@ -1,0 +1,61 @@
+@page
+@model QMSSystem.Web.Pages.Admin.IndexModel
+@{
+    ViewData["Title"] = "Admin";
+    ViewData["AdminSection"] = "Overview";
+}
+
+<partial name="_AdminNavigation" />
+
+<section class="admin-page">
+    <div class="admin-page-heading">
+        <div>
+            <p class="eyebrow">Administration</p>
+            <h1>Admin overview</h1>
+            <p class="admin-page-description">A consolidated view of controlled documents, change requests, deviation reports, and supporting data.</p>
+        </div>
+    </div>
+
+    <div class="admin-notice" role="status">
+        These pages are the initial UI structure. Live data and actions will be connected to the API in the next implementation step.
+    </div>
+
+    <div class="admin-module-grid">
+        <a class="admin-module-card" asp-page="/Admin/DocumentRegister">
+            <span class="admin-module-icon" aria-hidden="true">01</span>
+            <span class="admin-module-title">Controlled documents</span>
+            <span class="admin-module-description">Browse documents, revisions, and approval status.</span>
+            <span class="admin-module-link">Open register <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="admin-module-card" asp-page="/Admin/MasterData">
+            <span class="admin-module-icon" aria-hidden="true">02</span>
+            <span class="admin-module-title">Master data</span>
+            <span class="admin-module-description">Manage departments and shared document lookups.</span>
+            <span class="admin-module-link">Manage master data <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="admin-module-card" asp-page="/Admin/ChangeRequests">
+            <span class="admin-module-icon" aria-hidden="true">03</span>
+            <span class="admin-module-title">Change requests</span>
+            <span class="admin-module-description">View requests across the organization and their linked records.</span>
+            <span class="admin-module-link">View requests <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="admin-module-card" asp-page="/Admin/Reports">
+            <span class="admin-module-icon" aria-hidden="true">04</span>
+            <span class="admin-module-title">Deviation reports</span>
+            <span class="admin-module-description">Review reporting summaries and deviation activity.</span>
+            <span class="admin-module-link">View reports <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="admin-module-card" asp-page="/Admin/AuditTrail">
+            <span class="admin-module-icon" aria-hidden="true">05</span>
+            <span class="admin-module-title">Audit trail</span>
+            <span class="admin-module-description">Search recorded QMS activity and follow deviation timelines.</span>
+            <span class="admin-module-link">Search activity <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="admin-module-card admin-module-card-optional" asp-page="/Admin/Users">
+            <span class="admin-module-icon" aria-hidden="true">06</span>
+            <span class="admin-module-title">Users and roles <span class="admin-optional-tag">Optional</span></span>
+            <span class="admin-module-description">View users and roles; role management is an additional feature.</span>
+            <span class="admin-module-link">View users <span aria-hidden="true">→</span></span>
+        </a>
+    </div>
+</section>
