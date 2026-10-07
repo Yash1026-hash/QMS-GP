@@ -12,13 +12,13 @@ You only need to do three things: use the shared database context, use the share
 
 ## 1. Rules for everyone
 
-1. **Use `QmsDbContext`** (`QMSSystem.Api/Data/QmsDbContext.cs`) for all document, deviation and change request tables. Do not create your own DbContext for these tables. It already maps every table.
+1. **Use the shared database mappings.** Workflow data uses `QmsDbContext` (`QMSSystem.Api/Data/QmsDbContext.cs`); both it and the document upload API map documents to `dbo.Documents`. Do not introduce a separate document table.
 2. **Use the status constants, never typed words.** Write `DocumentStatuses.Approved`, not `"Approved"` or `"approved"`. They are in `QMSSystem.Shared/Workflow/WorkflowValues.cs`.
 3. **"Who" fields hold the user's `UserId`** from login (`ClaimTypes.NameIdentifier`). The API has no login of its own, so the Web page sends the user id in the request body.
 4. **Business rules go in the API service, not in the page.** Hiding a button is not enough.
 5. **Do not rename or remove shared model fields.** If you need a change, tell the integration owner first.
 6. **Pages go in the role folder.** Operator pages in `Pages/Operator/...`, supervisor pages in `Pages/Supervisor/...`. Only those folders get the role check (`QMSSystem.Web/Program.cs`).
-7. **Uploaded files belong to a revision.** The SOP file is on `DocumentRevision` (version 1 is created with the document), not on `Document`.
+7. **Document uploads use `dbo.Documents`.** The create-document API stores the file name, content type, bytes, and comment on the document row through `ApplicationDbContext`. Ensure the upload columns exist by running `database/document-file-columns.sql` against the configured database. This upload path does not create a `DocumentRevision`.
 
 ## 2. Status words
 
@@ -124,6 +124,6 @@ The tests run the full journey and every rule on an in-memory database, so they 
 
 ## 8. Open points for the team
 
-- Table names use the existing `KS_` prefix (`KS_Documents`, `KS_Deviations`, …). If you already created a QMS table in `TRG_CORE` under another name or shape, tell the integration owner before running `qms-schema.sql`.
+- QMS workflow tables use the `KS_` prefix (`KS_Deviations`, `KS_ChangeRequests`, …); the shared document table is `dbo.Documents`. If you already created a QMS table in `TRG_CORE` under another name or shape, tell the integration owner before running `qms-schema.sql`.
 - Who fields have mixed types today (`Document.CreatedBy` and `ChangeRequest.RequestedByUserId` are numbers; `Deviation.CreatedBy` and `DocumentRevision.UploadedBy` are text). All of them hold the `UserId`. A later clean-up can make them all numbers.
 - The API has no authentication, so role checks happen in the Web pages (`/Supervisor`, `/Operator`, `/Admin` folder policies). Every page that calls a supervisor action must be in the `/Supervisor` folder.

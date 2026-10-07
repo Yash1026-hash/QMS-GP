@@ -24,7 +24,7 @@ public sealed class QmsDbContext(DbContextOptions<QmsDbContext> options) : DbCon
     {
         modelBuilder.Entity<Document>(entity =>
         {
-            entity.ToTable("KS_Documents", "dbo");
+            entity.ToTable("Documents", "dbo");
             entity.Property(document => document.DocumentNumber).HasMaxLength(50).IsRequired();
             entity.HasIndex(document => document.DocumentNumber).IsUnique();
             entity.Property(document => document.Title).HasMaxLength(200).IsRequired();
@@ -36,6 +36,8 @@ public sealed class QmsDbContext(DbContextOptions<QmsDbContext> options) : DbCon
         {
             entity.ToTable("KS_DocumentRevisions", "dbo");
             entity.Property(revision => revision.FileName).HasMaxLength(260);
+            entity.Property(revision => revision.ContentType).HasMaxLength(255).IsRequired();
+            entity.Property(revision => revision.FileData).IsRequired();
             entity.Property(revision => revision.ApprovalStatus).HasMaxLength(20);
             entity.HasOne(revision => revision.Document)
                 .WithMany()

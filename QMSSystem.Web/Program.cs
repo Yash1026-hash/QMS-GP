@@ -5,6 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpClient("QMSApi", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5070/");
+});
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {

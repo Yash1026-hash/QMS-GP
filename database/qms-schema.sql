@@ -6,9 +6,9 @@
 USE [TRG_CORE];
 GO
 
-IF OBJECT_ID(N'dbo.KS_Documents', N'U') IS NULL
+IF OBJECT_ID(N'dbo.Documents', N'U') IS NULL
 BEGIN
-    CREATE TABLE [dbo].[KS_Documents] (
+    CREATE TABLE [dbo].[Documents] (
         [Id] int NOT NULL IDENTITY,
         [DocumentNumber] nvarchar(50) NOT NULL,
         [Title] nvarchar(200) NOT NULL,
@@ -17,10 +17,16 @@ BEGIN
         [Status] nvarchar(20) NOT NULL,
         [CreatedBy] int NOT NULL,
         [CreationTime] datetime2 NOT NULL,
-        CONSTRAINT [PK_KS_Documents] PRIMARY KEY ([Id])
+        [FileName] nvarchar(max) NOT NULL,
+        [ContentType] nvarchar(max) NOT NULL,
+        [FileData] varbinary(max) NOT NULL,
+        [Comment] nvarchar(max) NULL,
+        [ApprovedBy] int NULL,
+        [ApprovedDate] datetime2 NULL,
+        CONSTRAINT [PK_Documents] PRIMARY KEY ([Id])
     );
 
-    CREATE UNIQUE INDEX [IX_KS_Documents_DocumentNumber] ON [dbo].[KS_Documents] ([DocumentNumber]);
+    CREATE UNIQUE INDEX [IX_Documents_DocumentNumber] ON [dbo].[Documents] ([DocumentNumber]);
 END;
 GO
 
@@ -38,7 +44,7 @@ BEGIN
         [CreatedBy] nvarchar(max) NOT NULL,
         [CreatedDate] datetime2 NOT NULL,
         CONSTRAINT [PK_KS_Deviations] PRIMARY KEY ([Id]),
-        CONSTRAINT [FK_KS_Deviations_KS_Documents_DocumentId] FOREIGN KEY ([DocumentId]) REFERENCES [dbo].[KS_Documents] ([Id]) ON DELETE NO ACTION
+        CONSTRAINT [FK_KS_Deviations_Documents_DocumentId] FOREIGN KEY ([DocumentId]) REFERENCES [dbo].[Documents] ([Id]) ON DELETE NO ACTION
     );
 
     CREATE INDEX [IX_KS_Deviations_DocumentId] ON [dbo].[KS_Deviations] ([DocumentId]);
@@ -102,7 +108,7 @@ BEGIN
         CONSTRAINT [PK_KS_ChangeRequests] PRIMARY KEY ([Id]),
         CONSTRAINT [FK_KS_ChangeRequests_KS_DeviationReports_DeviationReportId] FOREIGN KEY ([DeviationReportId]) REFERENCES [dbo].[KS_DeviationReports] ([Id]) ON DELETE NO ACTION,
         CONSTRAINT [FK_KS_ChangeRequests_KS_Deviations_DeviationId] FOREIGN KEY ([DeviationId]) REFERENCES [dbo].[KS_Deviations] ([Id]) ON DELETE NO ACTION,
-        CONSTRAINT [FK_KS_ChangeRequests_KS_Documents_DocumentId] FOREIGN KEY ([DocumentId]) REFERENCES [dbo].[KS_Documents] ([Id]) ON DELETE NO ACTION
+        CONSTRAINT [FK_KS_ChangeRequests_Documents_DocumentId] FOREIGN KEY ([DocumentId]) REFERENCES [dbo].[Documents] ([Id]) ON DELETE NO ACTION
     );
 
     CREATE INDEX [IX_KS_ChangeRequests_DeviationId] ON [dbo].[KS_ChangeRequests] ([DeviationId]);
@@ -120,6 +126,9 @@ BEGIN
         [DocumentId] int NOT NULL,
         [Version] int NOT NULL,
         [FileName] nvarchar(260) NOT NULL,
+        [ContentType] nvarchar(255) NOT NULL,
+        [FileData] varbinary(max) NOT NULL,
+        [Comment] nvarchar(max) NULL,
         [UploadedBy] nvarchar(max) NOT NULL,
         [UploadedTime] datetime2 NOT NULL,
         [ChangeSummary] nvarchar(max) NOT NULL,
@@ -129,7 +138,7 @@ BEGIN
         [ChangeRequestId] int NULL,
         CONSTRAINT [PK_KS_DocumentRevisions] PRIMARY KEY ([Id]),
         CONSTRAINT [FK_KS_DocumentRevisions_KS_ChangeRequests_ChangeRequestId] FOREIGN KEY ([ChangeRequestId]) REFERENCES [dbo].[KS_ChangeRequests] ([Id]) ON DELETE NO ACTION,
-        CONSTRAINT [FK_KS_DocumentRevisions_KS_Documents_DocumentId] FOREIGN KEY ([DocumentId]) REFERENCES [dbo].[KS_Documents] ([Id]) ON DELETE NO ACTION
+        CONSTRAINT [FK_KS_DocumentRevisions_Documents_DocumentId] FOREIGN KEY ([DocumentId]) REFERENCES [dbo].[Documents] ([Id]) ON DELETE NO ACTION
     );
 
     CREATE INDEX [IX_KS_DocumentRevisions_ChangeRequestId] ON [dbo].[KS_DocumentRevisions] ([ChangeRequestId]);
