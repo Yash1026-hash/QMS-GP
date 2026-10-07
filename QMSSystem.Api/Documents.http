@@ -1,5 +1,0 @@
-@baseUrl = http://localhost:5070
-
-### List documents for the revision document selector
-GET {{baseUrl}}/api/documents
-Accept: application/json

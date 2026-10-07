@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QMSSystem.Api.Services;
 using QMSSystem.Shared.Models;
@@ -5,11 +6,13 @@ using QMSSystem.Shared.Models;
 namespace QMSSystem.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public sealed class UsersController(
     UserStore userStore) : ControllerBase
 {
     [HttpPost("login")]
+    [AllowAnonymous]
     public ActionResult<LoginResponse> Login([FromBody] LoginRequest request)
     {
         if (!ModelState.IsValid)
@@ -42,7 +45,9 @@ public sealed class UsersController(
             user.Username,
             user.Role,
             user.FullName,
-            user.Email,
-            roles));
+            user.Email)
+        {
+            Roles = roles
+        });
     }
 }
