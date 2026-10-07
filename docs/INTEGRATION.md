@@ -45,8 +45,6 @@ DeviationReport 1 ──< ChangeRequest        (ChangeRequest.DeviationReportId;
 ChangeRequest 1 ──< DocumentRevision       (DocumentRevision.ChangeRequestId; empty for version 1)
 ApprovalRecord: one supervisor decision per item (ItemType + ItemId)
 AuditLog: every action, with DeviationId when it belongs to a deviation
-DeviationReport 1 ──< ReviewComment       (ReviewComment.DeviationReportId; supervisor comments)
-DeviationReport 1 ──< ReviewProof         (ReviewProof.DeviationReportId; supervisor proof files)
 ```
 
 Every supervisor **decision** (accept, reject, approve) is an `ApprovalRecord`. Do not make a separate approval table for your module: `ChangeRequestApproval` and `ReviewApproval` are not mapped and must not be used.
