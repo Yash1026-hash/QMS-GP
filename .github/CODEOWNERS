@@ -1,0 +1,9 @@
+# Shared contract between the QMS modules. Changes here affect every module,
+# so the integration owner (Sukruth) reviews them. See docs/INTEGRATION.md.
+/QMSSystem.Shared/Models/        @sukruth2232
+/QMSSystem.Shared/Enums/         @sukruth2232
+/QMSSystem.Shared/Workflow/      @sukruth2232
+/QMSSystem.Api/Data/QmsDbContext.cs  @sukruth2232
+/QMSSystem.Api/Services/Workflow/    @sukruth2232
+/database/                       @sukruth2232
+/QMSSystem.Tests/                @sukruth2232
