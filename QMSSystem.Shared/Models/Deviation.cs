@@ -19,6 +19,8 @@ public class Deviation : BaseEntity
 
     public DateTime? ClosedDate { get; set; }
 
+    public string? SupervisorComment { get; set; }
+
     public ICollection<DeviationAttachment> Attachments { get; set; }
         = new List<DeviationAttachment>();
 
