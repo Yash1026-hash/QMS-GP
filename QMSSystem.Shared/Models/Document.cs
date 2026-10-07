@@ -25,4 +25,8 @@ public class Document
     public byte[] FileData { get; set; } = [];
 
     public string? Comment { get; set; }
+
+    public int? ApprovedBy { get; set; }
+
+    public DateTime? ApprovedDate { get; set; }
 }

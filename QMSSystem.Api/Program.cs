@@ -4,6 +4,9 @@ using QMSSystem.Api.Data;
 using QMSSystem.Api.Services;
 using QMSSystem.Api.Services.Workflow;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.EntityFrameworkCore;
+using QMSSystem.API.Data;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +23,12 @@ builder.Services.AddScoped<UserStore>();
 builder.Services.AddScoped<UserStore>();
 builder.Services.AddScoped<IPasswordHasher<QMSSystem.Shared.Models.UserAccount>, PasswordHasher<QMSSystem.Shared.Models.UserAccount>>();
 builder.Services.AddQmsWorkflow(connectionString);
+
+
+//DB context 
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddCors(options =>
 {
