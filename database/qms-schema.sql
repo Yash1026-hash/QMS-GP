@@ -174,38 +174,3 @@ BEGIN
     CREATE INDEX [IX_KS_AuditLogs_ItemType_ItemId] ON [dbo].[KS_AuditLogs] ([ItemType], [ItemId]);
 END;
 GO
-
-IF OBJECT_ID(N'dbo.KS_ReviewComments', N'U') IS NULL
-BEGIN
-    CREATE TABLE [dbo].[KS_ReviewComments] (
-        [Id] int NOT NULL IDENTITY,
-        [DeviationReportId] int NOT NULL,
-        [Comment] nvarchar(max) NOT NULL,
-        [CommentedBy] nvarchar(50) NOT NULL,
-        [CommentDate] datetime2 NOT NULL,
-        CONSTRAINT [PK_KS_ReviewComments] PRIMARY KEY ([Id]),
-        CONSTRAINT [FK_KS_ReviewComments_KS_DeviationReports_DeviationReportId] FOREIGN KEY ([DeviationReportId]) REFERENCES [dbo].[KS_DeviationReports] ([Id]) ON DELETE NO ACTION
-    );
-
-    CREATE INDEX [IX_KS_ReviewComments_DeviationReportId] ON [dbo].[KS_ReviewComments] ([DeviationReportId]);
-END;
-GO
-
-IF OBJECT_ID(N'dbo.KS_ReviewProofs', N'U') IS NULL
-BEGIN
-    CREATE TABLE [dbo].[KS_ReviewProofs] (
-        [Id] int NOT NULL IDENTITY,
-        [DeviationReportId] int NOT NULL,
-        [FindingId] int NULL,
-        [ProofName] nvarchar(260) NOT NULL,
-        [ProofType] nvarchar(50) NOT NULL,
-        [FilePath] nvarchar(max) NOT NULL,
-        [Description] nvarchar(max) NOT NULL,
-        [UploadedDate] datetime2 NOT NULL,
-        CONSTRAINT [PK_KS_ReviewProofs] PRIMARY KEY ([Id]),
-        CONSTRAINT [FK_KS_ReviewProofs_KS_DeviationReports_DeviationReportId] FOREIGN KEY ([DeviationReportId]) REFERENCES [dbo].[KS_DeviationReports] ([Id]) ON DELETE NO ACTION
-    );
-
-    CREATE INDEX [IX_KS_ReviewProofs_DeviationReportId] ON [dbo].[KS_ReviewProofs] ([DeviationReportId]);
-END;
-GO

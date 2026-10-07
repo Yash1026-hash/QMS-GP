@@ -10,7 +10,7 @@ Owner: Sukruth (integration). Status on 7 Oct 2026.
 
 ## Changes made by integration today
 
-- `ReviewComment` and `ReviewProof` (Manikanta): namespace fixed to `QMSSystem.Shared.Models`, `ReviewReportId` renamed to `DeviationReportId` (there is no ReviewReport table; it links to `KS_DeviationReports`). Both are now saved by `QmsDbContext` (tables `KS_ReviewComments`, `KS_ReviewProofs` in `database/qms-schema.sql`).
+- Separate supervisor review comment and proof models/tables were removed; the accept or reject decision remains recorded in `ApprovalRecord`.
 - `ChangeRequestApproval` (Charan) and `ReviewApproval` (Manikanta) are **not used**. Supervisor decisions go in `ApprovalRecord`.
 - `.github/CODEOWNERS`: PRs touching shared models, `QmsDbContext`, workflow services, `database/` or tests need the integration owner's review.
 - `docs/INTEGRATION.md`: added rule 6 (role folders) and rule 7 (files belong to a revision).
@@ -80,7 +80,7 @@ Documents → Deviations → Reports → Change Requests → Revision approval. 
 > Before deciding: `WorkflowService.EnsureNotOwnItem(deviation.CreatedBy, supervisorId);`. Accept → `DeviationStatus.Investigating`, reject → `DeviationStatus.Rejected`. Add an `ApprovalRecord` (`ItemTypes.Deviation`). Example: `ReviewDeviationAsync`.
 
 ### Manikanta — Supervisor Review Report
-> I connected your `ReviewComment` and `ReviewProof`: they are now in `QMSSystem.Shared.Models`, linked by `DeviationReportId` (not `ReviewReportId`), and saved by `QmsDbContext`. Please don't use `ReviewApproval`: the decision goes in `ApprovalRecord` (`ItemTypes.Report`). Before deciding: `WorkflowService.EnsureNotOwnItem(report.CreatedBy, supervisorId);`. On accept, ask the supervisor "Change required? Yes/No", set `ReportStatus.Accepted`, then `await workflow.OnReportAcceptedAsync(report.Id, changeRequired, supervisorId);`. Example: `ReviewReportAsync`.
+> Record the supervisor's decision as an `ApprovalRecord` (`ItemTypes.Report`); separate review comment and proof models are not currently part of the data model. Before deciding: `WorkflowService.EnsureNotOwnItem(report.CreatedBy, supervisorId);`. On accept, ask the supervisor "Change required? Yes/No", set `ReportStatus.Accepted`, then `await workflow.OnReportAcceptedAsync(report.Id, changeRequired, supervisorId);`. Example: `ReviewReportAsync`.
 
 ### Nishanth — Change Requests Index
 > List change requests with `Status` from `ChangeRequestStatuses` (Draft, Submitted, Approved, Rejected). Show the linked deviation and document (`DeviationId`, `DocumentId`).
