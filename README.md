@@ -7,6 +7,9 @@ QMS is a .NET 10 starter application with a Razor Pages website, a login API, da
 - `QMSSystem.Web` - Razor Pages website with landing, login, and access-denied pages.
 - `QMSSystem.Api` - API that validates login credentials against SQL Server.
 - `QMSSystem.Shared` - shared login, user, and role models.
+- `QMSSystem.Tests` - tests for the workflow that connects documents, deviations and change requests.
+
+Before you build a module page or service, read [`docs/INTEGRATION.md`](docs/INTEGRATION.md): it lists the shared status words, how the tables link, and the workflow call your service must add. Test the full journey with [`docs/E2E-CHECKLIST.md`](docs/E2E-CHECKLIST.md).
 
 ## Prerequisites
 

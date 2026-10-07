@@ -27,4 +27,11 @@ public class ChangeRequest
 
     [Required]
     public DateTime RequestedDate { get; set; }
+
+    // Integration fields. Use the values in QMSSystem.Shared.Workflow.ChangeRequestStatuses.
+    [StringLength(20)]
+    public string Status { get; set; } = Workflow.ChangeRequestStatuses.Draft;
+
+    // The accepted deviation report this change request was raised from.
+    public int? DeviationReportId { get; set; }
 }
