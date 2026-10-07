@@ -1,0 +1,168 @@
+@page
+@model QMSSystem.Web.Pages.Supervisor.IndexModel
+
+@{
+    ViewData["Title"] = "Supervisor";
+}
+
+<link rel="stylesheet" href="~/css/supervisor.css" />
+
+<div class="supervisor-container">
+
+    <!-- =========================================
+         HEADER
+    ========================================== -->
+
+    <div class="supervisor-header">
+        <h1>Supervisor</h1>
+        <p>Select an activity to continue</p>
+    </div>
+
+
+    <!-- =========================================
+         OVERVIEW
+    ========================================== -->
+
+    <div class="overview-section">
+
+        <div class="overview-header">
+            <h2>Overview</h2>
+            <p>Pending items across Supervisor activities</p>
+        </div>
+
+
+        <div class="overview-cards">
+
+            <!-- Deviation Review -->
+
+            <div class="overview-card">
+
+                <div class="overview-icon">
+                    ⚠️
+                </div>
+
+                <div class="overview-content">
+                    <h3>5</h3>
+                    <p>Deviation Reviews</p>
+                </div>
+
+            </div>
+
+
+            <!-- Change Request -->
+
+            <div class="overview-card">
+
+                <div class="overview-icon">
+                    🔄
+                </div>
+
+                <div class="overview-content">
+                    <h3>3</h3>
+                    <p>Change Requests</p>
+                </div>
+
+            </div>
+
+
+            <!-- Review Reports -->
+
+            <div class="overview-card">
+
+                <div class="overview-icon">
+                    📋
+                </div>
+
+                <div class="overview-content">
+                    <h3>2</h3>
+                    <p>Review Reports</p>
+                </div>
+
+            </div>
+
+
+            <!-- Document Review -->
+
+            <div class="overview-card">
+
+                <div class="overview-icon">
+                    📄
+                </div>
+
+                <div class="overview-content">
+                    <h3>7</h3>
+                    <p>Document Reviews</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         SUPERVISOR MODULES
+    ========================================== -->
+
+    <div class="modules-section">
+
+        <div class="modules-header">
+            <h2>Supervisor Activities</h2>
+            <p>Select an activity to continue</p>
+        </div>
+
+
+        <div class="supervisor-options">
+
+            @foreach (var module in Model.Modules)
+            {
+                <a href="@module.Route" class="supervisor-option">
+
+                    <div class="option-icon">
+
+                        @if (module.Name == "Deviation Review")
+                        {
+                            <span>⚠️</span>
+                        }
+                        else if (module.Name == "Change Request Approval")
+                        {
+                            <span>🔄</span>
+                        }
+                        else if (module.Name == "Deviation Review Report")
+                        {
+                            <span>📋</span>
+                        }
+                        else if (module.Name == "Document Review")
+                        {
+                            <span>📄</span>
+                        }
+
+                    </div>
+
+
+                    <div class="option-content">
+
+                        <h3>
+                            @module.Name
+                        </h3>
+
+                        <p>
+                            @module.Description
+                        </p>
+
+                    </div>
+
+
+                    <div class="arrow">
+                        →
+                    </div>
+
+                </a>
+            }
+
+        </div>
+
+    </div>
+
+</div>

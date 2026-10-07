@@ -62,6 +62,7 @@ public class LoginModel : PageModel
                 new(ClaimTypes.NameIdentifier, login.UserId.ToString()),
                 new(ClaimTypes.Name, string.IsNullOrWhiteSpace(login.FullName) ? login.Username : login.FullName)
             };
+
             claims.AddRange((login.Roles.Count > 0 ? login.Roles : [login.Role])
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Select(role => new Claim(ClaimTypes.Role, role)));
@@ -79,6 +80,12 @@ public class LoginModel : PageModel
                 return Redirect(ReturnUrl);
             }
 
+            // Supervisor goes to Supervisor Inbox
+            if (login.Roles.Contains("Supervisor", StringComparer.OrdinalIgnoreCase))
+            {
+                return RedirectToPage("/Supervisor/Index");
+            }
+
             return RedirectToPage("/Index");
         }
         catch
@@ -87,6 +94,7 @@ public class LoginModel : PageModel
             return Page();
         }
     }
+
     public async Task<IActionResult> OnPostLogoutAsync()
     {
         await HttpContext.SignOutAsync(
