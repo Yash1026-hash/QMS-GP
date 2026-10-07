@@ -14,13 +14,13 @@ public class ChangeRequest
 
     [Required]
     [StringLength(200)]
-    public string Title { get; set; }
+    public string Title { get; set; }= string.Empty;
 
     [Required]
-    public string ChangeType { get; set; }   
+    public string ChangeType { get; set; }= string.Empty;
 
     [Required]
-    public string Description { get; set; }
+    public string Description { get; set; }= string.Empty;
 
     [Required]
     public int RequestedByUserId { get; set; }
