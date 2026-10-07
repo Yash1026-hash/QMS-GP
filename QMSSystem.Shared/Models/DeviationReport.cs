@@ -17,9 +17,6 @@ public class DeviationReport : BaseEntity
     public ReportStatus Status { get; set; } = ReportStatus.Pending;
 
     // Investigation fields required by the Deviation problem statement.
-    public string RootCause { get; set; } = string.Empty;
-
-    public string CorrectiveAction { get; set; } = string.Empty;
 
     // Set by the supervisor when the report is accepted:
     // true = a change request is needed, false = the deviation can close now.
