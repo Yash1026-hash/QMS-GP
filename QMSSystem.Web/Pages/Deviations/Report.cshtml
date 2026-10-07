@@ -1,0 +1,238 @@
+@page
+@model QMSSystem.Web.Pages.Deviations.ReportModel
+
+@{
+    ViewData["Title"] = "Deviation Report";
+}
+
+<div class="container mt-4">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1 class="mb-1">Deviation Report</h1>
+
+            <p class="text-muted mb-0">
+                Submit a report and proof for the deviation.
+            </p>
+        </div>
+
+        <a asp-page="/Deviations/Index"
+           class="btn btn-secondary">
+            Back
+        </a>
+
+    </div>
+
+
+    <!-- Deviation Information -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+            <h5 class="mb-0">
+                Deviation Information
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <!-- Deviation ID / Severity / Status -->
+            <div class="row mb-3">
+
+                <!-- Deviation ID -->
+                <div class="col-md-4">
+
+                    <label class="fw-bold">
+                        Deviation ID
+                    </label>
+
+                    <div class="form-control bg-light">
+                        -
+                    </div>
+
+                </div>
+
+
+                <!-- Severity -->
+                <div class="col-md-4">
+
+                    <label class="fw-bold">
+                        Severity
+                    </label>
+
+                    <div class="form-control bg-light">
+                        -
+                    </div>
+
+                </div>
+
+
+                <!-- Status -->
+                <div class="col-md-4">
+
+                    <label class="fw-bold">
+                        Status
+                    </label>
+
+                    <div class="mt-1">
+
+                        <span class="badge bg-warning text-dark px-3 py-2">
+                            Pending
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Deviation Title -->
+            <div class="mb-3">
+
+                <label class="fw-bold">
+                    Deviation Title
+                </label>
+
+                <div class="form-control bg-light">
+                    -
+                </div>
+
+            </div>
+
+
+            <!-- Related SOP -->
+            <div class="row mb-3">
+
+                <div class="col-md-4">
+
+                    <label class="fw-bold">
+                        Related SOP
+                    </label>
+
+                    <div class="form-control bg-light">
+                        -
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-8">
+
+                    <label class="fw-bold">
+                        SOP Title
+                    </label>
+
+                    <div class="form-control bg-light">
+                        -
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Description -->
+            <div class="mb-3">
+
+                <label class="fw-bold">
+                    Description / About the Deviation
+                </label>
+
+                <div class="form-control bg-light"
+                     style="min-height: 100px;">
+                    -
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Report Submission -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+            <h5 class="mb-0">
+                Report Submission
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <!-- Attempt Number -->
+            <div class="mb-3">
+
+                <label class="form-label fw-bold">
+                    Attempt Number
+                </label>
+
+                <input type="text"
+                       class="form-control"
+                       value="1"
+                       readonly />
+
+            </div>
+
+
+            <!-- Summary -->
+            <div class="mb-3">
+
+                <label for="summary"
+                       class="form-label fw-bold">
+                    Summary
+                </label>
+
+                <textarea id="summary"
+                          name="summary"
+                          class="form-control"
+                          rows="5"
+                          placeholder="Enter the report summary"></textarea>
+
+            </div>
+
+
+            <!-- PDF Proof -->
+            <div class="mb-3">
+
+                <label for="proof"
+                       class="form-label fw-bold">
+                    Proof / Report PDF
+                </label>
+
+                <input id="proof"
+                       name="proof"
+                       type="file"
+                       class="form-control"
+                       accept=".pdf,application/pdf" />
+
+                <div class="form-text">
+                    Upload the proof or report as a PDF file.
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Action Buttons -->
+    <div class="d-flex justify-content-end gap-2 mb-4">
+
+        <a asp-page="/Deviations/Index"
+           class="btn btn-secondary">
+            Cancel
+        </a>
+
+        <button type="button"
+                class="btn btn-primary">
+            Submit Report
+        </button>
+
+    </div>
+
+</div>
