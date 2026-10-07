@@ -10,10 +10,6 @@ public class DeviationListDto
 
     public int DocumentId { get; set; }
 
-    public string DocumentNumber { get; set; } = string.Empty;
-
-    public string DocumentTitle { get; set; } = string.Empty;
-
     public Priority Priority { get; set; }
 
     public DeviationStatus Status { get; set; }
@@ -21,4 +17,6 @@ public class DeviationListDto
     public string CreatedBy { get; set; } = string.Empty;
 
     public DateTime CreatedDate { get; set; }
+
+    public string? SupervisorComment { get; set; }
 }
