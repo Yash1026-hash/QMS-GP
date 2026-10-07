@@ -5,5 +5,7 @@ public sealed record LoginResponse(
     string Username,
     string Role,
     string FullName,
-    string Email,
-    IReadOnlyList<string> Roles);
+    string Email)
+{
+    public IReadOnlyList<string> Roles { get; init; } = Array.Empty<string>();
+}
