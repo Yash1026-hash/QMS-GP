@@ -1,4 +1,4 @@
-namespace QMSSystem.Shared.Dtos;
+namespace QMSSystem.Shared.DTOs;
 
 using System.ComponentModel.DataAnnotations;
 
