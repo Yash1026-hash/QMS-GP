@@ -94,7 +94,7 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbC
 
          modelBuilder.Entity<DocumentHistory>(e =>
 {
-    e.ToTable("DocumentHistory");
+    e.ToTable("DocumentHistory","dbo");
     e.HasKey(h => h.Id);
 
     e.Property(h => h.DocumentNumber).HasMaxLength(50).IsRequired();
@@ -105,13 +105,6 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbC
 
     e.HasIndex(h => h.DocumentId);
 });
-
-
-
-
-
-
-
         
     }
 }
