@@ -1,0 +1,296 @@
+@page "/Deviations/SelectSop"
+@model QMSSystem.Web.Pages.Operator.Deviations.SelectSopModel
+@{
+    ViewData["Title"] = "Select an Active SOP";
+}
+
+<style>
+    .sop-page {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        color: #1e293b;
+    }
+
+    .sop-header {
+        margin-bottom: 24px;
+    }
+
+    .sop-eyebrow {
+        margin: 0 0 8px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+    }
+
+    .sop-header h1 {
+        margin: 0 0 8px;
+        color: #0f172a;
+        font-size: 30px;
+    }
+
+    .sop-header p {
+        margin: 0;
+        color: #64748b;
+    }
+
+    .sop-card {
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, .05);
+    }
+
+    .sop-search {
+        display: flex;
+        gap: 12px;
+        align-items: end;
+        padding: 20px 24px;
+        border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+
+    .sop-search-field {
+        flex: 1;
+    }
+
+    .sop-search label {
+        display: block;
+        margin-bottom: 7px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .sop-search input {
+        width: 100%;
+        height: 42px;
+        padding: 0 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        background: #fff;
+        font-size: 14px;
+    }
+
+    .sop-search input:focus {
+        border-color: #2563eb;
+        outline: 2px solid rgba(37, 99, 235, .12);
+    }
+
+    .sop-button {
+        min-height: 40px;
+        padding: 0 16px;
+        border: 1px solid #2563eb;
+        border-radius: 7px;
+        background: #2563eb;
+        color: #fff;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .sop-button:hover {
+        background: #1d4ed8;
+        color: #fff;
+    }
+
+    .sop-button:disabled {
+        border-color: #94a3b8;
+        background: #94a3b8;
+        cursor: not-allowed;
+    }
+
+    .sop-button-secondary {
+        border-color: #cbd5e1;
+        background: #fff;
+        color: #334155;
+    }
+
+    .sop-button-secondary:hover {
+        border-color: #94a3b8;
+        background: #f8fafc;
+        color: #0f172a;
+    }
+
+    .sop-table-wrap {
+        overflow-x: auto;
+    }
+
+    .sop-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .sop-table th,
+    .sop-table td {
+        padding: 15px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+    .sop-table th {
+        background: #fff;
+        color: #64748b;
+        font-size: 12px;
+        letter-spacing: .4px;
+        text-transform: uppercase;
+    }
+
+    .sop-table tr:has(input:checked) {
+        background: #eff6ff;
+    }
+
+    .sop-table input[type="radio"] {
+        width: 17px;
+        height: 17px;
+        accent-color: #2563eb;
+    }
+
+    .sop-title {
+        display: block;
+        color: #0f172a;
+        font-weight: 600;
+    }
+
+    .sop-number {
+        color: #475569;
+        font-size: 13px;
+    }
+
+    .sop-status {
+        display: inline-block;
+        padding: 4px 9px;
+        border-radius: 999px;
+        background: #dcfce7;
+        color: #166534;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .sop-empty {
+        padding: 56px 24px;
+        text-align: center;
+    }
+
+    .sop-empty h2 {
+        margin: 0 0 8px;
+        color: #0f172a;
+        font-size: 18px;
+    }
+
+    .sop-empty p {
+        max-width: 600px;
+        margin: 0 auto;
+        color: #64748b;
+        line-height: 1.6;
+    }
+
+    .sop-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 18px 24px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    @@media (max-width: 600px) {
+        .sop-page {
+            padding: 24px 12px;
+        }
+
+        .sop-search,
+        .sop-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .sop-search .sop-button,
+        .sop-actions .sop-button {
+            width: 100%;
+        }
+    }
+</style>
+
+<main class="sop-page">
+    <header class="sop-header">
+        <p class="sop-eyebrow">QMS / DEVIATIONS</p>
+        <h1>Select an Active SOP</h1>
+        <p>Choose the controlled SOP that the deviation relates to.</p>
+    </header>
+
+    <form method="get" action="/Deviations/SelectSop" class="sop-search">
+        <div class="sop-search-field">
+            <label for="Search">Search active SOPs</label>
+            <input id="Search" name="Search" value="@Model.Search"
+                   placeholder="Search by document number, title, or department" />
+        </div>
+        <button type="submit" class="sop-button">Search</button>
+        @if (!string.IsNullOrWhiteSpace(Model.Search))
+        {
+            <a href="/Deviations/SelectSop" class="sop-button sop-button-secondary d-inline-flex align-items-center justify-content-center">Clear</a>
+        }
+    </form>
+
+    <section class="sop-card" aria-label="Active SOP selection">
+        @if (Model.ActiveSops.Count == 0)
+        {
+            <div class="sop-empty" role="status">
+                <h2>@(string.IsNullOrWhiteSpace(Model.Search) ? "No active SOPs are available" : "No matching active SOPs")</h2>
+                <p>
+                    The document register is not connected to this page yet. Active SOPs will appear here
+                    when a document data source is available.
+                </p>
+            </div>
+        }
+        else
+        {
+            <form method="get" action="/Deviations/Create">
+                <div class="sop-table-wrap">
+                    <table class="sop-table">
+                        <thead>
+                            <tr>
+                                <th scope="col"><span class="visually-hidden">Select</span></th>
+                                <th scope="col">Document</th>
+                                <th scope="col">Department</th>
+                                <th scope="col">Version</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var sop in Model.ActiveSops)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="radio" id="sop-@sop.Id" name="DocumentId"
+                                               value="@sop.Id" required aria-label="Select @sop.DocumentNumber - @sop.Title" />
+                                    </td>
+                                    <td>
+                                        <label for="sop-@sop.Id" class="sop-title">@sop.Title</label>
+                                        <span class="sop-number">@sop.DocumentNumber</span>
+                                    </td>
+                                    <td>@sop.Department</td>
+                                    <td>v@sop.DocumentVersion</td>
+                                    <td><span class="sop-status">@sop.Status</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="sop-actions">
+                    <a href="/Deviations/Index" class="sop-button sop-button-secondary d-inline-flex align-items-center justify-content-center">Cancel</a>
+                    <button type="submit" class="sop-button">Continue to deviation form</button>
+                </div>
+            </form>
+        }
+        @if (Model.ActiveSops.Count == 0)
+        {
+            <div class="sop-actions">
+                <a href="/Deviations/Index" class="sop-button sop-button-secondary d-inline-flex align-items-center justify-content-center">Back to deviations</a>
+                <a href="/Deviations/Create" class="sop-button d-inline-flex align-items-center justify-content-center">Open deviation form</a>
+            </div>
+        }
+    </section>
+</main>
