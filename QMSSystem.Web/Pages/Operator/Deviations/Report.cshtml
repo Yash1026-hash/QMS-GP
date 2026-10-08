@@ -1,0 +1,150 @@
+@page "/Deviations/Report"
+@{
+    ViewData["Title"] = "Deviation Report";
+    var createdDate = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm");
+}
+
+<style>
+    .report-page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .report-header {
+        margin-bottom: 28px;
+    }
+
+    .report-header .eyebrow {
+        margin-bottom: 8px;
+        color: #6c757d;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 2px;
+    }
+
+    .report-header h1 {
+        margin: 0;
+        font-size: 32px;
+        font-weight: 600;
+    }
+
+    .report-header p {
+        margin-top: 8px;
+        color: #6c757d;
+    }
+
+    .report-card {
+        padding: 28px;
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-section-title {
+        margin: 0 0 18px;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .system-value {
+        min-height: 38px;
+        padding: 8px 12px;
+        color: #495057;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+    }
+
+    @@media (max-width: 600px) {
+        .report-page {
+            padding: 24px 12px;
+        }
+
+        .report-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<main class="report-page">
+    <header class="report-header">
+        <p class="eyebrow">QMS / DEVIATIONS</p>
+        <h1>Deviation Report</h1>
+        <p>Upload evidence and summarize the corrective work for an accepted deviation.</p>
+    </header>
+
+    <div class="alert alert-info" role="status">
+        Accepted SOP lookup and report submission are not connected yet. Enter the deviation and SOP
+        document IDs below; these can be pre-filled from the accepted-deviation selection flow when it is available.
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        <input type="hidden" name="Id" value="0" />
+        <input type="hidden" name="CreatedDate" value="@createdDate" />
+        <input type="hidden" name="CreatedBy" value="@User.Identity?.Name" />
+        <input type="hidden" name="Status" value="0" />
+
+        <section class="report-card" aria-labelledby="deviation-details-heading">
+            <h2 id="deviation-details-heading" class="form-section-title">Deviation and SOP</h2>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label for="DeviationId" class="form-label">Accepted deviation ID <span class="text-danger">*</span></label>
+                    <input id="DeviationId" name="DeviationId" type="number" class="form-control"
+                           min="1" required />
+                </div>
+                <div class="col-md-6">
+                    <label for="DocumentId" class="form-label">SOP document ID <span class="text-danger">*</span></label>
+                    <input id="DocumentId" name="DocumentId" type="number" class="form-control"
+                           min="1" required />
+                </div>
+                <div class="col-md-6">
+                    <label for="AttemptNumber" class="form-label">Attempt number <span class="text-danger">*</span></label>
+                    <input id="AttemptNumber" name="AttemptNumber" type="number" class="form-control"
+                           value="1" min="1" required />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Report status</label>
+                    <div class="system-value">Pending</div>
+                    <div class="form-text">New reports are submitted with status 0 (Pending).</div>
+                </div>
+            </div>
+
+            <h2 class="form-section-title">Report and proof</h2>
+
+            <div class="mb-3">
+                <label for="Summary" class="form-label">Summary <span class="text-danger">*</span></label>
+                <textarea id="Summary" name="Summary" class="form-control" rows="5"
+                          maxlength="4000" required
+                          placeholder="Describe the corrective work completed and how it addresses the deviation."></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label for="Proof" class="form-label">Proof / supporting report <span class="text-danger">*</span></label>
+                <input id="Proof" name="Proof" type="file" class="form-control" required />
+                <div class="form-text">Attach the evidence file for this deviation report.</div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Created by</label>
+                    <div class="system-value">@(User.Identity?.Name ?? "Signed-in user")</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Created date (UTC)</label>
+                    <div class="system-value">@createdDate.Replace("T", " ")</div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <button type="submit" class="btn btn-primary" disabled>Submit report</button>
+                <a href="/Operator" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+            <p class="form-text mt-3 mb-0">
+                Submission will be enabled after the report API is available.
+            </p>
+        </section>
+    </form>
+</main>

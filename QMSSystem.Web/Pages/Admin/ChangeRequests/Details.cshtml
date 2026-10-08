@@ -1,0 +1,145 @@
+@page "{id:int?}"
+@model QMSSystem.Web.Pages.Admin.ChangeRequests.DetailsModel
+@{
+    ViewData["Title"] = $"Change Request Details #{Model.ChangeRequest?.Id}";
+    ViewData["ActivePage"] = "ChangeRequests";
+}
+
+<partial name="_AdminNav" />
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="h4 mb-1">Change Request Details</h2>
+        <p class="text-muted mb-0">Change scope, approval decision, and linked deviations.</p>
+    </div>
+    <div>
+        <a asp-page="/Admin/ChangeRequests/Index" class="btn btn-secondary btn-sm">Back to List</a>
+    </div>
+</div>
+
+@if (Model.ChangeRequest == null)
+{
+    <div class="alert alert-info">
+        No change request record selected or available. <a asp-page="/Admin/ChangeRequests/Index">Return to change requests list.</a>
+    </div>
+}
+else
+{
+    <!-- Change Request Specifications -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <span class="fw-semibold">Change Request Specifications</span>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <strong>ID:</strong> #CR-@Model.ChangeRequest.Id
+                </div>
+                <div class="col-md-4">
+                    <strong>Target Document:</strong> 
+                    <a asp-page="/Admin/DocumentRegister/Details" asp-route-id="@Model.ChangeRequest.DocumentId">#DOC-@Model.ChangeRequest.DocumentId</a>
+                </div>
+                <div class="col-md-4">
+                    <strong>Change Type:</strong> @Model.ChangeRequest.ChangeType
+                </div>
+                <div class="col-md-12">
+                    <strong>Title:</strong> @Model.ChangeRequest.Title
+                </div>
+                <div class="col-md-12">
+                    <strong>Description:</strong>
+                    <div class="border rounded p-2 mt-1 bg-light">
+                        @Model.ChangeRequest.Description
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <strong>Status:</strong> @Model.ChangeRequest.Status
+                </div>
+                <div class="col-md-4">
+                    <strong>Requested By:</strong> User #@Model.ChangeRequest.RequestedByUserId
+                </div>
+                <div class="col-md-4">
+                    <strong>Requested Date:</strong> @Model.ChangeRequest.RequestedDate.ToString("yyyy-MM-dd HH:mm")
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supervisor Decision -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <span class="fw-semibold">Supervisor Decision</span>
+        </div>
+        <div class="card-body">
+            @if (!string.IsNullOrWhiteSpace(Model.ChangeRequest.Decision))
+            {
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <strong>Decision:</strong> @Model.ChangeRequest.Decision
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Decision By:</strong> User #@Model.ChangeRequest.DecisionByUserId
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Decision Date:</strong> @Model.ChangeRequest.DecisionDate.ToString("yyyy-MM-dd HH:mm")
+                    </div>
+                    <div class="col-md-12">
+                        <strong>Comments:</strong>
+                        <div class="border rounded p-2 mt-1 bg-light">
+                            @Model.ChangeRequest.DecisionComment
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <span class="text-muted">No decision recorded yet.</span>
+            }
+        </div>
+    </div>
+
+    <!-- Child Table: Linked Deviations -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <span class="fw-semibold">Linked Deviations (@Model.LinkedDeviations.Count)</span>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.LinkedDeviations.Count == 0)
+            {
+                <div class="p-3 text-muted">
+                    No linked deviations recorded for this change request.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Link ID</th>
+                                <th>Change Request ID</th>
+                                <th>Deviation ID</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var link in Model.LinkedDeviations)
+                            {
+                                <tr>
+                                    <td>@link.Id</td>
+                                    <td>#CR-@link.ChangeRequestId</td>
+                                    <td>#DEV-@link.DeviationId</td>
+                                    <td class="text-end">
+                                        <a asp-page="/Admin/Deviations/Details" asp-route-id="@link.DeviationId" class="btn btn-sm btn-outline-secondary">
+                                            View Deviation
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+}
+

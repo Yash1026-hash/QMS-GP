@@ -1,0 +1,33 @@
+@page
+@model QMSSystem.Web.Pages.Documents.CreateModel
+
+<form method="post" enctype="multipart/form-data">
+
+    <div>
+        <label>Document Number</label>
+        <input asp-for="Document.DocumentNumber" />
+    </div>
+
+    <div>
+        <label>Title</label>
+        <input asp-for="Document.Title" />
+    </div>
+
+    <div>
+        <label>Department</label>
+        <input asp-for="Document.Department" />
+    </div>
+
+    <div>
+        <label>File</label>
+        <input asp-for="DocumentFile" type="file" />
+    </div>
+
+    <div>
+        <label>Comment</label>
+        <textarea asp-for="Document.Comment"></textarea>
+    </div>
+
+    <button type="submit">Create Document</button>
+
+</form>
