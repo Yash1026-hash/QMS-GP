@@ -49,8 +49,6 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AllowAnonymousToPage("/Index");
     options.Conventions.AllowAnonymousToPage("/Account/Login");
     options.Conventions.AllowAnonymousToPage("/Account/AccessDenied");
-    options.Conventions.AllowAnonymousToPage("/Operator/Deviations/selectsop");
-    options.Conventions.AllowAnonymousToPage("/Operator/Deviations/create");
     options.Conventions.AuthorizeFolder("/Admin", "AdminOnly");
     options.Conventions.AuthorizeFolder("/Operator", "OperatorOnly");
     options.Conventions.AuthorizeFolder("/Supervisor", "SupervisorOnly");

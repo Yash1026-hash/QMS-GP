@@ -1,7 +1,7 @@
  namespace QMSSystem.Shared.Models;
 
 //document history dto
-public class DocumentHistory
+public class DocumentHistoryDto
 {
     public int Id { get; set; }
 

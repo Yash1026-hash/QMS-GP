@@ -11,10 +11,14 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbC
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
 
+   public DbSet<DocumentHistory> DocumentHistories => Set<DocumentHistory>();
+ 
+
     public DbSet<OperatorChangeRequest> OperatorChangeRequests => Set<OperatorChangeRequest>();
 
     public DbSet<OperatorChangeRequestDeviation> OperatorChangeRequestDeviations => Set<OperatorChangeRequestDeviation>();
 
+ 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<OperatorChangeRequest>(entity =>
@@ -87,5 +91,20 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbC
                 .HasForeignKey(userRole => userRole.RoleId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+
+         modelBuilder.Entity<DocumentHistory>(e =>
+{
+    e.ToTable("DocumentHistory","dbo");
+    e.HasKey(h => h.Id);
+
+    e.Property(h => h.DocumentNumber).HasMaxLength(50).IsRequired();
+    e.Property(h => h.Title).HasMaxLength(200).IsRequired();
+    e.Property(h => h.Department).HasMaxLength(100).IsRequired();
+    e.Property(h => h.Status).HasMaxLength(32).IsRequired();
+    e.Property(h => h.Comment).HasMaxLength(2000);
+
+    e.HasIndex(h => h.DocumentId);
+});
+        
     }
 }
