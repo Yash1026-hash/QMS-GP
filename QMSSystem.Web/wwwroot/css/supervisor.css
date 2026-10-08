@@ -1,0 +1,749 @@
+/* =========================================================
+   BASIC RESET
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    background: #f5f7fb;
+
+    color: #1f2937;
+}
+
+
+/* =========================================================
+   SUPERVISOR PAGE
+   ========================================================= */
+
+.supervisor-page {
+    min-height: 100vh;
+    width: 100%;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.top-header {
+    height: 70px;
+    width: 100%;
+
+    background: #172554;
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 40px;
+}
+
+
+/* QMS BRAND */
+
+.qms-brand {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+}
+
+.qms-icon {
+    width: 40px;
+    height: 40px;
+
+    background: #2563eb;
+
+    border-radius: 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 21px;
+    font-weight: bold;
+}
+
+.brand-text h2 {
+    margin: 0;
+
+    font-size: 20px;
+}
+
+.brand-text p {
+    margin: 2px 0 0;
+
+    font-size: 12px;
+
+    color: #cbd5e1;
+}
+
+
+/* SUPERVISOR */
+
+.supervisor-user {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    font-size: 14px;
+}
+
+.user-circle {
+    width: 36px;
+    height: 36px;
+
+    border-radius: 50%;
+
+    background: #e2e8f0;
+
+    color: #172554;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: bold;
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+   ========================================================= */
+
+.main-content {
+    width: 100%;
+    max-width: 1180px;
+
+    margin: 0 auto;
+
+    padding: 35px 40px;
+}
+
+
+/* =========================================================
+   PAGE TITLE
+   ========================================================= */
+
+.page-title {
+    margin-bottom: 25px;
+}
+
+.page-title h1 {
+    margin: 0;
+
+    font-size: 28px;
+
+    color: #111827;
+}
+
+.page-title p {
+    margin: 7px 0 0;
+
+    font-size: 14px;
+
+    color: #64748b;
+}
+
+
+/* =========================================================
+   PENDING SUMMARY
+   ========================================================= */
+
+.pending-summary {
+    width: 100%;
+
+    background: white;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 10px;
+
+    padding: 18px 20px;
+
+    display: grid;
+
+    grid-template-columns: 1.4fr repeat(4, 1fr);
+
+    gap: 10px;
+
+    align-items: center;
+
+    margin-bottom: 32px;
+
+    box-shadow: 0 2px 7px rgba(15, 23, 42, 0.05);
+}
+
+
+/* TOTAL */
+
+.total-section {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding-right: 15px;
+
+    border-right: 1px solid #e2e8f0;
+}
+
+.total-icon {
+    width: 42px;
+    height: 42px;
+
+    background: #dbeafe;
+
+    color: #2563eb;
+
+    border-radius: 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 22px;
+}
+
+.total-section h3 {
+    margin: 0;
+
+    font-size: 13px;
+
+    color: #475569;
+}
+
+.total-count {
+    margin-top: 2px;
+
+    font-size: 24px;
+
+    font-weight: 700;
+
+    color: #111827;
+}
+
+.total-section p {
+    margin: 1px 0 0;
+
+    font-size: 11px;
+
+    color: #94a3b8;
+}
+
+
+/* SUMMARY ITEMS */
+
+.summary-item {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    padding-left: 10px;
+}
+
+.summary-icon {
+    width: 35px;
+    height: 35px;
+
+    border-radius: 7px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 16px;
+}
+
+.summary-item h3 {
+    margin: 0;
+
+    font-size: 12px;
+
+    color: #475569;
+}
+
+.summary-item strong {
+    display: block;
+
+    margin-top: 2px;
+
+    font-size: 20px;
+
+    color: #111827;
+}
+
+.summary-item p {
+    margin: 0;
+
+    font-size: 10px;
+
+    color: #94a3b8;
+}
+
+
+/* SUMMARY COLORS */
+
+.deviation-icon {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.change-icon {
+    background: #ede9fe;
+    color: #7c3aed;
+}
+
+.report-icon {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.document-icon {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+
+/* =========================================================
+   OPERATIONS
+   ========================================================= */
+
+.operations-section {
+    width: 100%;
+}
+
+.section-heading {
+    margin-bottom: 18px;
+}
+
+.section-heading h2 {
+    margin: 0;
+
+    font-size: 20px;
+
+    color: #1e293b;
+}
+
+.section-heading p {
+    margin: 5px 0 0;
+
+    font-size: 13px;
+
+    color: #64748b;
+}
+
+
+/* =========================================================
+   OPERATIONS GRID
+   ========================================================= */
+
+.operations-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 18px;
+}
+
+
+/* =========================================================
+   OPERATION CARD
+   ========================================================= */
+
+.operation-card {
+    min-height: 210px;
+
+    background: white;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 10px;
+
+    padding: 21px;
+
+    display: flex;
+    flex-direction: column;
+
+    box-shadow: 0 2px 7px rgba(15, 23, 42, 0.05);
+
+    transition: 0.2s ease;
+}
+
+.operation-card:hover {
+    transform: translateY(-2px);
+
+    box-shadow: 0 6px 15px rgba(15, 23, 42, 0.09);
+}
+
+
+/* CARD TOP */
+
+.operation-top {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 15px;
+}
+
+
+/* CARD ICON */
+
+.operation-icon {
+    width: 44px;
+    height: 44px;
+
+    border-radius: 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 20px;
+}
+
+
+/* CARD COUNT */
+
+.operation-count {
+    font-size: 28px;
+
+    font-weight: 700;
+
+    color: #1e293b;
+}
+
+
+/* CARD CONTENT */
+
+.operation-content {
+    flex: 1;
+}
+
+.operation-content h3 {
+    margin: 0;
+
+    font-size: 18px;
+
+    font-weight: 600;
+
+    color: #1e293b;
+}
+
+.operation-content p {
+    margin: 7px 0 0;
+
+    font-size: 13px;
+
+    line-height: 1.45;
+
+    color: #64748b;
+}
+
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+.operation-button {
+    width: fit-content;
+
+    margin-top: 16px;
+
+    padding: 9px 14px;
+
+    border-radius: 6px;
+
+    text-decoration: none;
+
+    color: white;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+.operation-button span {
+    font-size: 16px;
+}
+
+
+/* =========================================================
+   DEVIATION
+   ========================================================= */
+
+.deviation-card {
+    border-top: 3px solid #d97706;
+}
+
+.deviation-card .operation-icon {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.deviation-card .operation-button {
+    background: #d97706;
+}
+
+.deviation-card .operation-button:hover {
+    background: #b45309;
+}
+
+
+/* =========================================================
+   CHANGE REQUEST
+   ========================================================= */
+
+.change-card {
+    border-top: 3px solid #7c3aed;
+}
+
+.change-card .operation-icon {
+    background: #ede9fe;
+    color: #7c3aed;
+}
+
+.change-card .operation-button {
+    background: #7c3aed;
+}
+
+.change-card .operation-button:hover {
+    background: #6d28d9;
+}
+
+
+/* =========================================================
+   REPORT
+   ========================================================= */
+
+.report-card {
+    border-top: 3px solid #16a34a;
+}
+
+.report-card .operation-icon {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.report-card .operation-button {
+    background: #16a34a;
+}
+
+.report-card .operation-button:hover {
+    background: #15803d;
+}
+
+
+/* =========================================================
+   DOCUMENT
+   ========================================================= */
+
+.document-card {
+    border-top: 3px solid #2563eb;
+}
+
+.document-card .operation-icon {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.document-card .operation-button {
+    background: #2563eb;
+}
+
+.document-card .operation-button:hover {
+    background: #1d4ed8;
+}
+
+
+/* =========================================================
+   OPERATION PAGES
+   ========================================================= */
+
+.operation-page {
+    min-height: 100vh;
+
+    background: #f5f7fb;
+
+    padding: 50px 20px;
+}
+
+.operation-container {
+    width: 100%;
+    max-width: 900px;
+
+    margin: 0 auto;
+
+    background: white;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 10px;
+
+    padding: 35px;
+
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+.operation-container h1 {
+    margin: 0;
+
+    font-size: 28px;
+
+    color: #172554;
+}
+
+.operation-description {
+    margin: 8px 0 25px;
+
+    font-size: 14px;
+
+    color: #64748b;
+}
+
+.operation-message {
+    padding: 25px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 8px;
+
+    margin-bottom: 25px;
+}
+
+.operation-message h3 {
+    margin: 0 0 8px;
+
+    font-size: 18px;
+
+    color: #1e293b;
+}
+
+.operation-message p {
+    margin: 0;
+
+    font-size: 14px;
+
+    color: #64748b;
+}
+
+.back-button {
+    display: inline-block;
+
+    padding: 10px 16px;
+
+    background: #2563eb;
+
+    color: white;
+
+    text-decoration: none;
+
+    border-radius: 6px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.back-button:hover {
+    background: #1d4ed8;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 950px) {
+
+    .main-content {
+        padding: 30px;
+    }
+
+    .pending-summary {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .total-section {
+        border-right: none;
+
+        border-bottom: 1px solid #e2e8f0;
+
+        padding-bottom: 12px;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 650px) {
+
+    .top-header {
+        height: 65px;
+
+        padding: 0 20px;
+    }
+
+    .brand-text p {
+        display: none;
+    }
+
+    .supervisor-user span {
+        display: none;
+    }
+
+    .main-content {
+        padding: 25px 18px;
+    }
+
+    .page-title h1 {
+        font-size: 24px;
+    }
+
+    .pending-summary {
+        grid-template-columns: 1fr;
+
+        padding: 16px;
+    }
+
+    .total-section {
+        border-bottom: 1px solid #e2e8f0;
+
+        padding-bottom: 14px;
+    }
+
+    .summary-item {
+        padding-left: 0;
+    }
+
+    .operations-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .operation-card {
+        min-height: 200px;
+    }
+}
