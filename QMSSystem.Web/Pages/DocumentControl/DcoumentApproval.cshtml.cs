@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace QMSSystem.Web.Pages.Documents;
+namespace frontend.Pages.DocumentControl;
 
 public class ApprovalModel : PageModel
 {

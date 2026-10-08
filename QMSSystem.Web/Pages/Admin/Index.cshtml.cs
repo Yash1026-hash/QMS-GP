@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using QMSSystem.Shared.Dtos.Deviations;
 using QMSSystem.Shared.Models;
 using QMSSystem.Shared.Dtos;
+using QMSSystem.Shared.DTOs;
 
 namespace QMSSystem.Web.Pages.Admin;
 

@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using QMSSystem.Shared.Models;
 using System.Net.Http.Json;
 
-namespace QMSSystem.Web.Pages.Documents;
+namespace QMSSystem.Web.Pages.Documents.Create;
 
-public class CreateModel : PageModel
+public class IndexModel : PageModel
 {
     private readonly IHttpClientFactory _httpClientFactory;
 
-    public CreateModel(IHttpClientFactory httpClientFactory)
+    public IndexModel(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
     }
