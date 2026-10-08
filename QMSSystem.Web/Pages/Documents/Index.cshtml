@@ -1,0 +1,88 @@
+@page
+@model QMSSystem.Web.Pages.Documents.IndexModel
+
+@{
+    ViewData["Title"] = "Documents";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Documents</h2>
+            <p class="text-muted">View and manage controlled documents.</p>
+        </div>
+
+        <a asp-page="/Documents/Create" class="btn btn-primary">
+            Create Document
+        </a>
+    </div>
+
+    @if (Model.Documents.Count == 0)
+    {
+        <div class="alert alert-info">
+            No documents found.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Document Number</th>
+                        <th>Title</th>
+                        <th>Department</th>
+                        <th>Version</th>
+                        <th>Status</th>
+                        <th>Created On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var document in Model.Documents)
+                    {
+                        <tr>
+                            <td>@document.DocumentNumber</td>
+
+                            <td>@document.Title</td>
+
+                            <td>@document.Department</td>
+
+                            <td>@document.DocumentVersion</td>
+
+                            <td>
+                                @document.Status
+                            </td>
+
+                            <td>
+                                @document.CreationOn.ToString("dd-MM-yyyy")
+                            </td>
+
+                            <td>
+                                <a asp-page="/Documents/Details"
+                                   asp-route-id="@document.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    View
+                                </a>
+
+                                @if (document.Status == "Approved")
+                                {
+                                    <a asp-page="/Documents/Revise"
+                                       asp-route-id="@document.Id"
+                                       class="btn btn-sm btn-outline-warning ms-1">
+                                        Revise
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+    }
+
+</div>

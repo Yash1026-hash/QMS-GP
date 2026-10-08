@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QMSSystem.Api.Data;
 using QMSSystem.Shared.Dtos;
+using QMSSystem.Shared.Models;
 
 namespace QMSSystem.Api.Services;
 
@@ -14,23 +15,25 @@ public sealed class UserStore(
     public UserDto? ValidateCredentials(string username, string password)
     {
         var normalizedUsername = username.Trim().ToUpperInvariant();
-        var user = context.Users
+        var account = context.Users
             .Include(account => account.UserRoles)
                 .ThenInclude(userRole => userRole.Role)
             .FirstOrDefault(account => account.Username.ToUpper() == normalizedUsername);
 
-        if (user is null ||
-            !user.IsActive ||
-            !string.Equals(user.RegistrationStatus, "Registered", StringComparison.OrdinalIgnoreCase))
+        if (account is null ||
+            !account.IsActive ||
+            !string.Equals(account.RegistrationStatus, "Registered", StringComparison.OrdinalIgnoreCase))
         {
             return null;
         }
 
-        if (user.Password.StartsWith(PasswordHashPrefix, StringComparison.Ordinal))
+        var user = ToUserDto(account);
+
+        if (account.Password.StartsWith(PasswordHashPrefix, StringComparison.Ordinal))
         {
             var verification = passwordHasher.VerifyHashedPassword(
                 user,
-                user.Password[PasswordHashPrefix.Length..],
+                account.Password[PasswordHashPrefix.Length..],
                 password);
 
             if (verification == PasswordVerificationResult.Failed)
@@ -40,23 +43,42 @@ public sealed class UserStore(
 
             if (verification == PasswordVerificationResult.SuccessRehashNeeded)
             {
-                user.Password = HashPassword(user, password);
+                account.Password = HashPassword(user, password);
                 context.SaveChanges();
             }
 
             return user;
         }
 
-        if (!string.Equals(user.Password, password, StringComparison.Ordinal))
+        if (!string.Equals(account.Password, password, StringComparison.Ordinal))
         {
             return null;
         }
 
-        user.Password = HashPassword(user, password);
+        account.Password = HashPassword(user, password);
         context.SaveChanges();
         return user;
     }
 
     private string HashPassword(UserDto user, string password) =>
         PasswordHashPrefix + passwordHasher.HashPassword(user, password);
+
+    private static UserDto ToUserDto(UserAccount account) =>
+        new()
+        {
+            UserId = account.UserId,
+            Username = account.Username,
+            Password = account.Password,
+            Role = account.Role,
+            FullName = account.FullName,
+            Email = account.Email,
+            RegistrationStatus = account.RegistrationStatus,
+            IsActive = account.IsActive,
+            CreatedAt = account.CreatedAt,
+            Roles = account.UserRoles
+                .Select(userRole => userRole.Role.Name)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList(),
+            UserRoles = account.UserRoles
+        };
 }
