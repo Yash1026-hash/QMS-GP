@@ -2,315 +2,145 @@
 @model QMSSystem.Web.Pages.Supervisor.IndexModel
 
 @{
-    ViewData["Title"] = "Supervisor Review";
+    ViewData["Title"] = "Supervisor Dashboard";
 }
 
-<link rel="stylesheet" href="~/css/supervisor.css" />
+<link rel="stylesheet"
+      href="~/css/supervisor.css"
+      asp-append-version="true" />
 
-<div class="supervisor-page">
+<div class="supervisor-dashboard">
 
-    <!-- HEADER -->
-    <header class="top-header">
+    <!-- PAGE HEADING -->
+    <div class="supervisor-heading">
 
-        <div class="qms-brand">
-
-            <div class="qms-icon">
-                ✓
-            </div>
-
-            <div class="brand-text">
-                <h2>QMS</h2>
-                <p>Quality Management System</p>
-            </div>
-
+        <div class="small-title">
+            QMS
         </div>
 
-        <div class="supervisor-user">
+        <h1>
+            Supervisor Dashboard
+        </h1>
 
-            <div class="user-circle">
-                S
+        <p>
+            Review and approve pending QMS activities.
+        </p>
+
+    </div>
+
+
+    <!-- SUPERVISOR OPERATIONS -->
+    <div class="supervisor-cards">
+
+
+        <!-- DEVIATION REVIEW -->
+        <div class="supervisor-card">
+
+            <div class="card-top">
+
+                <h3>
+                    Deviation Review
+                </h3>
+
+                <span class="operation-count">
+                    @Model.PendingDeviations
+                </span>
+
             </div>
-
-            <span>Supervisor</span>
-
-        </div>
-
-    </header>
-
-
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
-
-        <!-- PAGE TITLE -->
-        <div class="page-title">
-
-            <h1>Supervisor Review</h1>
 
             <p>
-                Review and approve pending QMS activities
+                Review and approve or reject pending deviation requests.
             </p>
 
-        </div>
-
-
-        <!-- PENDING SUMMARY -->
-        <div class="pending-summary">
-
-            <!-- TOTAL -->
-            <div class="total-section">
-
-                <div class="total-icon">
-                    ☷
-                </div>
-
-                <div>
-                    <h3>Total Pending Items</h3>
-
-                    <div class="total-count">
-                        @Model.TotalPending
-                    </div>
-
-                    <p>Across all operations</p>
-                </div>
-
-            </div>
-
-
-            <!-- DEVIATIONS -->
-            <div class="summary-item">
-
-                <div class="summary-icon deviation-icon">
-                    ⚠
-                </div>
-
-                <div>
-                    <h3>Deviations</h3>
-                    <strong>@Model.PendingDeviations</strong>
-                    <p>Pending</p>
-                </div>
-
-            </div>
-
-
-            <!-- CHANGE REQUESTS -->
-            <div class="summary-item">
-
-                <div class="summary-icon change-icon">
-                    ↻
-                </div>
-
-                <div>
-                    <h3>Change Requests</h3>
-                    <strong>@Model.PendingChangeRequests</strong>
-                    <p>Pending</p>
-                </div>
-
-            </div>
-
-
-            <!-- REPORTS -->
-            <div class="summary-item">
-
-                <div class="summary-icon report-icon">
-                    📋
-                </div>
-
-                <div>
-                    <h3>Reports</h3>
-                    <strong>@Model.PendingReports</strong>
-                    <p>Pending</p>
-                </div>
-
-            </div>
-
-
-            <!-- DOCUMENTS -->
-            <div class="summary-item">
-
-                <div class="summary-icon document-icon">
-                    📄
-                </div>
-
-                <div>
-                    <h3>Documents</h3>
-                    <strong>@Model.PendingDocuments</strong>
-                    <p>Pending</p>
-                </div>
-
-            </div>
+            <a asp-page="/Supervisor/DeviationReview"
+               class="supervisor-button">
+                Deviation Review
+            </a>
 
         </div>
 
 
-        <!-- OPERATIONS -->
-        <section class="operations-section">
+        <!-- CHANGE REQUEST APPROVAL -->
+        <div class="supervisor-card">
 
-            <div class="section-heading">
+            <div class="card-top">
 
-                <h2>Supervisor Operations</h2>
+                <h3>
+                    Change Request Approval
+                </h3>
 
-                <p>
-                    Select an operation to review pending activities.
-                </p>
-
-            </div>
-
-
-            <div class="operations-grid">
-
-
-                <!-- DEVIATION REVIEW -->
-                <div class="operation-card deviation-card">
-
-                    <div class="operation-top">
-
-                        <div class="operation-icon">
-                            ⚠
-                        </div>
-
-                        <div class="operation-count">
-                            @Model.PendingDeviations
-                        </div>
-
-                    </div>
-
-                    <div class="operation-content">
-
-                        <h3>Deviation Review</h3>
-
-                        <p>
-                            Review and approve or reject
-                            deviation requests.
-                        </p>
-
-                    </div>
-
-                    <a asp-page="/Supervisor/DeviationReview"
-                       class="operation-button">
-
-                        Review Now
-                        <span>→</span>
-
-                    </a>
-
-                </div>
-
-
-                <!-- CHANGE REQUEST APPROVAL -->
-                <div class="operation-card change-card">
-
-                    <div class="operation-top">
-
-                        <div class="operation-icon">
-                            ↻
-                        </div>
-
-                        <div class="operation-count">
-                            @Model.PendingChangeRequests
-                        </div>
-
-                    </div>
-
-                    <div class="operation-content">
-
-                        <h3>Change Request Approval</h3>
-
-                        <p>
-                            Review and approve or reject
-                            change requests.
-                        </p>
-
-                    </div>
-
-                    <a asp-page="/Supervisor/ChangeRequestApproval"
-                       class="operation-button">
-
-                        Review Now
-                        <span>→</span>
-
-                    </a>
-
-                </div>
-
-
-                <!-- DEVIATION REVIEW REPORT -->
-                <div class="operation-card report-card">
-
-                    <div class="operation-top">
-
-                        <div class="operation-icon">
-                            📋
-                        </div>
-
-                        <div class="operation-count">
-                            @Model.PendingReports
-                        </div>
-
-                    </div>
-
-                    <div class="operation-content">
-
-                        <h3>Deviation Review Report</h3>
-
-                        <p>
-                            Review deviation reports and
-                            take the required action.
-                        </p>
-
-                    </div>
-
-                    <a asp-page="/Supervisor/DeviationReviewReport"
-                       class="operation-button">
-
-                        Review Now
-                        <span>→</span>
-
-                    </a>
-
-                </div>
-
-
-                <!-- DOCUMENT REVIEW -->
-                <div class="operation-card document-card">
-
-                    <div class="operation-top">
-
-                        <div class="operation-icon">
-                            📄
-                        </div>
-
-                        <div class="operation-count">
-                            @Model.PendingDocuments
-                        </div>
-
-                    </div>
-
-                    <div class="operation-content">
-
-                        <h3>Document Review</h3>
-
-                        <p>
-                            Review SOP documents and
-                            document revisions.
-                        </p>
-
-                    </div>
-
-                    <a asp-page="/Supervisor/DocumentReview"
-                       class="operation-button">
-
-                        Review Now
-                        <span>→</span>
-
-                    </a>
-
-                </div>
-
+                <span class="operation-count">
+                    @Model.PendingChangeRequests
+                </span>
 
             </div>
 
-        </section>
+            <p>
+                Review and approve or reject pending change requests.
+            </p>
 
-    </main>
+            <a asp-page="/Supervisor/ChangeRequestApproval"
+               class="supervisor-button">
+                Change Request
+            </a>
+
+        </div>
+
+
+        <!-- DEVIATION REVIEW REPORT -->
+        <div class="supervisor-card">
+
+            <div class="card-top">
+
+                <h3>
+                    Deviation Review Report
+                </h3>
+
+                <span class="operation-count">
+                    @Model.PendingReports
+                </span>
+
+            </div>
+
+            <p>
+                Review pending deviation reports and take the required action.
+            </p>
+
+            <a asp-page="/Supervisor/DeviationReviewReport"
+               class="supervisor-button">
+                Deviation Report
+            </a>
+
+        </div>
+
+
+        <!-- DOCUMENT REVIEW -->
+        <div class="supervisor-card">
+
+            <div class="card-top">
+
+                <h3>
+                    Document Review
+                </h3>
+
+                <span class="operation-count">
+                    @Model.PendingDocuments
+                </span>
+
+            </div>
+
+            <p>
+                Review pending SOP documents and document revisions.
+            </p>
+
+            <a asp-page="/Supervisor/DocumentReview"
+               class="supervisor-button">
+                Document Review
+            </a>
+
+        </div>
+
+
+    </div>
 
 </div>
