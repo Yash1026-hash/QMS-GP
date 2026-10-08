@@ -61,9 +61,10 @@ public class LoginModel : PageModel
             {
                 new(ClaimTypes.Name, string.IsNullOrWhiteSpace(login.FullName) ? login.Username : login.FullName)
             };
-            claims.AddRange((login.Roles.Count > 0 ? login.Roles : [login.Role])
+            var roles = (login.Roles.Count > 0 ? login.Roles : [login.Role])
                 .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Select(role => new Claim(ClaimTypes.Role, role)));
+                .ToList();
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             var identity = new ClaimsIdentity(
                 claims,
@@ -73,7 +74,6 @@ public class LoginModel : PageModel
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(identity));
 
-            var roles = (login.Roles.Count > 0 ? login.Roles : [login.Role]);
             var isAdmin = roles.Any(r => string.Equals(r, "Admin", StringComparison.OrdinalIgnoreCase));
             var isSupervisor = roles.Any(r => string.Equals(r, "Supervisor", StringComparison.OrdinalIgnoreCase));
             var isOperator = roles.Any(r => string.Equals(r, "Operator", StringComparison.OrdinalIgnoreCase));
@@ -128,7 +128,7 @@ public class LoginModel : PageModel
                 return Redirect(ReturnUrl);
             }
 
-            return RedirectToPage("/Index");
+            return RedirectToPage("/Account/AccessDenied");
         }
         catch
         {
