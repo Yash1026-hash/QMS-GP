@@ -61,9 +61,10 @@ public class LoginModel : PageModel
             {
                 new(ClaimTypes.Name, string.IsNullOrWhiteSpace(login.FullName) ? login.Username : login.FullName)
             };
-            claims.AddRange((login.Roles.Count > 0 ? login.Roles : [login.Role])
+            var roles = (login.Roles.Count > 0 ? login.Roles : [login.Role])
                 .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Select(role => new Claim(ClaimTypes.Role, role)));
+                .ToList();
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             var identity = new ClaimsIdentity(
                 claims,
@@ -78,7 +79,15 @@ public class LoginModel : PageModel
                 return Redirect(ReturnUrl);
             }
 
-            return RedirectToPage("/Supervisor/Index");
+            var landingPage = roles.Contains("Admin", StringComparer.OrdinalIgnoreCase)
+                ? "/Admin/Index"
+                : roles.Contains("Operator", StringComparer.OrdinalIgnoreCase)
+                    ? "/Operator/Deviations/Index"
+                    : roles.Contains("Supervisor", StringComparer.OrdinalIgnoreCase)
+                        ? "/Supervisor/Index"
+                        : "/Account/AccessDenied";
+
+            return RedirectToPage(landingPage);
         }
         catch
         {
