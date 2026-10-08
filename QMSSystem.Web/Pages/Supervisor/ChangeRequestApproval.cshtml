@@ -5,34 +5,138 @@
     ViewData["Title"] = "Change Request Approval";
 }
 
-<link rel="stylesheet" href="~/css/supervisor.css" />
+<div class="container py-4">
 
-<div class="operation-page">
+    <!-- PAGE HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-    <div class="operation-container">
+        <div>
+            <h1 class="mb-1">
+                Change Request Approval
+            </h1>
 
-        <h1>Change Request Approval</h1>
-
-        <p class="operation-description">
-            Review and approve or reject pending change requests.
-        </p>
-
-        <div class="operation-message">
-
-            <h3>Welcome to Change Request Approval</h3>
-
-            <p>
-                The change request approval functionality will be implemented here.
+            <p class="text-muted mb-0">
+                Review and approve pending change requests.
             </p>
-
         </div>
 
+        <!-- BACK TO SUPERVISOR DASHBOARD -->
         <a asp-page="/Supervisor/Index"
-           class="back-button">
-
-            ← Back to Supervisor Home
-
+           class="btn btn-outline-secondary">
+            ← Back to Supervisor Dashboard
         </a>
+
+    </div>
+
+
+    <!-- CHANGE REQUEST TABLE -->
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <h5 class="card-title mb-3">
+                Change Requests Awaiting Approval
+            </h5>
+
+            @if (Model.ChangeRequests != null && Model.ChangeRequests.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover align-middle">
+
+                        <thead class="table-light">
+
+                            <tr>
+                                <th>
+                                    Request ID
+                                </th>
+
+                                <th>
+                                    Title
+                                </th>
+
+                                <th>
+                                    Document ID
+                                </th>
+
+                                <th>
+                                    Change Type
+                                </th>
+
+                                <th>
+                                    Requested By
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var request in Model.ChangeRequests)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @request.Id
+                                    </td>
+
+                                    <td>
+                                        @request.Title
+                                    </td>
+
+                                    <td>
+                                        @request.DocumentId
+                                    </td>
+
+                                    <td>
+                                        @request.ChangeType
+                                    </td>
+
+                                    <td>
+                                        @request.RequestedByUserId
+                                    </td>
+
+                                    <td>
+                                        <span class="badge bg-warning text-dark">
+                                            @request.Status
+                                        </span>
+                                    </td>
+
+                                    <td>
+
+                                        <a asp-page="/Supervisor/ChangeRequestApprovalReview"
+                                           asp-route-id="@request.Id"
+                                           class="btn btn-primary btn-sm">
+                                            View
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info mb-0">
+                    No pending change requests are available for approval.
+                </div>
+            }
+
+        </div>
 
     </div>
 
