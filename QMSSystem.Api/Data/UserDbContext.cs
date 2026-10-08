@@ -1,21 +1,22 @@
 using Microsoft.EntityFrameworkCore;
-using QMSSystem.Shared.Models;
+using QMSSystem.Shared.Dtos;
 using QMSSystem.Shared.DTOs;
+using QMSSystem.Shared.Models;
 
 namespace QMSSystem.Api.Data;
 
 public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(options)
 {
-    public DbSet<UserAccount> Users => Set<UserAccount>();
+    public DbSet<UserDto> Users => Set<UserDto>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
 
     public DbSet<OperatorChangeRequest> OperatorChangeRequests => Set<OperatorChangeRequest>();
 
     public DbSet<OperatorChangeRequestDeviation> OperatorChangeRequestDeviations => Set<OperatorChangeRequestDeviation>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-
         modelBuilder.Entity<OperatorChangeRequest>(entity =>
         {
             entity.ToTable("OperatorChangeRequests", "dbo");
@@ -56,11 +57,13 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbC
             entity.Property(deviation => deviation.DeviationId)
                 .IsRequired();
         });
-        modelBuilder.Entity<UserAccount>(entity =>
+
+        modelBuilder.Entity<UserDto>(entity =>
         {
             entity.ToTable("KS_RecallUsers", "dbo");
             entity.HasKey(user => user.UserId);
             entity.HasIndex(user => user.Username).IsUnique();
+            entity.Ignore(user => user.Roles);
         });
 
         modelBuilder.Entity<Role>(entity =>
