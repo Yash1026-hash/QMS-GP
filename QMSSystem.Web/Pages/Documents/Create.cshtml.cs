@@ -1,11 +1,9 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using QMSSystem.Shared.Models;
 
 namespace QMSSystem.Web.Pages.Documents;
 
-[Authorize]
 public class CreateModel : PageModel
 {
     [BindProperty]
@@ -21,23 +19,12 @@ public class CreateModel : PageModel
     public string? Message { get; set; }
     public bool IsSuccess { get; set; }
 
-    public IActionResult OnGet()
+    public void OnGet()
     {
-        if (User.IsInRole("Admin"))
-        {
-            return RedirectToPage("/Account/AccessDenied");
-        }
-
-        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (User.IsInRole("Admin"))
-        {
-            return RedirectToPage("/Account/AccessDenied");
-        }
-
         if (!ModelState.IsValid)
         {
             return Page();
