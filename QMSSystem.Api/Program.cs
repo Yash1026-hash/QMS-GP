@@ -1,12 +1,19 @@
+using System.IO;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QMSSystem.Api.Data;
 using QMSSystem.Api.Services;
+<<<<<<< HEAD
 using QMSSystem.Api.Services.Workflow;
 using Microsoft.AspNetCore.Diagnostics;
 // using Microsoft.EntityFrameworkCore;
 using QMSSystem.API.Data;
 
+=======
+>>>>>>> afc19d1a12ee148b0441544f7d16a2247edb4d04
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,14 +21,55 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var dataProtectionKeysPath = builder.Configuration["DataProtection:KeysPath"]
+    ?? Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "QMSSystem",
+        "DataProtectionKeys");
+Directory.CreateDirectory(dataProtectionKeysPath);
+builder.Services.AddDataProtection()
+    .SetApplicationName("QMSSystem")
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "QMS.Auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.Events.OnRedirectToLogin = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        };
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("OperatorOnly", policy => policy.RequireRole("Operator"));
+    options.AddPolicy("SupervisorOnly", policy => policy.RequireRole("Supervisor"));
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
         "Configure ConnectionStrings:DefaultConnection through user secrets or an environment variable.");
 builder.Services.AddDbContext<UserDbContext>(options =>
     options.UseSqlServer(connectionString));
-builder.Services.AddScoped<UserStore>();
+
 builder.Services.AddScoped<UserStore>();
 builder.Services.AddScoped<IPasswordHasher<QMSSystem.Shared.Models.UserAccount>, PasswordHasher<QMSSystem.Shared.Models.UserAccount>>();
+<<<<<<< HEAD
 // builder.Services.AddQmsWorkflow(connectionString);
 
 
@@ -29,6 +77,8 @@ builder.Services.AddScoped<IPasswordHasher<QMSSystem.Shared.Models.UserAccount>,
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
+=======
+>>>>>>> afc19d1a12ee148b0441544f7d16a2247edb4d04
 
 builder.Services.AddCors(options =>
 {
@@ -41,19 +91,6 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-
-// Local databases only: fill empty QMS tables with one record per workflow step.
-// Turn on with user secrets: Qms:SeedDemoData = true and Qms:DemoUsers:* = existing user ids.
-if (app.Environment.IsDevelopment() && app.Configuration.GetValue<bool>("Qms:SeedDemoData"))
-{
-    var demoUsers = app.Configuration.GetSection("Qms:DemoUsers").Get<DemoUserIds>()
-        ?? throw new InvalidOperationException("Set Qms:DemoUsers (Operator, SecondOperator, Supervisor, SecondSupervisor).");
-    using var scope = app.Services.CreateScope();
-    await DemoDataSeeder.SeedAsync(
-        scope.ServiceProvider.GetRequiredService<QmsDbContext>(),
-        demoUsers,
-        DateTime.UtcNow);
-}
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
@@ -69,16 +106,6 @@ app.UseExceptionHandler(exceptionHandlerApp =>
     {
         var exception = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>()?.Error;
 
-        // A broken workflow rule is the user's mistake, not a server error:
-        // return 409 with the rule's message so the page can show it.
-        if (exception is WorkflowException workflowException)
-        {
-            context.Response.StatusCode = StatusCodes.Status409Conflict;
-            context.Response.ContentType = "application/json";
-            await context.Response.WriteAsJsonAsync(new { message = workflowException.Message });
-            return;
-        }
-
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
         context.Response.ContentType = "application/json";
 
@@ -89,6 +116,8 @@ app.UseExceptionHandler(exceptionHandlerApp =>
         });
     });
 });
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

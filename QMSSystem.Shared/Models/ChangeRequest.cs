@@ -2,7 +2,7 @@ namespace QMSSystem.Shared.Models;
 
 using System.ComponentModel.DataAnnotations;
 
-public class ChangeRequestApproval
+public class ChangeRequest
 {
     public int Id { get; set; }
 

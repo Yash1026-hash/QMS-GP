@@ -2,7 +2,7 @@ namespace QMSSystem.Shared.Models;
 
 using System.ComponentModel.DataAnnotations;
 
-public class OperatorChangeRequest
+public class ChangeRequestForm
 {
     [Key]
     public int Id { get; set; }
