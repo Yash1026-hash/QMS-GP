@@ -1,0 +1,269 @@
+@page "{id:int}"
+@model QMSSystem.Web.Pages.Supervisor.ChangeRequestApprovalReviewModel
+
+@{
+    ViewData["Title"] = "Change Request Review";
+}
+
+<div class="container py-4">
+
+    <!-- PAGE HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1 class="mb-1">
+                Change Request Review
+            </h1>
+
+            <p class="text-muted mb-0">
+                Review the change request and submit your decision.
+            </p>
+        </div>
+
+        <a asp-page="/Supervisor/ChangeRequestApproval"
+           class="btn btn-outline-secondary">
+            ← Back to Change Requests
+        </a>
+
+    </div>
+
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            @Model.ErrorMessage
+        </div>
+    }
+
+
+    @if (Model.ChangeRequest != null)
+    {
+        <!-- CHANGE REQUEST DETAILS -->
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-header">
+                <h5 class="mb-0">
+                    Change Request Details
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row mb-3">
+
+                    <div class="col-md-6">
+                        <strong>Request ID</strong>
+                        <p class="form-control-plaintext">
+                            @Model.ChangeRequest.Id
+                        </p>
+                    </div>
+
+                    <div class="col-md-6">
+                        <strong>Document ID</strong>
+                        <p class="form-control-plaintext">
+                            @Model.ChangeRequest.DocumentId
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="row mb-3">
+
+                    <div class="col-md-6">
+                        <strong>Title</strong>
+                        <p class="form-control-plaintext">
+                            @Model.ChangeRequest.Title
+                        </p>
+                    </div>
+
+                    <div class="col-md-6">
+                        <strong>Change Type</strong>
+                        <p class="form-control-plaintext">
+                            @Model.ChangeRequest.ChangeType
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="row mb-3">
+
+                    <div class="col-md-6">
+                        <strong>Requested By</strong>
+                        <p class="form-control-plaintext">
+                            @Model.ChangeRequest.RequestedByUserId
+                        </p>
+                    </div>
+
+                    <div class="col-md-6">
+                        <strong>Requested Date</strong>
+                        <p class="form-control-plaintext">
+                            @Model.ChangeRequest.RequestedDate.ToString("dd-MM-yyyy HH:mm")
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <strong>Description</strong>
+
+                    <div class="border rounded p-3 mt-2 bg-light">
+                        @Model.ChangeRequest.Description
+                    </div>
+
+                </div>
+
+
+                <div>
+
+                    <strong>Status</strong>
+
+                    <div class="mt-2">
+                        <span class="badge bg-warning text-dark">
+                            @Model.ChangeRequest.Status
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SUPERVISOR DECISION -->
+        <form method="post">
+
+            <input type="hidden"
+                   asp-for="ChangeRequestId" />
+
+
+            <div class="card shadow-sm">
+
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        Supervisor Decision
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <!-- DECISION -->
+                    <div class="mb-4">
+
+                        <label class="form-label fw-bold">
+                            Decision
+                        </label>
+
+                        <div class="mt-2">
+
+                            <div class="form-check mb-2">
+
+                                <input class="form-check-input"
+                                       type="radio"
+                                       asp-for="Decision"
+                                       value="accept"
+                                       id="acceptDecision" />
+
+                                <label class="form-check-label"
+                                       for="acceptDecision">
+                                    Accept
+                                </label>
+
+                            </div>
+
+
+                            <div class="form-check">
+
+                                <input class="form-check-input"
+                                       type="radio"
+                                       asp-for="Decision"
+                                       value="reject"
+                                       id="rejectDecision" />
+
+                                <label class="form-check-label"
+                                       for="rejectDecision">
+                                    Reject
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <span asp-validation-for="Decision"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <!-- COMMENT -->
+                    <div class="mb-4">
+
+                        <label asp-for="DecisionComment"
+                               class="form-label fw-bold">
+                            Comments
+                        </label>
+
+                        <textarea asp-for="DecisionComment"
+                                  class="form-control"
+                                  rows="5"
+                                  maxlength="1000"
+                                  placeholder="Enter your comments or reason for the decision...">
+                        </textarea>
+
+                        <div class="form-text">
+                            Maximum 1000 characters.
+                        </div>
+
+                        <span asp-validation-for="DecisionComment"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <!-- SUBMIT -->
+                    <div class="d-flex justify-content-end gap-2">
+
+                        <a asp-page="/Supervisor/ChangeRequestApproval"
+                           class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Submit Decision
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            Change request could not be found.
+        </div>
+
+        <a asp-page="/Supervisor/ChangeRequestApproval"
+           class="btn btn-secondary">
+            ← Back to Change Requests
+        </a>
+    }
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}
