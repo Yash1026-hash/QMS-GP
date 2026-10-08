@@ -18,24 +18,22 @@
 
                 @if (User.IsInRole("Admin"))
                 {
-                    <a asp-page="/Admin/Index"
-                       class="badge rounded-pill text-bg-primary text-decoration-none">
+                    <span class="badge rounded-pill text-bg-primary">
                         Admin
-                    </a>
+                    </span>
                 }
                 else if (User.IsInRole("Operator"))
                 {
-                    <a asp-page="/Operator/Index"
+                    <a href="/Operator"
                        class="badge rounded-pill text-bg-secondary text-decoration-none">
                         Operator
                     </a>
                 }
                 else if (User.IsInRole("Supervisor"))
                 {
-                    <a asp-page="/Supervisor/Index"
-                       class="badge rounded-pill text-bg-info text-decoration-none">
+                    <span class="badge rounded-pill text-bg-info">
                         Supervisor
-                    </a>
+                    </span>
                 }
 
                 <form method="post"
