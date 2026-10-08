@@ -1,0 +1,48 @@
+<hr />
+
+<h5>Decision Information</h5>
+
+<div class="row mb-3">
+
+    <div class="col-md-6">
+        <strong>Decision Status</strong>
+        <p>
+            @switch (Model.Document.DecisionStatus)
+            {
+                case 0:
+                    <span class="badge bg-warning text-dark">Pending</span>
+                    break;
+
+                case 1:
+                    <span class="badge bg-success">Approved</span>
+                    break;
+
+                case 2:
+                    <span class="badge bg-danger">Rejected</span>
+                    break;
+            }
+        </p>
+    </div>
+
+    <div class="col-md-6">
+        <strong>Decision</strong>
+        <p>@(Model.Document.Decision ?? "-")</p>
+    </div>
+
+</div>
+
+<div class="row mb-3">
+
+    <div class="col-md-6">
+        <strong>Decision By</strong>
+        <p>@(Model.Document.DecisionBy?.ToString() ?? "-")</p>
+    </div>
+
+    <div class="col-md-6">
+        <strong>Decision Date</strong>
+        <p>
+            @(Model.Document.DecisionDate?.ToString("dd-MM-yyyy HH:mm") ?? "-")
+        </p>
+    </div>
+
+</div>
