@@ -78,7 +78,7 @@ public class LoginModel : PageModel
                 return Redirect(ReturnUrl);
             }
 
-            return RedirectToPage("/Index");
+            return RedirectToPage("/Supervisor/Index");
         }
         catch
         {

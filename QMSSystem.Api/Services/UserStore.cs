@@ -1,17 +1,17 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QMSSystem.Api.Data;
-using QMSSystem.Shared.Models;
+using QMSSystem.Shared.Dtos;
 
 namespace QMSSystem.Api.Services;
 
 public sealed class UserStore(
     UserDbContext context,
-    IPasswordHasher<UserAccount> passwordHasher)
+    IPasswordHasher<UserDto> passwordHasher)
 {
     private const string PasswordHashPrefix = "hash$v1$";
 
-    public UserAccount? ValidateCredentials(string username, string password)
+    public UserDto? ValidateCredentials(string username, string password)
     {
         var normalizedUsername = username.Trim().ToUpperInvariant();
         var user = context.Users
@@ -57,6 +57,6 @@ public sealed class UserStore(
         return user;
     }
 
-    private string HashPassword(UserAccount user, string password) =>
+    private string HashPassword(UserDto user, string password) =>
         PasswordHashPrefix + passwordHasher.HashPassword(user, password);
 }

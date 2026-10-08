@@ -6,7 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-  <ProjectReference Include="..\QMSSystem.Shared\QMSSystem.Shared.csproj" />
+    <ProjectReference Include="..\QMSSystem.Shared\QMSSystem.Shared.csproj" />
+    <Using Include="QMSSystem.Shared.DTOs" />
   </ItemGroup>
 
 </Project>
