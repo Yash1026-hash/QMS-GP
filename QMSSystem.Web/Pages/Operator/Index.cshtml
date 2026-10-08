@@ -1,0 +1,153 @@
+@page
+
+<style>
+    .operator-page {
+        padding: 40px 20px;
+    }
+
+    .operator-header {
+        margin-bottom: 35px;
+    }
+
+    .operator-header .eyebrow {
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        color: #6c757d;
+        margin-bottom: 8px;
+    }
+
+    .operator-header h1 {
+        margin: 0;
+        font-size: 32px;
+        font-weight: 600;
+    }
+
+    .operator-header p {
+        color: #6c757d;
+        margin-top: 8px;
+    }
+
+    .operator-actions {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+    }
+
+    .action-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 25px;
+        min-height: 210px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .action-card h3 {
+        margin: 0 0 12px;
+        font-size: 20px;
+    }
+
+    .action-card p {
+        color: #6c757d;
+        font-size: 14px;
+        line-height: 1.6;
+        flex-grow: 1;
+    }
+
+    .action-btn {
+        display: inline-block;
+        text-align: center;
+        padding: 10px 15px;
+        background: #212529;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: 0.2s;
+    }
+
+    .action-btn:hover {
+        background: #495057;
+        color: white;
+    }
+
+    @@media (max-width: 1000px) {
+        .operator-actions {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .operator-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="operator-page">
+
+    <div class="operator-header">
+        <p class="eyebrow">QMS</p>
+
+        <h1>Operator Dashboard</h1>
+
+        <p>
+            Manage documents, deviations, reports and change requests.
+        </p>
+    </div>
+
+    <div class="operator-actions">
+
+        <div class="action-card">
+            <h3>New Request</h3>
+
+            <p>
+                Create a new controlled document or SOP.
+            </p>
+
+            <a href="/Documents/Create" class="action-btn">
+                New Request
+            </a>
+        </div>
+
+        <div class="action-card">
+            <h3>Deviation Request</h3>
+
+            <p>
+                Raise a deviation against an active document.
+            </p>
+
+            <a href="/Deviations/Create" class="action-btn">
+                Deviation Request
+            </a>
+        </div>
+
+        <div class="action-card">
+            <h3>Deviation Report</h3>
+
+            <p>
+                Submit a report for an accepted deviation.
+            </p>
+
+            <a href="/Deviations/Report" class="action-btn">
+                Deviation Report
+            </a>
+        </div>
+
+        <div class="action-card">
+            <h3>Change Request</h3>
+
+            <p>
+                Create a change request from an accepted deviation.
+            </p>
+
+            <a href="/ChangeRequests/Edit" class="action-btn">
+                Change Request
+            </a>
+        </div>
+
+    </div>
+
+</div>
