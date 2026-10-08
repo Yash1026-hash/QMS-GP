@@ -26,7 +26,7 @@ dotnet user-secrets set "ConnectionStrings:DefaultConnection" "<your SQL Server 
 
 The Web app and API share the `QMS.Auth` authentication cookie and Data Protection keys. Locally, both use the current user's local application data directory. In deployments where they run under different identities or machines, configure `DataProtection:KeysPath` to the same protected, shared directory for both apps. Do not expose or commit the key directory.
 
-The API reads `dbo.KS_RecallUsers`, `dbo.KS_Roles`, and `dbo.KS_UserRoles`. The [login schema](database/login-schema.sql) creates any missing tables and the three role names; it does not create user accounts. Accounts must be active, registered, and assigned to roles in the database. There is no local-account fallback, migration, or registration flow, so login requires the database connection to be available.
+The API reads `dbo.KS_RecallUsers`, `dbo.KS_Roles`, and `dbo.KS_UserRoles`. Run the [login schema](database/login-schema.sql) against `TRG_CORE` to create any missing tables, roles, and local demo accounts. The demo credentials are `admin` / `admin123`, `operator` / `operator123`, and `supervisor` / `supervisor123`. The script adds accounts only when their usernames are missing; it does not overwrite existing accounts. These credentials are for local development only and must be changed before deployment. On a successful first login, the API replaces the demo plaintext password with a password hash. Accounts must be active, registered, and assigned to roles in the database. There is no local-account fallback, migration, or registration flow, so login requires the database connection to be available.
 
 ## Run locally
 
@@ -130,4 +130,3 @@ dotnet build QMSSystem.Web
 - `GET /api/changerequests` — List records API for change requests.
 - `GET /api/changerequests/{id}` — View details API for a change request (including child deviation link information).
 - `POST /api/changerequests/{id}/approve` — Approve or reject change request.
-

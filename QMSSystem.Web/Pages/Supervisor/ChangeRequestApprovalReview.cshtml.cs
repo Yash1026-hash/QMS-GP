@@ -128,7 +128,7 @@ public class ChangeRequestApprovalReviewModel : PageModel
         try
         {
             var client =
-                _httpClientFactory.CreateClient("ApiClient");
+                _httpClientFactory.CreateClient("QMSApi");
 
 
             // -------------------------------------------------
@@ -288,7 +288,7 @@ public class ChangeRequestApprovalReviewModel : PageModel
         try
         {
             var client =
-                _httpClientFactory.CreateClient("ApiClient");
+                _httpClientFactory.CreateClient("QMSApi");
 
             var response =
                 await client.GetAsync(

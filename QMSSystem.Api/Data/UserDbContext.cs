@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using QMSSystem.Shared.Dtos;
 using QMSSystem.Shared.DTOs;
 using QMSSystem.Shared.Models;
 
@@ -11,11 +12,19 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
     // USERS
     // =========================================================
 
+<<<<<<< HEAD
      public DbSet<UserAccount> Users => Set<UserAccount>();
+=======
+    public DbSet<UserAccount> Users => Set<UserAccount>();
+>>>>>>> 4f5bd791ffe1e0d1f2b9c3fd4e314b2b65788112
 
     public DbSet<Role> Roles => Set<Role>();
 
     public DbSet<UserRole> UserRoles => Set<UserRole>();
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4f5bd791ffe1e0d1f2b9c3fd4e314b2b65788112
 
     // =========================================================
     // DOCUMENTS
@@ -42,7 +51,6 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
 
     // =========================================================
     // DEVIATIONS
-    // EXISTING MODELS ONLY
     // =========================================================
 
     public DbSet<DeviationRequest> DeviationRequests
