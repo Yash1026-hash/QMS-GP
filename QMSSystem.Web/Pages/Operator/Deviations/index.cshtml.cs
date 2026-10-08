@@ -1,11 +1,9 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using QMSSystem.Shared.Dtos.Deviations;
 
 namespace QMSSystem.Web.Pages.Operator.Deviations;
 
-[AllowAnonymous]
 public class IndexModel : PageModel
 {
     public List<DeviationRequestDto> Deviations { get; private set; } = new();
