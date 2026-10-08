@@ -1,0 +1,415 @@
+@page
+@model QMSSystem.Web.Pages.Supervisor.DeviationReviewReportModel
+
+@{
+    ViewData["Title"] = "Deviation Review Report";
+}
+
+<div class="container mt-4">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Deviation Review Report</h2>
+            <p class="text-muted mb-0">
+                Supervisor final approval and report review
+            </p>
+        </div>
+
+        <a asp-page="/Supervisor/DeviationReview"
+           class="btn btn-secondary">
+            Back
+        </a>
+    </div>
+
+    <!-- Validation -->
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger mb-3">
+    </div>
+
+    <!-- Deviation Information -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+            <h5 class="mb-0">Deviation Information</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Deviation ID</label>
+                    <input asp-for="Report.DeviationId"
+                           class="form-control"
+                           readonly />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Document ID</label>
+                    <input asp-for="Report.DocumentId"
+                           class="form-control"
+                           readonly />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Attempt Number</label>
+                    <input asp-for="Report.AttemptNumber"
+                           class="form-control"
+                           readonly />
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Report ID</label>
+                    <input asp-for="Report.Id"
+                           class="form-control"
+                           readonly />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Status</label>
+
+                    @if (Model.Report.Status == 1)
+                    {
+                        <input class="form-control"
+                               value="Active"
+                               readonly />
+                    }
+                    else if (Model.Report.Status == 2)
+                    {
+                        <input class="form-control"
+                               value="Inactive"
+                               readonly />
+                    }
+                    else
+                    {
+                        <input class="form-control"
+                               value="Pending"
+                               readonly />
+                    }
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Complete Report -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+            <h5 class="mb-0">Report Details</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="mb-3">
+                <label class="form-label">Summary</label>
+
+                <textarea asp-for="Report.Summary"
+                          class="form-control"
+                          rows="5"
+                          readonly></textarea>
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Created By</label>
+
+                    <input asp-for="Report.CreatedBy"
+                           class="form-control"
+                           readonly />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Created Date</label>
+
+                    <input asp-for="Report.CreatedDate"
+                           class="form-control"
+                           readonly />
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Proof -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+            <h5 class="mb-0">Proof</h5>
+        </div>
+
+        <div class="card-body">
+
+            @if (Model.Report.Proof != null &&
+                 Model.Report.Proof.Length > 0)
+            {
+                <div class="alert alert-success mb-0">
+                    Proof file is available for this report.
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-secondary mb-0">
+                    No proof file is attached to this report.
+                </div>
+            }
+
+        </div>
+    </div>
+
+
+    @if (!Model.IsApproved && !Model.IsRejected)
+    {
+        <!-- FINAL APPROVAL -->
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-header">
+                <h5 class="mb-0">
+                    Final Approval
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="alert alert-warning">
+                    <strong>Final approval is mandatory.</strong>
+                    Please select Approve or Reject before completing
+                    the review.
+                </div>
+
+                <div class="mb-4">
+
+                    <label class="form-label">
+                        Decision
+                    </label>
+
+                    <div class="mt-2">
+
+                        <div class="form-check mb-2">
+
+                            <input class="form-check-input"
+                                   type="radio"
+                                   asp-for="Decision"
+                                   value="1"
+                                   id="approve" />
+
+                            <label class="form-check-label"
+                                   for="approve">
+
+                                <strong>Approve</strong>
+
+                            </label>
+
+                        </div>
+
+                        <div class="form-check">
+
+                            <input class="form-check-input"
+                                   type="radio"
+                                   asp-for="Decision"
+                                   value="2"
+                                   id="reject" />
+
+                            <label class="form-check-label"
+                                   for="reject">
+
+                                <strong>Reject</strong>
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                    <span asp-validation-for="Decision"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Decision Comments
+                    </label>
+
+                    <textarea asp-for="DecisionComments"
+                              class="form-control"
+                              rows="5"
+                              placeholder="Enter supervisor decision comments...">
+                    </textarea>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Submit -->
+        <div class="d-flex justify-content-end gap-2 mb-5">
+
+            <a asp-page="/Supervisor/DeviationReview"
+               class="btn btn-secondary">
+                Cancel
+            </a>
+
+            <button type="submit"
+                    class="btn btn-primary">
+                Submit Final Approval
+            </button>
+
+        </div>
+    }
+    else
+    {
+        <!-- FINAL APPROVAL RESULT -->
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-header">
+                <h5 class="mb-0">
+                    Final Approval
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                @if (Model.IsApproved)
+                {
+                    <div class="alert alert-success">
+                        <h5 class="mb-1">
+                            Final Approval Completed
+                        </h5>
+
+                        <div>
+                            The deviation report has been approved.
+                        </div>
+                    </div>
+                }
+                else if (Model.IsRejected)
+                {
+                    <div class="alert alert-danger">
+                        <h5 class="mb-1">
+                            Report Rejected
+                        </h5>
+
+                        <div>
+                            The deviation report was rejected.
+                        </div>
+                    </div>
+                }
+
+
+                <div class="row">
+
+                    <div class="col-md-4 mb-3">
+
+                        <strong>Decision</strong>
+
+                        <div class="mt-2">
+
+                            @if (Model.IsApproved)
+                            {
+                                <span class="badge bg-success fs-6">
+                                    Approved
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger fs-6">
+                                    Rejected
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-4 mb-3">
+
+                        <strong>Decision By</strong>
+
+                        <div class="mt-2">
+                            @Model.Report.DecisionBy
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-4 mb-3">
+
+                        <strong>Decision On</strong>
+
+                        <div class="mt-2">
+                            @Model.Report.DecisionOn
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <hr />
+
+
+                <div>
+
+                    <strong>Decision Comments</strong>
+
+                    <p class="mt-2 mb-0">
+                        @Model.Report.DecisionComments
+                    </p>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- View Report -->
+        @if (Model.IsApproved)
+        {
+            <div class="card shadow-sm mb-5">
+
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        Report Available
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <p class="mb-3">
+                        Final approval has been completed.
+                        The complete report can now be viewed.
+                    </p>
+
+                    <a asp-page="/Supervisor/DeviationReviewReport"
+                       asp-route-deviationId="@Model.Report.DeviationId"
+                       asp-route-documentId="@Model.Report.DocumentId"
+                       asp-route-attemptNumber="@Model.Report.AttemptNumber"
+                       class="btn btn-success">
+                        View Report
+                    </a>
+
+                </div>
+            </div>
+        }
+    }
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
