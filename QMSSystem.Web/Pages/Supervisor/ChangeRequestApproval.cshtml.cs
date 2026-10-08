@@ -22,7 +22,7 @@ public class ChangeRequestApprovalModel : PageModel
     {
         try
         {
-            var client = _httpClientFactory.CreateClient("ApiClient");
+            var client = _httpClientFactory.CreateClient("QMSApi");
 
             var response = await client.GetAsync(
                 "api/ChangeRequestApproval/pending");

@@ -24,7 +24,7 @@ public class IndexModel : PageModel
 
     public async Task OnGetAsync()
     {
-        var client = _httpClientFactory.CreateClient("ApiClient");
+        var client = _httpClientFactory.CreateClient("QMSApi");
 
         // Get pending deviations
         try

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using QMSSystem.Api.Data;
 using QMSSystem.Api.Services;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -60,6 +61,7 @@ builder.Services.AddDbContext<UserDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<UserStore>();
+builder.Services.AddScoped<DeviationReviewService>();
 builder.Services.AddScoped<IPasswordHasher<QMSSystem.Shared.Dtos.UserDto>, PasswordHasher<QMSSystem.Shared.Dtos.UserDto>>();
 
 builder.Services.AddCors(options =>
