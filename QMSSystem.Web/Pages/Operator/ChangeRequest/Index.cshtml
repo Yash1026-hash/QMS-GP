@@ -1,0 +1,107 @@
+@page
+@model QMSSystem.Web.Pages.Operator.ChangeRequestIndex.IndexModel
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .page-header h1 {
+        margin: 0;
+    }
+
+    .add-button {
+        background-color: #0d6efd;
+        color: white;
+        padding: 10px 16px;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+
+    .add-button:hover {
+        background-color: #0b5ed7;
+    }
+
+    .request-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+    }
+
+    .request-table th,
+    .request-table td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+    }
+
+    .request-table th {
+        background-color: #f2f2f2;
+    }
+
+    .details-link {
+        color: #0d6efd;
+        text-decoration: none;
+    }
+
+    .empty-message {
+        text-align: center !important;
+        color: #666;
+        padding: 25px !important;
+    }
+</style>
+
+<div class="page-header">
+    <h1>My Change Requests</h1>
+
+    <a href="/ChangeRequests/Edit" class="add-button">
+        + Add Request
+    </a>
+</div>
+
+<table class="request-table">
+    <thead>
+        <tr>
+            <th>Change Request</th>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Details</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @if (Model.ChangeRequests.Count > 0)
+        {
+            @foreach (var request in Model.ChangeRequests)
+            {
+                <tr>
+                    <td>@request.Title</td>
+
+                    <td>
+                        @request.RequestedDate.ToString("dd-MM-yyyy")
+                    </td>
+
+                    <td>@request.ChangeType</td>
+
+                    <td>
+                        <a href="/ChangeRequests/Details?id=@request.Id"
+                           class="details-link">
+                            View Details
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4" class="empty-message">
+                    No change requests found.
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
