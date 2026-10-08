@@ -18,7 +18,12 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbC
 
     public DbSet<OperatorChangeRequestDeviation> OperatorChangeRequestDeviations => Set<OperatorChangeRequestDeviation>();
 
+<<<<<<< Updated upstream
  
+=======
+    
+
+>>>>>>> Stashed changes
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<OperatorChangeRequest>(entity =>

@@ -1,10 +1,8 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace QMSSystem.Web.Pages.Operator.Deviations;
 
-[AllowAnonymous]
 public class DetailsModel : PageModel
 {
     [BindProperty(SupportsGet = true)]
