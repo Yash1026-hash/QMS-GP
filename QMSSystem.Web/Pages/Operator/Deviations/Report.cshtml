@@ -1,7 +1,7 @@
 @page "/Deviations/Report"
+@model QMSSystem.Web.Pages.Operator.Deviations.ReportModel
 @{
     ViewData["Title"] = "Deviation Report";
-    var createdDate = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm");
 }
 
 <style>
@@ -81,29 +81,24 @@
     </div>
 
     <form method="post" enctype="multipart/form-data">
-        <input type="hidden" name="Id" value="0" />
-        <input type="hidden" name="CreatedDate" value="@createdDate" />
-        <input type="hidden" name="CreatedBy" value="@User.Identity?.Name" />
-        <input type="hidden" name="Status" value="0" />
-
         <section class="report-card" aria-labelledby="deviation-details-heading">
             <h2 id="deviation-details-heading" class="form-section-title">Deviation and SOP</h2>
 
             <div class="row g-3 mb-4">
                 <div class="col-md-6">
                     <label for="DeviationId" class="form-label">Accepted deviation ID <span class="text-danger">*</span></label>
-                    <input id="DeviationId" name="DeviationId" type="number" class="form-control"
+                    <input asp-for="DeviationId" type="number" class="form-control"
                            min="1" required />
                 </div>
                 <div class="col-md-6">
                     <label for="DocumentId" class="form-label">SOP document ID <span class="text-danger">*</span></label>
-                    <input id="DocumentId" name="DocumentId" type="number" class="form-control"
+                    <input asp-for="DocumentId" type="number" class="form-control"
                            min="1" required />
                 </div>
                 <div class="col-md-6">
                     <label for="AttemptNumber" class="form-label">Attempt number <span class="text-danger">*</span></label>
-                    <input id="AttemptNumber" name="AttemptNumber" type="number" class="form-control"
-                           value="1" min="1" required />
+                    <input asp-for="AttemptNumber" type="number" class="form-control"
+                           min="1" required />
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Report status</label>
@@ -116,25 +111,25 @@
 
             <div class="mb-3">
                 <label for="Summary" class="form-label">Summary <span class="text-danger">*</span></label>
-                <textarea id="Summary" name="Summary" class="form-control" rows="5"
+                <textarea asp-for="Summary" class="form-control" rows="5"
                           maxlength="4000" required
                           placeholder="Describe the corrective work completed and how it addresses the deviation."></textarea>
             </div>
 
             <div class="mb-4">
                 <label for="Proof" class="form-label">Proof / supporting report <span class="text-danger">*</span></label>
-                <input id="Proof" name="Proof" type="file" class="form-control" required />
+                <input asp-for="Proof" type="file" class="form-control" required />
                 <div class="form-text">Attach the evidence file for this deviation report.</div>
             </div>
 
             <div class="row g-3 mb-4">
                 <div class="col-md-6">
                     <label class="form-label">Created by</label>
-                    <div class="system-value">@(User.Identity?.Name ?? "Signed-in user")</div>
+                    <div class="system-value">@(string.IsNullOrWhiteSpace(Model.CreatedBy) ? "Not signed in" : Model.CreatedBy)</div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Created date (UTC)</label>
-                    <div class="system-value">@createdDate.Replace("T", " ")</div>
+                    <div class="system-value">@Model.CreatedDate.ToString("yyyy-MM-dd HH:mm")</div>
                 </div>
             </div>
 
