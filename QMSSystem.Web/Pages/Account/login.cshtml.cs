@@ -128,7 +128,7 @@ public class LoginModel : PageModel
                 return Redirect(ReturnUrl);
             }
 
-            return RedirectToPage("/Account/AccessDenied");
+            return RedirectToPage("/Index");
         }
         catch
         {
