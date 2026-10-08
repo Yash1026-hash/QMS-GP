@@ -25,4 +25,13 @@ public class SupervisorController : ControllerBase
 
         return Ok(count);
     }
+
+    [HttpGet("deviations/count")]
+    public async Task<IActionResult> GetPendingDeviationCount()
+    {
+        int count = await _context.DeviationRequests
+            .CountAsync(x => x.Status == 0);
+
+        return Ok(count);
+    }
 }
