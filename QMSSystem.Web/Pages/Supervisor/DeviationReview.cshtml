@@ -17,15 +17,118 @@
             Review and approve or reject pending deviation requests.
         </p>
 
-        <div class="operation-message">
+        <!-- Search Section -->
+        <div class="review-section">
 
-            <h3>Welcome to Deviation Review</h3>
+            <h3>Search Deviation</h3>
 
-            <p>
-                The deviation review functionality will be implemented here.
-            </p>
+            <form method="get">
+
+                <label asp-for="SearchId">Deviation ID</label>
+
+                <input asp-for="SearchId"
+                       type="number"
+                       placeholder="Enter deviation ID" />
+
+                <button type="submit">
+                    Search
+                </button>
+
+            </form>
 
         </div>
+
+
+        <!-- Deviation Details -->
+        @if (Model.Deviation != null)
+        {
+            <div class="review-section">
+
+                <h3>Deviation Details</h3>
+
+                <div class="deviation-details">
+
+                    <p>
+                        <strong>ID:</strong>
+                        @Model.Deviation.Id
+                    </p>
+
+                    <p>
+                        <strong>Title:</strong>
+                        @Model.Deviation.Title
+                    </p>
+
+                    <p>
+                        <strong>Description:</strong>
+                        @Model.Deviation.Description
+                    </p>
+
+                    <p>
+                        <strong>Document ID:</strong>
+                        @Model.Deviation.DocumentId
+                    </p>
+
+                    <p>
+                        <strong>Priority:</strong>
+                        @Model.Deviation.Priority
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+                        @Model.Deviation.Status
+                    </p>
+
+                    <p>
+                        <strong>Created By:</strong>
+                        @Model.Deviation.CreatedBy
+                    </p>
+
+                    <p>
+                        <strong>Created Date:</strong>
+                        @Model.Deviation.CreatedDate
+                    </p>
+
+                </div>
+
+
+                <!-- Approval Section -->
+                <div class="approval-section">
+
+                    <h3>Supervisor Decision</h3>
+
+                    <form method="post">
+
+                        <input type="hidden"
+                               asp-for="Approval.DeviationRequestId" />
+
+                        <label asp-for="Approval.DecisionComments">
+                            Comments
+                        </label>
+
+                        <textarea asp-for="Approval.DecisionComments"
+                                  rows="5"
+                                  placeholder="Enter your comments"></textarea>
+
+                        <div class="approval-buttons">
+
+                            <button type="submit"
+                                    asp-page-handler="Approve">
+                                Approve
+                            </button>
+
+                            <button type="submit"
+                                    asp-page-handler="Reject">
+                                Reject
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+        }
 
         <a asp-page="/Supervisor/Index"
            class="back-button">
@@ -36,4 +139,4 @@
 
     </div>
 
-</div>9
+</div>
