@@ -26,40 +26,69 @@ public class IndexModel : PageModel
         Document.Status = "Pending";
     }
 
-    public async Task<IActionResult> OnPostAsync()
+    public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(Document.DocumentNumber))
+        {
+            ModelState.AddModelError("Document.DocumentNumber", "Enter a document number.");
+        }
+
+        if (string.IsNullOrWhiteSpace(Document.Title))
+        {
+            ModelState.AddModelError("Document.Title", "Enter a document title.");
+        }
+
+        if (string.IsNullOrWhiteSpace(Document.Department))
+        {
+            ModelState.AddModelError("Document.Department", "Enter a department.");
+        }
+
         if (DocumentFile == null || DocumentFile.Length == 0)
         {
             ModelState.AddModelError("DocumentFile", "Please select a file.");
+        }
+
+        if (!ModelState.IsValid)
+        {
             return Page();
         }
 
-        // Convert uploaded file → byte[]
         using var stream = new MemoryStream();
-
-        await DocumentFile.CopyToAsync(stream);
+        await DocumentFile!.CopyToAsync(stream, cancellationToken);
 
         Document.FileData = stream.ToArray();
         Document.FileName = DocumentFile.FileName;
         Document.ContentType = DocumentFile.ContentType;
-
-        // Example for now
+        Document.DocumentVersion = 0;
+        Document.Status = "Pending";
         Document.CreatedBy = 1;
+        Document.CreationOn = DateTime.UtcNow;
 
         var client = _httpClientFactory.CreateClient("QMSApi");
 
-        var response = await client.PostAsJsonAsync(
-            "api/Documents",
-            Document);
-
-        if (!response.IsSuccessStatusCode)
+        try
         {
-            var error = await response.Content.ReadAsStringAsync();
+            using var response = await client.PostAsJsonAsync(
+                "api/Documents",
+                Document,
+                cancellationToken);
 
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(cancellationToken);
+                var message = string.IsNullOrWhiteSpace(error)
+                    ? $"The API returned HTTP {(int)response.StatusCode} ({response.ReasonPhrase})."
+                    : $"The API returned HTTP {(int)response.StatusCode}: {error}";
+
+                ModelState.AddModelError(string.Empty, $"Failed to create document. {message}");
+                return Page();
+            }
+        }
+        catch (HttpRequestException)
+        {
             ModelState.AddModelError(
                 string.Empty,
-                $"Failed to create document: {error}");
-
+                "Could not connect to the API server. Check that the API is running and try again.");
             return Page();
         }
 
