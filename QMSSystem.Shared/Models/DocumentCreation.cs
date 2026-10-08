@@ -1,3 +1,5 @@
+
+//document model
 public class DocumentCreation
 {
     public int Id { get; set; }
@@ -13,7 +15,6 @@ public class DocumentCreation
     public string FileName { get; set; } = string.Empty;
     public string ContentType { get; set; } = string.Empty;
     public byte[] FileData { get; set; } = [];
-
     public int CreatedBy { get; set; }
     public DateTime CreationOn { get; set; }
 

@@ -1,5 +1,7 @@
 namespace QMSSystem.Shared.Models;
 
+
+//document dto
 public class Document
 {
     
@@ -15,7 +17,6 @@ public class Document
 
     public string Status { get; set; } = string.Empty;
 
-    
     public string FileName { get; set; } = string.Empty;
 
     public string ContentType { get; set; } = string.Empty;
