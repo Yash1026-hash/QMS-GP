@@ -8,6 +8,8 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbC
     public DbSet<UserAccount> Users => Set<UserAccount>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
+    //document table
+    public DbSet<DocumentCreation> DocumentCreations => Set<DocumentCreation>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -39,5 +41,50 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbC
                 .HasForeignKey(userRole => userRole.RoleId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+
+
+//document mapping
+ modelBuilder.Entity<DocumentCreation>(entity =>
+{
+    entity.ToTable("DocumentCreations", "dbo");
+
+    entity.HasKey(document => document.Id);
+
+    entity.Property(document => document.DocumentNumber)
+        .IsRequired()
+        .HasMaxLength(50);
+
+    entity.Property(document => document.Title)
+        .IsRequired()
+        .HasMaxLength(200);
+
+    entity.Property(document => document.Department)
+        .IsRequired()
+        .HasMaxLength(100);
+
+    entity.Property(document => document.DocumentVersion)
+        .IsRequired();
+
+    entity.Property(document => document.Status)
+        .IsRequired();
+
+    entity.Property(document => document.FileName)
+        .IsRequired();
+
+    entity.Property(document => document.ContentType)
+        .IsRequired();
+
+    entity.Property(document => document.FileData)
+        .IsRequired();
+
+    entity.Property(document => document.CreatedBy)
+        .IsRequired();
+
+    entity.Property(document => document.CreationOn)
+        .IsRequired();
+
+    entity.Property(document => document.Comment)
+    .IsRequired(false);    
+});
     }
 }
