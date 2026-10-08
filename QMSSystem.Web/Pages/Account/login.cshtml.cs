@@ -74,9 +74,6 @@ public class LoginModel : PageModel
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(identity));
 
-<<<<<<< Updated upstream
-            if (!string.IsNullOrWhiteSpace(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
-=======
             var isAdmin = roles.Any(r => string.Equals(r, "Admin", StringComparison.OrdinalIgnoreCase));
             var isSupervisor = roles.Any(r => string.Equals(r, "Supervisor", StringComparison.OrdinalIgnoreCase));
             var isOperator = roles.Any(r => string.Equals(r, "Operator", StringComparison.OrdinalIgnoreCase));
@@ -127,16 +124,11 @@ public class LoginModel : PageModel
                 Url.IsLocalUrl(ReturnUrl) &&
                 !ReturnUrl.StartsWith("/Account", StringComparison.OrdinalIgnoreCase) &&
                 !ReturnUrl.Equals("/", StringComparison.Ordinal))
->>>>>>> Stashed changes
             {
                 return Redirect(ReturnUrl);
             }
 
-<<<<<<< Updated upstream
-            return RedirectToPage("/Supervisor/Index");
-=======
-            return RedirectToPage("/Account/AccessDenied");
->>>>>>> Stashed changes
+            return RedirectToPage("/Index");
         }
         catch
         {
