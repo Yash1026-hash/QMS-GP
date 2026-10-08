@@ -61,6 +61,8 @@ builder.Services.AddDbContext<UserDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<UserStore>();
+builder.Services.AddScoped<DeviationService>();
+builder.Services.AddScoped<DeviationReportService>();
 builder.Services.AddScoped<DeviationReviewService>();
 builder.Services.AddScoped<IPasswordHasher<QMSSystem.Shared.Dtos.UserDto>, PasswordHasher<QMSSystem.Shared.Dtos.UserDto>>();
 
