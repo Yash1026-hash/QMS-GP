@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using QMSSystem.Shared.Dtos;
 using QMSSystem.Shared.DTOs;
 using QMSSystem.Shared.Models;
 
@@ -7,7 +6,7 @@ namespace QMSSystem.Api.Data;
 
 public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(options)
 {
-    public DbSet<UserDto> Users => Set<UserDto>();
+    public DbSet<UserAccount> Users => Set<UserAccount>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     //document table

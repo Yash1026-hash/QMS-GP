@@ -6,7 +6,19 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddRazorPages();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<QMSSystem.Web.Services.ApiCookieForwardingHandler>();
+
+builder.Services.AddHttpClient("QMSApi", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5070/");
+    client.DefaultRequestHeaders.Accept.Add(
+        new MediaTypeWithQualityHeaderValue("application/json"));
+}).AddHttpMessageHandler<QMSSystem.Web.Services.ApiCookieForwardingHandler>();
 
 var dataProtectionKeysPath = builder.Configuration["DataProtection:KeysPath"]
     ?? Path.Combine(
@@ -35,15 +47,6 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("SupervisorOnly", policy => policy.RequireRole("Supervisor"));
 });
 
-builder.Services.AddHttpClient("ApiClient", client =>
-{
-    client.BaseAddress = new Uri("http://localhost:5070");
-    client.DefaultRequestHeaders.Accept.Add(
-        new MediaTypeWithQualityHeaderValue("application/json"));
-}).AddHttpMessageHandler<QMSSystem.Web.Services.ApiCookieForwardingHandler>();
-
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddTransient<QMSSystem.Web.Services.ApiCookieForwardingHandler>();
 builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AllowAnonymousToPage("/Index");

@@ -63,6 +63,6 @@ public class IndexModel : PageModel
             return Page();
         }
 
-        return RedirectToPage("/Documents/Index");
+        return RedirectToPage("/Index");
     }
 }
