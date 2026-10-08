@@ -5,6 +5,8 @@ using QMSSystem.Shared.DTOs;
 
 namespace QMSSystem.Web.Pages.Admin.ChangeRequests;
 
+
+
 public class DetailsModel : PageModel
 {
     [BindProperty(SupportsGet = true)]
