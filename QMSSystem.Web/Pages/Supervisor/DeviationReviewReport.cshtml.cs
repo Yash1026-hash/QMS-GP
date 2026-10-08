@@ -42,10 +42,8 @@ public class DeviationReviewReportModel : PageModel
         Report.DocumentId = documentId;
         Report.AttemptNumber = attemptNumber;
 
-        // Initial report state.
         Report.Status = 0;
 
-        // No final approval yet.
         Report.Decision = null;
         Report.DecisionBy = string.Empty;
         Report.DecisionComments = string.Empty;
@@ -60,7 +58,6 @@ public class DeviationReviewReportModel : PageModel
 
     public IActionResult OnPost()
     {
-        // Final approval is mandatory.
         if (Decision != 1 && Decision != 2)
         {
             ModelState.AddModelError(
@@ -70,21 +67,16 @@ public class DeviationReviewReportModel : PageModel
             return Page();
         }
 
-        // Keep the selected decision in the report.
         Report.Decision = Decision;
 
-        // Supervisor who made the decision.
         Report.DecisionBy =
             User.Identity?.Name ?? "Supervisor";
 
-        // Date/time of final decision.
         Report.DecisionOn = DateTime.UtcNow;
 
-        // Supervisor comments.
         Report.DecisionComments =
             DecisionComments?.Trim() ?? string.Empty;
 
-        // Mark report as active after final approval.
         if (Decision == 1)
         {
             Report.Status = 1;
