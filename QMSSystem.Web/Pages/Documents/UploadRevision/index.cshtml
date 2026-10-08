@@ -1,0 +1,51 @@
+ @page "{id:int}"
+@model QMSSystem.Web.Pages.Documents.UploadRevisionModel
+@{
+    ViewData["Title"] = "Upload New Revision";
+}
+
+<div class="container mt-4" style="max-width:720px">
+    <h2 class="mb-1">Upload New Revision</h2>
+    <small class="text-muted d-block mb-4">
+        <code>@Model.Document.DocumentNumber</code> · @Model.Document.Title · 
+        current version v@Model.Document.DocumentVersion
+    </small>
+
+    <div class="alert alert-info">
+        Uploading a new file will:
+        <ul class="mb-0 mt-1">
+            <li>Save the current version (v@Model.Document.DocumentVersion) into history</li>
+            <li>Replace the live file with your new upload</li>
+            <li>Bump the version to v@(Model.Document.DocumentVersion + 1)</li>
+        </ul>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <div>@err.ErrorMessage</div>
+                }
+            </div>
+        }
+
+        <div class="mb-3">
+            <label class="form-label">New File</label>
+            <input asp-for="File" type="file" class="form-control" required />
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">Change Description</label>
+            <textarea asp-for="Comment" class="form-control" rows="3"
+                      placeholder="What changed in this revision?"></textarea>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a asp-page="./Details" asp-route-id="@Model.Document.Id"
+               class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Upload Revision</button>
+        </div>
+    </form>
+</div>
