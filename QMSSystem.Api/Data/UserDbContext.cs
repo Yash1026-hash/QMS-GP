@@ -10,15 +10,15 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbC
     public DbSet<UserDto> Users => Set<UserDto>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
-<<<<<<< HEAD
+
    public DbSet<DocumentHistory> DocumentHistories => Set<DocumentHistory>();
-=======
+ 
 
     public DbSet<OperatorChangeRequest> OperatorChangeRequests => Set<OperatorChangeRequest>();
 
     public DbSet<OperatorChangeRequestDeviation> OperatorChangeRequestDeviations => Set<OperatorChangeRequestDeviation>();
 
->>>>>>> 078405f82166203384df41baa0257a7aa8652d6d
+ 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<OperatorChangeRequest>(entity =>
