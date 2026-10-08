@@ -1,0 +1,200 @@
+@page "{id:int?}"
+@model QMSSystem.Web.Pages.Admin.Deviations.DetailsModel
+@{
+    ViewData["Title"] = $"Deviation Details #{Model.Deviation?.Id}";
+    ViewData["ActivePage"] = "Deviations";
+}
+
+<partial name="_AdminNav" />
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="h4 mb-1">Deviation Details</h2>
+        <p class="text-muted mb-0">Record, investigation reports, and linked change requests.</p>
+    </div>
+    <div>
+        <a asp-page="/Admin/Deviations/Index" class="btn btn-secondary btn-sm">Back to List</a>
+    </div>
+</div>
+
+@if (Model.Deviation == null)
+{
+    <div class="alert alert-info">
+        No deviation record selected or available. <a asp-page="/Admin/Deviations/Index">Return to deviations list.</a>
+    </div>
+}
+else
+{
+    <!-- Deviation Information -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <span class="fw-semibold">Deviation Information</span>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <strong>ID:</strong> #DEV-@Model.Deviation.Id
+                </div>
+                <div class="col-md-6">
+                    <strong>Document ID:</strong> 
+                    <a asp-page="/Admin/DocumentRegister/Details" asp-route-id="@Model.Deviation.DocumentId">#DOC-@Model.Deviation.DocumentId</a>
+                </div>
+                <div class="col-md-12">
+                    <strong>Title:</strong> @Model.Deviation.Title
+                </div>
+                <div class="col-md-12">
+                    <strong>Description:</strong>
+                    <div class="border rounded p-2 mt-1 bg-light">
+                        @Model.Deviation.Description
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <strong>Priority:</strong> @Model.Deviation.Priority
+                </div>
+                <div class="col-md-4">
+                    <strong>Status:</strong> @(Model.Deviation.Status switch { 0 => "Pending", 1 => "Active", _ => "Inactive" })
+                </div>
+                <div class="col-md-4">
+                    <strong>Logged By:</strong> @Model.Deviation.CreatedBy (@Model.Deviation.CreatedDate.ToString("yyyy-MM-dd"))
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supervisor Decision -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <span class="fw-semibold">Supervisor Decision</span>
+        </div>
+        <div class="card-body">
+            @if (Model.Deviation.Decision.HasValue)
+            {
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <strong>Decision:</strong> @(Model.Deviation.Decision == 1 ? "Approved" : "Rejected")
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Decision By:</strong> @Model.Deviation.DecisionBy
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Decision Date:</strong> @Model.Deviation.DecisionOn?.ToString("yyyy-MM-dd")
+                    </div>
+                    <div class="col-md-12">
+                        <strong>Comments:</strong>
+                        <div class="border rounded p-2 mt-1 bg-light">
+                            @Model.Deviation.DecisionComments
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <span class="text-muted">No decision recorded yet.</span>
+            }
+        </div>
+    </div>
+
+    <!-- Investigation Reports -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <span class="fw-semibold">Investigation Reports (@Model.Reports.Count)</span>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Reports.Count == 0)
+            {
+                <div class="p-3 text-muted">
+                    No investigation reports submitted for this deviation.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Attempt</th>
+                                <th>Summary</th>
+                                <th>Proof</th>
+                                <th>Status</th>
+                                <th>Decision</th>
+                                <th>Decision By</th>
+                                <th>Submitted By</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var rep in Model.Reports)
+                            {
+                                <tr>
+                                    <td>@rep.AttemptNumber</td>
+                                    <td>@rep.Summary</td>
+                                    <td>
+                                        @(rep.Proof != null && rep.Proof.Length > 0 ? "Attached" : "None")
+                                    </td>
+                                    <td>
+                                        @(rep.Status switch { 0 => "Pending", 1 => "Active", _ => "Inactive" })
+                                    </td>
+                                    <td>
+                                        @(rep.Decision switch { 1 => "Approved", 2 => "Rejected", _ => "Pending" })
+                                    </td>
+                                    <td>@rep.DecisionBy</td>
+                                    <td>@rep.CreatedBy</td>
+                                    <td>@rep.CreatedDate.ToString("yyyy-MM-dd")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Linked Change Requests -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <span class="fw-semibold">Linked Change Requests (@Model.LinkedChangeRequests.Count)</span>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.LinkedChangeRequests.Count == 0)
+            {
+                <div class="p-3 text-muted">
+                    No change requests linked to this deviation.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>CR ID</th>
+                                <th>Title</th>
+                                <th>Change Type</th>
+                                <th>Status</th>
+                                <th>Decision</th>
+                                <th>Requested By</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var cr in Model.LinkedChangeRequests)
+                            {
+                                <tr>
+                                    <td>#CR-@cr.Id</td>
+                                    <td>@cr.Title</td>
+                                    <td>@cr.ChangeType</td>
+                                    <td>@cr.Status</td>
+                                    <td>@(string.IsNullOrWhiteSpace(cr.Decision) ? "Pending" : cr.Decision)</td>
+                                    <td>User #@cr.RequestedByUserId</td>
+                                    <td class="text-end">
+                                        <a asp-page="/Admin/ChangeRequests/Details" asp-route-id="@cr.Id" class="btn btn-sm btn-outline-secondary">Details</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+}

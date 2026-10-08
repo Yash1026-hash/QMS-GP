@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace QMSSystem.Shared.Dtos;
+namespace QMSSystem.Shared.DTOs;
 
 public class OperatorChangeRequestDeviation
 {
