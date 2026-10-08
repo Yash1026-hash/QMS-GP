@@ -6,16 +6,26 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 
+var contentRoot = Directory.GetCurrentDirectory();
+var candidateRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+if (!Directory.Exists(Path.Combine(contentRoot, "Pages")) && Directory.Exists(Path.Combine(candidateRoot, "Pages")))
+{
+    contentRoot = candidateRoot;
+}
 
-
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddRazorPages();
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = contentRoot
+});
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<QMSSystem.Web.Services.ApiCookieForwardingHandler>();
 
 builder.Services.AddHttpClient("QMSApi", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5070/");
+    
+    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!
+);
     client.DefaultRequestHeaders.Accept.Add(
         new MediaTypeWithQualityHeaderValue("application/json"));
 }).AddHttpMessageHandler<QMSSystem.Web.Services.ApiCookieForwardingHandler>();

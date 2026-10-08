@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QMSSystem.Api.Data;
 using QMSSystem.Shared.Models;
 
@@ -29,4 +30,33 @@ public class DocumentsController : ControllerBase
 
         return Ok(document);
     }
+
+
+//get documents
+    [HttpGet]
+    public async Task<IActionResult> GetDocuments()
+    {
+        var documents = await _context.DocumentCreations
+            .AsNoTracking()
+            .ToListAsync();
+
+        return Ok(documents);
+    }
+
+    //Get details of document
+
+    [HttpGet("{id}")]
+public async Task<IActionResult> GetDocument(int id)
+{
+    var document = await _context.DocumentCreations
+        .AsNoTracking()
+        .FirstOrDefaultAsync(d => d.Id == id);
+
+    if (document == null)
+    {
+        return NotFound();
+    }
+
+    return Ok(document);
+}
 }

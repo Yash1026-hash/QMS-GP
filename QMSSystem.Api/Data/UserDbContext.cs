@@ -16,6 +16,8 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbC
 
     public DbSet<OperatorChangeRequestDeviation> OperatorChangeRequestDeviations => Set<OperatorChangeRequestDeviation>();
 
+    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<UserAccount>(entity =>
@@ -47,6 +49,7 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options) : DbC
                 .HasForeignKey(userRole => userRole.RoleId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+
 
 
 //document mapping
