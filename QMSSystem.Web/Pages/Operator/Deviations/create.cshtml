@@ -1,0 +1,201 @@
+@page "/Deviations/Create"
+@model QMSSystem.Web.Pages.Operator.Deviations.CreateModel
+@{
+    ViewData["Title"] = "Create Deviation";
+}
+
+<style>
+    .deviation-form-page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        color: #1e293b;
+    }
+
+    .deviation-form-header {
+        margin-bottom: 24px;
+    }
+
+    .deviation-form-header .eyebrow {
+        margin: 0 0 8px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+    }
+
+    .deviation-form-header h1 {
+        margin: 0 0 8px;
+        color: #0f172a;
+        font-size: 30px;
+    }
+
+    .deviation-form-header p {
+        margin: 0;
+        color: #64748b;
+    }
+
+    .deviation-form-card {
+        padding: 28px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, .05);
+    }
+
+    .deviation-form-card h2 {
+        margin: 0 0 18px;
+        color: #0f172a;
+        font-size: 18px;
+    }
+
+    .system-value {
+        min-height: 42px;
+        padding: 10px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 7px;
+        background: #f8fafc;
+        color: #475569;
+    }
+
+    .form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 24px;
+    }
+
+    .deviation-submit-button {
+        display: inline-flex;
+        min-height: 46px;
+        align-items: center;
+        justify-content: center;
+        padding: 0 24px;
+        border: 1px solid #1d4ed8;
+        border-radius: 7px;
+        background: #2563eb;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .deviation-submit-button:hover {
+        background: #1d4ed8;
+    }
+
+    @@media (max-width: 600px) {
+        .deviation-form-page {
+            padding: 24px 12px;
+        }
+
+        .deviation-form-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<main class="deviation-form-page">
+    <header class="deviation-form-header">
+        <p class="eyebrow">QMS / DEVIATIONS</p>
+        <h1>Create Deviation</h1>
+        <p>Provide the deviation details and set its initial priority.</p>
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Message))
+    {
+        <div class="alert @(Model.IsFormValid ? "alert-info" : "alert-danger")" role="status">
+            @Model.Message
+        </div>
+    }
+
+    <form method="post">
+        <input asp-for="Deviation.Id" type="hidden" />
+        @if (Model.Deviation.DocumentId > 0)
+        {
+            <input asp-for="Deviation.DocumentId" type="hidden" />
+        }
+        <input asp-for="Deviation.Status" type="hidden" />
+        <input asp-for="Deviation.CreatedBy" type="hidden" />
+        <input asp-for="Deviation.CreatedDate" type="hidden" />
+        <input asp-for="Deviation.Decision" type="hidden" />
+        <input asp-for="Deviation.DecisionBy" type="hidden" />
+        <input asp-for="Deviation.DecisionOn" type="hidden" />
+        <input asp-for="Deviation.DecisionComments" type="hidden" />
+
+        <section class="deviation-form-card" aria-labelledby="deviation-details-heading">
+            <h2 id="deviation-details-heading">Deviation details</h2>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    @if (Model.Deviation.DocumentId > 0)
+                    {
+                        <label class="form-label" for="SelectedDocument">Selected SOP</label>
+                        <div id="SelectedDocument" class="system-value">
+                            <span>Document #@Model.Deviation.DocumentId</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <label asp-for="Deviation.DocumentId" class="form-label">SOP document ID <span class="text-danger">*</span></label>
+                        <input asp-for="Deviation.DocumentId" class="form-control" type="number" min="1" required />
+                    }
+                    <span asp-validation-for="Deviation.DocumentId" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Deviation.Priority" class="form-label">Priority <span class="text-danger">*</span></label>
+                    <select asp-for="Deviation.Priority" class="form-select" required>
+                        <option value="">Select priority</option>
+                        <option value="Minor">Minor</option>
+                        <option value="Major">Major</option>
+                        <option value="Critical">Critical</option>
+                    </select>
+                    <span asp-validation-for="Deviation.Priority" class="text-danger"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Deviation.Title" class="form-label">Title <span class="text-danger">*</span></label>
+                    <input asp-for="Deviation.Title" class="form-control" maxlength="200" required
+                           placeholder="Briefly summarize the deviation" />
+                    <span asp-validation-for="Deviation.Title" class="text-danger"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Deviation.Description" class="form-label">Description <span class="text-danger">*</span></label>
+                    <textarea asp-for="Deviation.Description" class="form-control" rows="5" maxlength="4000" required
+                              placeholder="Describe what happened and how it differs from the SOP."></textarea>
+                    <span asp-validation-for="Deviation.Description" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Created by</label>
+                    <div class="system-value">@(Model.Deviation.CreatedBy is { Length: > 0 } ? Model.Deviation.CreatedBy : "Signed-in operator")</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Created date (UTC)</label>
+                    <div class="system-value">@Model.Deviation.CreatedDate.ToString("yyyy-MM-dd HH:mm")</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Initial status</label>
+                    <div class="system-value">Pending</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Review decision</label>
+                    <div class="system-value">Pending review</div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="deviation-submit-button">Submit Deviation Request</button>
+                <a href="/Deviations/SelectSop" class="btn btn-outline-secondary">Back to SOP selection</a>
+                <a href="/Deviations/Index" class="btn btn-link">Cancel</a>
+            </div>
+            <p class="form-text mt-3 mb-0">
+                The deviation form is not connected to a save service yet. Submitting validates the fields but does not create a stored record.
+            </p>
+        </section>
+    </form>
+</main>
