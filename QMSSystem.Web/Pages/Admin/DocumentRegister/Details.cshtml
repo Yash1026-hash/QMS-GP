@@ -1,0 +1,112 @@
+@page "{id:int?}"
+@model QMSSystem.Web.Pages.Admin.DocumentRegister.DetailsModel
+@{
+    ViewData["Title"] = $"Document Details - {Model.Document?.DocumentNumber}";
+    ViewData["ActivePage"] = "DocumentRegister";
+}
+
+<partial name="_AdminNav" />
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="h4 mb-1">Controlled Document Details</h2>
+        <p class="text-muted mb-0">Document metadata, file attachment, and approval status.</p>
+    </div>
+    <div>
+        <a asp-page="/Admin/DocumentRegister/Index" class="btn btn-secondary btn-sm">Back to Register</a>
+    </div>
+</div>
+
+@if (Model.Document == null)
+{
+    <div class="alert alert-info">
+        No document record selected or available. <a asp-page="/Admin/DocumentRegister/Index">Return to document register.</a>
+    </div>
+}
+else
+{
+    <!-- Document Metadata -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <span class="fw-semibold">Document Specifications</span>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <strong>Document Number:</strong> @Model.Document.DocumentNumber
+                </div>
+                <div class="col-md-4">
+                    <strong>Current Version:</strong> v@Model.Document.DocumentVersion
+                </div>
+                <div class="col-md-4">
+                    <strong>Status:</strong> @Model.Document.Status
+                </div>
+                <div class="col-md-6">
+                    <strong>Title:</strong> @Model.Document.Title
+                </div>
+                <div class="col-md-6">
+                    <strong>Department:</strong> @Model.Document.Department
+                </div>
+                <div class="col-md-6">
+                    <strong>Created By:</strong> User #@Model.Document.CreatedBy
+                </div>
+                <div class="col-md-6">
+                    <strong>Creation Date:</strong> @Model.Document.CreationOn.ToString("yyyy-MM-dd HH:mm")
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.Document.Comment))
+                {
+                    <div class="col-md-12">
+                        <strong>Comments / Change Summary:</strong>
+                        <div class="border rounded p-2 mt-1 bg-light">
+                            @Model.Document.Comment
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- File Attachment -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <span class="fw-semibold">File Details</span>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <strong>File Name:</strong> @(string.IsNullOrWhiteSpace(Model.Document.FileName) ? "None" : Model.Document.FileName)
+                </div>
+                <div class="col-md-6">
+                    <strong>Content Type:</strong> @(string.IsNullOrWhiteSpace(Model.Document.ContentType) ? "N/A" : Model.Document.ContentType)
+                </div>
+                <div class="col-md-6">
+                    <strong>File Size:</strong> @(Model.Document.FileData != null ? $"{Model.Document.FileData.Length} bytes" : "0 bytes")
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Decision / Review Record -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <span class="fw-semibold">Approval &amp; Decision</span>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <strong>Decision:</strong> @(string.IsNullOrWhiteSpace(Model.Document.Decision) ? "Pending" : Model.Document.Decision)
+                </div>
+                <div class="col-md-4">
+                    <strong>Decision By:</strong> @(Model.Document.DecisionBy.HasValue ? $"User #{Model.Document.DecisionBy.Value}" : "N/A")
+                </div>
+                <div class="col-md-4">
+                    <strong>Decision Date:</strong> @(Model.Document.DecisionDate.HasValue ? Model.Document.DecisionDate.Value.ToString("yyyy-MM-dd") : "N/A")
+                </div>
+                <div class="col-md-4">
+                    <strong>Decision Status:</strong> @Model.Document.DecisionStatus
+                </div>
+            </div>
+        </div>
+    </div>
+}
+

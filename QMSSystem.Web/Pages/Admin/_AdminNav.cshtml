@@ -1,0 +1,35 @@
+@{
+    var activePage = ViewData["ActivePage"]?.ToString() ?? "";
+}
+
+<div class="mb-4 border-bottom">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h3 class="h4 mb-0">Admin Portal</h3>
+    </div>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link @(activePage == "Dashboard" ? "active" : "")" asp-page="/Admin/Index">Dashboard</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(activePage == "Deviations" ? "active" : "")" asp-page="/Admin/Deviations/Index">Deviations</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(activePage == "ChangeRequests" ? "active" : "")" asp-page="/Admin/ChangeRequests/Index">Change Requests</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(activePage == "Users" ? "active" : "")" asp-page="/Admin/Users">Users</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(activePage == "MasterData" ? "active" : "")" asp-page="/Admin/MasterData">Master Data</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(activePage == "DocumentRegister" ? "active" : "")" asp-page="/Admin/DocumentRegister/Index">Documents</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(activePage == "AuditTrail" ? "active" : "")" asp-page="/Admin/AuditTrail">Audit Trail</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(activePage == "Reports" ? "active" : "")" asp-page="/Admin/Reports">Reports</a>
+        </li>
+    </ul>
+</div>
