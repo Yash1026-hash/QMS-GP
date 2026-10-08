@@ -1,0 +1,582 @@
+@page "/Deviations/Details"
+@model QMSSystem.Web.Pages.Operator.Deviations.DetailsModel
+
+@{
+    ViewData["Title"] = "Deviation Details";
+}
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        background-color: #f8fafc;
+        color: #1e293b;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .details-page {
+        min-height: 100vh;
+        background-color: #f8fafc;
+    }
+
+    /* =========================
+       TOP HEADER
+       ========================= */
+
+    .top-header {
+        height: 72px;
+        background-color: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 48px;
+    }
+
+    .qms-logo {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0f172a;
+        letter-spacing: 0.5px;
+    }
+
+    .sign-in {
+        color: #2563eb;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 500;
+    }
+
+    .sign-in:hover {
+        text-decoration: underline;
+    }
+
+    /* =========================
+       MAIN CONTAINER
+       ========================= */
+
+    .main-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 42px 48px 60px;
+    }
+
+    /* =========================
+       PAGE HEADER
+       ========================= */
+
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+
+    .page-title-section h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .page-title-section p {
+        margin: 0;
+        font-size: 15px;
+        color: #64748b;
+    }
+
+    .back-btn {
+        height: 40px;
+        padding: 0 16px;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        background-color: #ffffff;
+        color: #475569;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .back-btn:hover {
+        background-color: #f8fafc;
+    }
+
+    /* =========================
+       CARD
+       ========================= */
+
+    .details-card {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        margin-bottom: 24px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .card-body {
+        padding: 24px;
+    }
+
+    /* =========================
+       INFORMATION GRID
+       ========================= */
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .info-item.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .info-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .info-value {
+        min-height: 42px;
+        padding: 11px 13px;
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 7px;
+        color: #334155;
+        font-size: 14px;
+    }
+
+    .description-value {
+        min-height: 110px;
+        line-height: 1.6;
+    }
+
+    /* =========================
+       STATUS
+       ========================= */
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background-color: #fef3c7;
+        color: #92400e;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    /* =========================
+       PROOFS
+       ========================= */
+
+    .proof-box {
+        border: 1px dashed #cbd5e1;
+        border-radius: 8px;
+        padding: 32px;
+        text-align: center;
+        background-color: #f8fafc;
+    }
+
+    .proof-icon {
+        font-size: 28px;
+        margin-bottom: 10px;
+    }
+
+    .proof-box h4 {
+        margin: 0 0 6px;
+        font-size: 15px;
+        color: #334155;
+    }
+
+    .proof-box p {
+        margin: 0;
+        font-size: 13px;
+        color: #94a3b8;
+    }
+
+    /* =========================
+       INFORMATION NOTE
+       ========================= */
+
+    .decision-note {
+        padding: 18px;
+        border: 1px solid #dbeafe;
+        border-radius: 8px;
+        background-color: #eff6ff;
+    }
+
+    .decision-note h4 {
+        margin: 0 0 7px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #1e40af;
+    }
+
+    .decision-note p {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.6;
+        color: #475569;
+    }
+
+    /* =========================
+       RESPONSIVE
+       ========================= */
+
+    @@media (max-width: 700px) {
+
+        .top-header {
+            padding: 0 20px;
+        }
+
+        .main-container {
+            padding: 30px 20px 45px;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 18px;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .info-item.full-width {
+            grid-column: auto;
+        }
+    }
+</style>
+
+
+<div class="details-page">
+
+    <!-- =========================
+         TOP HEADER
+         ========================= -->
+
+    <header class="top-header">
+
+        <div class="qms-logo">
+            QMS
+        </div>
+
+        <a href="/Account/Login"
+           class="sign-in">
+            Sign in
+        </a>
+
+    </header>
+
+
+    <!-- =========================
+         MAIN CONTENT
+         ========================= -->
+
+    <main class="main-container">
+
+        <!-- PAGE HEADER -->
+
+        <div class="page-header">
+
+            <div class="page-title-section">
+
+                <h1>
+                    Deviation Details
+                </h1>
+
+                <p>
+                    View the complete information for this deviation.
+                </p>
+
+            </div>
+
+
+            <a href="/Deviations/Index"
+               class="back-btn">
+                ← Back to Deviations
+            </a>
+
+        </div>
+
+
+        <!-- =========================
+             DEVIATION INFORMATION
+             ========================= -->
+
+        <div class="details-card">
+
+            <div class="card-header">
+
+                <h2>
+                    Deviation Information
+                </h2>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="info-grid">
+
+                    <!-- DEVIATION ID -->
+
+                    <div class="info-item">
+
+                        <span class="info-label">
+                            Deviation ID
+                        </span>
+
+                        <div class="info-value">
+                            @(Model.Id == 0 ? "-" : Model.Id)
+                        </div>
+
+                    </div>
+
+
+                    <!-- STATUS -->
+
+                    <div class="info-item">
+
+                        <span class="info-label">
+                            Status
+                        </span>
+
+                        <div>
+                            <span class="status-badge">
+                                Pending
+                            </span>
+                        </div>
+
+                    </div>
+
+
+                    <!-- TITLE -->
+
+                    <div class="info-item full-width">
+
+                        <span class="info-label">
+                            Deviation Title
+                        </span>
+
+                        <div class="info-value">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <!-- RELATED SOP -->
+
+                    <div class="info-item">
+
+                        <span class="info-label">
+                            Related SOP
+                        </span>
+
+                        <div class="info-value">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <!-- SOP TITLE -->
+
+                    <div class="info-item">
+
+                        <span class="info-label">
+                            SOP Title
+                        </span>
+
+                        <div class="info-value">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <!-- PRIORITY -->
+
+                    <div class="info-item">
+
+                        <span class="info-label">
+                            Priority
+                        </span>
+
+                        <div class="info-value">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <!-- RAISED BY -->
+
+                    <div class="info-item">
+
+                        <span class="info-label">
+                            Raised By
+                        </span>
+
+                        <div class="info-value">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <!-- ISSUED DATE -->
+
+                    <div class="info-item">
+
+                        <span class="info-label">
+                            Issued Date
+                        </span>
+
+                        <div class="info-value">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <!-- DESCRIPTION -->
+
+                    <div class="info-item full-width">
+
+                        <span class="info-label">
+                            About Deviation
+                        </span>
+
+                        <div class="info-value description-value">
+                            -
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             PROOFS
+             ========================= -->
+
+        <div class="details-card">
+
+            <div class="card-header">
+
+                <h2>
+                    Proofs
+                </h2>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="proof-box">
+
+                    <div class="proof-icon">
+                        📎
+                    </div>
+
+                    <h4>
+                        No proofs available
+                    </h4>
+
+                    <p>
+                        Uploaded proof files will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             SUPERVISOR INFORMATION
+             ========================= -->
+
+        <div class="details-card">
+
+            <div class="card-header">
+
+                <h2>
+                    Supervisor Review
+                </h2>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="decision-note">
+
+                    <h4>
+                        Pending Supervisor Review
+                    </h4>
+
+                    <p>
+                        This deviation is currently awaiting supervisor review.
+                        The supervisor will review the deviation and record an
+                        approval or rejection decision separately.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- BOTTOM BACK BUTTON -->
+
+        <div style="margin-top: 28px;">
+
+            <a href="/Deviations/Index"
+               class="back-btn">
+                ← Back to Deviations
+            </a>
+
+        </div>
+
+    </main>
+
+</div>
