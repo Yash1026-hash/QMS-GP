@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using QMSSystem.Shared.Dtos;
 using QMSSystem.Shared.DTOs;
 using QMSSystem.Shared.Models;
 
@@ -7,21 +8,15 @@ namespace QMSSystem.Api.Data;
 public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
     : DbContext(options)
 {
-<<<<<<< HEAD
-    public DbSet<UserAccount> Users => Set<UserAccount>();
-=======
     // =========================================================
     // USERS
     // =========================================================
 
-    public DbSet<UserDto> Users => Set<UserDto>();
+    public DbSet<UserAccount> Users => Set<UserAccount>();
 
->>>>>>> 6a5dc9256714857f64a5492b6cfc39d8267f0b47
     public DbSet<Role> Roles => Set<Role>();
 
     public DbSet<UserRole> UserRoles => Set<UserRole>();
-    //document table
-    public DbSet<DocumentCreation> DocumentCreations => Set<DocumentCreation>();
 
 
     // =========================================================
@@ -49,7 +44,6 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
 
     // =========================================================
     // DEVIATIONS
-    // EXISTING MODELS ONLY
     // =========================================================
 
     public DbSet<DeviationRequest> DeviationRequests
@@ -61,9 +55,6 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-<<<<<<< HEAD
-        modelBuilder.Entity<UserAccount>(entity =>
-=======
         // =====================================================
         // OPERATOR CHANGE REQUEST
         // =====================================================
@@ -121,8 +112,7 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
         // USERS
         // =====================================================
 
-        modelBuilder.Entity<UserDto>(entity =>
->>>>>>> 6a5dc9256714857f64a5492b6cfc39d8267f0b47
+        modelBuilder.Entity<UserAccount>(entity =>
         {
             entity.ToTable("KS_RecallUsers", "dbo");
 
@@ -181,52 +171,6 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
         });
 
 
-<<<<<<< HEAD
-
-//document mapping
- modelBuilder.Entity<DocumentCreation>(entity =>
-{
-    entity.ToTable("DocumentCreations", "dbo");
-
-    entity.HasKey(document => document.Id);
-
-    entity.Property(document => document.DocumentNumber)
-        .IsRequired()
-        .HasMaxLength(50);
-
-    entity.Property(document => document.Title)
-        .IsRequired()
-        .HasMaxLength(200);
-
-    entity.Property(document => document.Department)
-        .IsRequired()
-        .HasMaxLength(100);
-
-    entity.Property(document => document.DocumentVersion)
-        .IsRequired();
-
-    entity.Property(document => document.Status)
-        .IsRequired();
-
-    entity.Property(document => document.FileName)
-        .IsRequired();
-
-    entity.Property(document => document.ContentType)
-        .IsRequired();
-
-    entity.Property(document => document.FileData)
-        .IsRequired();
-
-    entity.Property(document => document.CreatedBy)
-        .IsRequired();
-
-    entity.Property(document => document.CreationOn)
-        .IsRequired();
-
-    entity.Property(document => document.Comment)
-    .IsRequired(false);    
-});
-=======
         // =====================================================
         // DOCUMENT CREATIONS
         // dbo.DocumentCreations
@@ -477,6 +421,5 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
                 .HasForeignKey(report => report.DocumentId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
->>>>>>> 6a5dc9256714857f64a5492b6cfc39d8267f0b47
     }
 }
