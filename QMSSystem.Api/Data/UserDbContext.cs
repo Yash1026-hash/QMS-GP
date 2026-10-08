@@ -11,14 +11,11 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
     // USERS
     // =========================================================
 
-    public DbSet<UserDto> Users => Set<UserDto>();
+     public DbSet<UserAccount> Users => Set<UserAccount>();
 
     public DbSet<Role> Roles => Set<Role>();
 
     public DbSet<UserRole> UserRoles => Set<UserRole>();
-    //document table
-    public DbSet<DocumentCreation> DocumentCreations => Set<DocumentCreation>();
-
 
     // =========================================================
     // DOCUMENTS
@@ -114,7 +111,7 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
         // USERS
         // =====================================================
 
-        modelBuilder.Entity<UserDto>(entity =>
+        modelBuilder.Entity<UserAccount>(entity =>
         {
             entity.ToTable("KS_RecallUsers", "dbo");
 
