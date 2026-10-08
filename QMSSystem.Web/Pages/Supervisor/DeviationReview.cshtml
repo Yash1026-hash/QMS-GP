@@ -17,15 +17,12 @@
             Review and approve or reject pending deviation requests.
         </p>
 
-        <div class="operation-message">
-
-            <h3>Welcome to Deviation Review</h3>
-
-            <p>
-                The deviation review functionality will be implemented here.
-            </p>
-
-        </div>
+        @if (!string.IsNullOrEmpty(Model.Message))
+        {
+            <div class="operation-message">
+                @Model.Message
+            </div>
+        }
 
         <!-- Search Section -->
         <div class="review-section">
@@ -34,10 +31,13 @@
 
             <form method="get">
 
-                <label asp-for="SearchId">Deviation ID</label>
+                <label asp-for="SearchId">
+                    Deviation ID
+                </label>
 
                 <input asp-for="SearchId"
                        type="number"
+                       min="1"
                        placeholder="Enter deviation ID" />
 
                 <button type="submit">
@@ -102,40 +102,52 @@
 
 
                 <!-- Approval Section -->
-                <div class="approval-section">
+                @if (Model.Deviation.Status == 0)
+                {
+                    <div class="approval-section">
 
-                    <h3>Supervisor Decision</h3>
+                        <h3>Supervisor Decision</h3>
 
-                    <form method="post">
+                        <form method="post">
 
-                        <input type="hidden"
-                               asp-for="Approval.DeviationRequestId" />
+                            <input type="hidden"
+                                   asp-for="Approval.DeviationRequestId" />
 
-                        <label asp-for="Approval.DecisionComments">
-                            Comments
-                        </label>
+                            <label asp-for="Approval.DecisionComments">
+                                Comments
+                            </label>
 
-                        <textarea asp-for="Approval.DecisionComments"
-                                  rows="5"
-                                  placeholder="Enter your comments"></textarea>
+                            <textarea asp-for="Approval.DecisionComments"
+                                      rows="5"
+                                      placeholder="Enter your comments"></textarea>
 
-                        <div class="approval-buttons">
+                            <div class="approval-buttons">
 
-                            <button type="submit"
-                                    asp-page-handler="Approve">
-                                Approve
-                            </button>
+                                <button type="submit"
+                                        asp-page-handler="Approve">
+                                    Approve
+                                </button>
 
-                            <button type="submit"
-                                    asp-page-handler="Reject">
-                                Reject
-                            </button>
+                                <button type="submit"
+                                        asp-page-handler="Reject">
+                                    Reject
+                                </button>
 
-                        </div>
+                            </div>
 
-                    </form>
+                        </form>
 
-                </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="operation-message">
+
+                        This deviation has already been processed and
+                        cannot be reviewed again.
+
+                    </div>
+                }
 
             </div>
         }

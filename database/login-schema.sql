@@ -65,3 +65,43 @@ WHERE NOT EXISTS
     WHERE existingRole.Name = role.Name
 );
 GO
+
+-- Demo accounts for local development only. Existing accounts are not modified.
+INSERT INTO dbo.KS_RecallUsers
+    (Username, Password, Role, FullName, Email, RegistrationStatus, IsActive)
+SELECT demo.Username, demo.[Password], demo.[Role], demo.FullName, demo.Email, N'Registered', 1
+FROM (VALUES
+    (N'admin', N'admin123', N'Admin', N'QMS Admin', N'admin@qms.local'),
+    (N'operator', N'operator123', N'Operator', N'QMS Operator', N'operator@qms.local'),
+    (N'supervisor', N'supervisor123', N'Supervisor', N'QMS Supervisor', N'supervisor@qms.local')
+) AS demo(Username, [Password], [Role], FullName, Email)
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM dbo.KS_RecallUsers AS existingUser
+    WHERE UPPER(existingUser.Username) = UPPER(demo.Username)
+);
+GO
+
+INSERT INTO dbo.KS_UserRoles (UserId, RoleId)
+SELECT userAccount.UserId, role.RoleId
+FROM (VALUES
+    (N'admin', N'Admin'),
+    (N'operator', N'Operator'),
+    (N'supervisor', N'Supervisor')
+) AS demo(Username, RoleName)
+INNER JOIN dbo.KS_RecallUsers AS userAccount
+    ON UPPER(userAccount.Username) = UPPER(demo.Username)
+INNER JOIN dbo.KS_Roles AS role
+    ON role.Name = demo.RoleName
+WHERE userAccount.Role = demo.RoleName
+  AND userAccount.RegistrationStatus = N'Registered'
+  AND userAccount.IsActive = 1
+  AND NOT EXISTS
+(
+    SELECT 1
+    FROM dbo.KS_UserRoles AS existingUserRole
+    WHERE existingUserRole.UserId = userAccount.UserId
+      AND existingUserRole.RoleId = role.RoleId
+);
+GO
