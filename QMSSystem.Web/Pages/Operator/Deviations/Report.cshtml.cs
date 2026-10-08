@@ -13,8 +13,7 @@ public sealed class ReportModel : PageModel
     [BindProperty(SupportsGet = true)]
     public int? DocumentId { get; set; }
 
-    [BindProperty]
-    public int AttemptNumber { get; set; } = 1;
+    public int AttemptNumber { get; private set; } = 1;
 
     [BindProperty]
     public string Summary { get; set; } = string.Empty;
@@ -22,15 +21,17 @@ public sealed class ReportModel : PageModel
     [BindProperty]
     public IFormFile? Proof { get; set; }
 
-    public string CreatedBy { get; private set; } = string.Empty;
+    public string CreatedBy { get; private set; } = "Anonymous";
 
-    public DateTime CreatedDate { get; private set; }
+    public DateTime CreatedDate { get; private set; } = DateTime.UtcNow;
 
-    public int Status { get; } = 0;
+    public int Status { get; private set; }
 
     public void OnGet()
     {
-        CreatedBy = User.Identity?.Name ?? string.Empty;
+        CreatedBy = User.Identity?.IsAuthenticated == true
+            ? User.Identity.Name ?? "Unknown"
+            : "Anonymous";
         CreatedDate = DateTime.UtcNow;
     }
 }

@@ -60,7 +60,7 @@ builder.Services.AddDbContext<UserDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<UserStore>();
-builder.Services.AddScoped<IPasswordHasher<QMSSystem.Shared.Models.UserAccount>, PasswordHasher<QMSSystem.Shared.Models.UserAccount>>();
+builder.Services.AddScoped<IPasswordHasher<QMSSystem.Shared.Dtos.UserDto>, PasswordHasher<QMSSystem.Shared.Dtos.UserDto>>();
 
 builder.Services.AddCors(options =>
 {

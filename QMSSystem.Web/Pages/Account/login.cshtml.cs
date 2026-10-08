@@ -73,7 +73,57 @@ public class LoginModel : PageModel
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(identity));
 
-            if (!string.IsNullOrWhiteSpace(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+            var roles = (login.Roles.Count > 0 ? login.Roles : [login.Role]);
+            var isAdmin = roles.Any(r => string.Equals(r, "Admin", StringComparison.OrdinalIgnoreCase));
+            var isSupervisor = roles.Any(r => string.Equals(r, "Supervisor", StringComparison.OrdinalIgnoreCase));
+            var isOperator = roles.Any(r => string.Equals(r, "Operator", StringComparison.OrdinalIgnoreCase));
+
+            if (isAdmin)
+            {
+                if (!string.IsNullOrWhiteSpace(ReturnUrl) &&
+                    Url.IsLocalUrl(ReturnUrl) &&
+                    ReturnUrl.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Redirect(ReturnUrl);
+                }
+
+                return RedirectToPage("/Admin/Index");
+            }
+
+            if (isOperator)
+            {
+                if (!string.IsNullOrWhiteSpace(ReturnUrl) &&
+                    Url.IsLocalUrl(ReturnUrl) &&
+                    !ReturnUrl.StartsWith("/Supervisor", StringComparison.OrdinalIgnoreCase) &&
+                    !ReturnUrl.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase) &&
+                    !ReturnUrl.StartsWith("/Account", StringComparison.OrdinalIgnoreCase) &&
+                    !ReturnUrl.Equals("/", StringComparison.Ordinal))
+                {
+                    return Redirect(ReturnUrl);
+                }
+
+                return RedirectToPage("/Operator/Index");
+            }
+
+            if (isSupervisor)
+            {
+                if (!string.IsNullOrWhiteSpace(ReturnUrl) &&
+                    Url.IsLocalUrl(ReturnUrl) &&
+                    !ReturnUrl.StartsWith("/Operator", StringComparison.OrdinalIgnoreCase) &&
+                    !ReturnUrl.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase) &&
+                    !ReturnUrl.StartsWith("/Account", StringComparison.OrdinalIgnoreCase) &&
+                    !ReturnUrl.Equals("/", StringComparison.Ordinal))
+                {
+                    return Redirect(ReturnUrl);
+                }
+
+                return RedirectToPage("/Supervisor/Index");
+            }
+
+            if (!string.IsNullOrWhiteSpace(ReturnUrl) &&
+                Url.IsLocalUrl(ReturnUrl) &&
+                !ReturnUrl.StartsWith("/Account", StringComparison.OrdinalIgnoreCase) &&
+                !ReturnUrl.Equals("/", StringComparison.Ordinal))
             {
                 return Redirect(ReturnUrl);
             }

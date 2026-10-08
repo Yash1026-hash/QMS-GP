@@ -1,0 +1,102 @@
+@page
+@model QMSSystem.Web.Pages.Admin.DocumentRegister.IndexModel
+@{
+    ViewData["Title"] = "Document Register";
+    ViewData["ActivePage"] = "DocumentRegister";
+}
+
+<partial name="_AdminNav" />
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="h4 mb-1">Document Register</h2>
+        <p class="text-muted mb-0">Master register of controlled documents, SOPs, and revisions.</p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small">Search</label>
+                <input type="text" name="SearchQuery" value="@Model.SearchQuery" class="form-control" placeholder="Document number, title, department..." />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Status</label>
+                <select name="StatusFilter" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="Active" selected="@(Model.StatusFilter == "Active")">Active</option>
+                    <option value="Pending" selected="@(Model.StatusFilter == "Pending")">Pending</option>
+                    <option value="Inactive" selected="@(Model.StatusFilter == "Inactive")">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Department</label>
+                <input type="text" name="DepartmentFilter" value="@Model.DepartmentFilter" class="form-control" placeholder="Department..." />
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1">Filter</button>
+                <a asp-page="/Admin/DocumentRegister/Index" class="btn btn-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Documents Table -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <span class="fw-semibold">Registered Documents (@Model.Documents.Count)</span>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Documents.Count == 0)
+        {
+            <div class="p-4 text-center text-muted">
+                No documents found in the register.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Doc Number</th>
+                            <th>Title</th>
+                            <th>Department</th>
+                            <th>Version</th>
+                            <th>File</th>
+                            <th>Status</th>
+                            <th>Decision</th>
+                            <th>Created By</th>
+                            <th>Date</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var doc in Model.Documents)
+                        {
+                            <tr>
+                                <td><strong>@doc.DocumentNumber</strong></td>
+                                <td>@doc.Title</td>
+                                <td>@doc.Department</td>
+                                <td>v@(doc.DocumentVersion)</td>
+                                <td>
+                                    <span class="small text-muted">@doc.FileName</span>
+                                </td>
+                                <td>@doc.Status</td>
+                                <td>@(string.IsNullOrWhiteSpace(doc.Decision) ? "Pending" : doc.Decision)</td>
+                                <td>User #@doc.CreatedBy</td>
+                                <td>@doc.CreationOn.ToString("yyyy-MM-dd")</td>
+                                <td class="text-end">
+                                    <a asp-page="/Admin/DocumentRegister/Details" asp-route-id="@doc.Id" class="btn btn-sm btn-outline-secondary">Details</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+

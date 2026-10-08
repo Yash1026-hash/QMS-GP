@@ -6,140 +6,395 @@
 
 <style>
     .report-page {
-        max-width: 900px;
+        max-width: 1060px;
         margin: 0 auto;
-        padding: 40px 20px;
+        padding: 48px 24px 64px;
     }
 
     .report-header {
-        margin-bottom: 28px;
+        margin-bottom: 30px;
     }
 
     .report-header .eyebrow {
-        margin-bottom: 8px;
-        color: #6c757d;
-        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 12px;
+        color: #667085;
+        font-size: 12px;
         font-weight: 600;
-        letter-spacing: 2px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+    }
+
+    .eyebrow-mark {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #167d8d;
     }
 
     .report-header h1 {
         margin: 0;
-        font-size: 32px;
-        font-weight: 600;
+        color: #152536;
+        font-size: clamp(30px, 4vw, 40px);
+        font-weight: 700;
+        letter-spacing: -1.2px;
     }
 
     .report-header p {
-        margin-top: 8px;
-        color: #6c757d;
+        max-width: 650px;
+        margin: 10px 0 0;
+        color: #667085;
+        font-size: 16px;
+        line-height: 1.6;
     }
 
-    .report-card {
-        padding: 28px;
+    .report-progress {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 22px;
+        padding: 16px 20px;
         background: #fff;
-        border: 1px solid #e0e0e0;
+        border: 1px solid #e5eaf0;
         border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
-    .form-section-title {
-        margin: 0 0 18px;
-        font-size: 18px;
+    .progress-step {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #344054;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .progress-step-number {
+        display: inline-grid;
+        width: 28px;
+        height: 28px;
+        place-items: center;
+        border-radius: 50%;
+        color: #fff;
+        background: #167d8d;
+        font-size: 12px;
+    }
+
+    .progress-step-number.pending {
+        color: #667085;
+        background: #eef1f5;
+    }
+
+    .progress-connector {
+        width: 52px;
+        height: 1px;
+        background: #d9e0e7;
+    }
+
+    .report-notice {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 22px;
+        padding: 16px 18px;
+        color: #475467;
+        background: #f0f8fa;
+        border: 1px solid #d4e9ed;
+        border-radius: 12px;
+        font-size: 14px;
+        line-height: 1.55;
+    }
+
+    .report-notice svg {
+        flex: 0 0 auto;
+        margin-top: 1px;
+        color: #167d8d;
+    }
+
+    .report-notice strong {
+        color: #1e4f59;
+    }
+
+    .report-form {
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid #e5eaf0;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(21, 37, 54, 0.06);
+    }
+
+    .form-section {
+        padding: 28px 30px;
+    }
+
+    .form-section + .form-section {
+        border-top: 1px solid #edf0f3;
+    }
+
+    .section-heading {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        margin-bottom: 22px;
+    }
+
+    .section-icon {
+        display: grid;
+        flex: 0 0 38px;
+        width: 38px;
+        height: 38px;
+        place-items: center;
+        color: #167d8d;
+        background: #eaf5f6;
+        border-radius: 11px;
+    }
+
+    .section-heading h2 {
+        margin: 1px 0 4px;
+        color: #152536;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .section-heading p {
+        margin: 0;
+        color: #7a8695;
+        font-size: 13px;
+    }
+
+    .report-page .form-label {
+        margin-bottom: 8px;
+        color: #344054;
+        font-size: 13px;
         font-weight: 600;
     }
 
-    .system-value {
-        min-height: 38px;
-        padding: 8px 12px;
-        color: #495057;
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 6px;
+    .required-mark {
+        color: #c03947;
+    }
+
+    .report-page .form-control {
+        min-height: 46px;
+        border-color: #d9e0e7;
+        border-radius: 8px;
+    }
+
+    .report-page .form-control:focus {
+        border-color: #167d8d;
+        box-shadow: 0 0 0 3px rgba(22, 125, 141, 0.13);
+    }
+
+    .report-page textarea.form-control {
+        min-height: 145px;
+        resize: vertical;
+    }
+
+    .field-hint {
+        margin-top: 7px;
+        color: #7a8695;
+        font-size: 12px;
+        line-height: 1.45;
+    }
+
+    .proof-upload {
+        padding: 20px;
+        background: #fbfcfd;
+        border: 1px dashed #b8c5d1;
+        border-radius: 12px;
+    }
+
+    .proof-upload .form-control {
+        min-height: auto;
+        padding: 10px;
+        background: #fff;
+    }
+
+    .proof-upload .form-text {
+        margin-top: 9px;
+        color: #7a8695;
+        font-size: 12px;
+    }
+
+    .report-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 20px 30px;
+        background: #fbfcfd;
+        border-top: 1px solid #edf0f3;
+    }
+
+    .footer-note {
+        max-width: 440px;
+        margin: 0;
+        color: #7a8695;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .report-actions {
+        display: flex;
+        flex: 0 0 auto;
+        gap: 10px;
+    }
+
+    .report-actions .btn {
+        min-height: 42px;
+        padding: 9px 18px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .report-actions .btn-primary {
+        background: #167d8d;
+        border-color: #167d8d;
+    }
+
+    .report-actions .btn-primary:disabled {
+        color: #fff;
+        background: #9fbfc4;
+        border-color: #9fbfc4;
+    }
+
+    .report-actions .btn-outline-secondary {
+        color: #475467;
+        border-color: #d0d8e0;
     }
 
     @@media (max-width: 600px) {
         .report-page {
-            padding: 24px 12px;
+            padding: 30px 14px 44px;
         }
 
-        .report-card {
-            padding: 20px;
+        .report-progress {
+            gap: 8px;
+            padding: 13px;
+        }
+
+        .progress-step {
+            gap: 7px;
+            font-size: 11px;
+        }
+
+        .progress-connector {
+            flex: 1 1 auto;
+            width: auto;
+        }
+
+        .form-section {
+            padding: 22px 18px;
+        }
+
+        .report-footer {
+            align-items: stretch;
+            flex-direction: column-reverse;
+            padding: 18px;
+        }
+
+        .report-actions {
+            width: 100%;
+        }
+
+        .report-actions .btn {
+            flex: 1;
         }
     }
 </style>
 
 <main class="report-page">
     <header class="report-header">
-        <p class="eyebrow">QMS / DEVIATIONS</p>
+        <p class="eyebrow"><span class="eyebrow-mark"></span> QMS / DEVIATIONS</p>
         <h1>Deviation Report</h1>
         <p>Upload evidence and summarize the corrective work for an accepted deviation.</p>
     </header>
 
-    <div class="alert alert-info" role="status">
-        Accepted SOP lookup and report submission are not connected yet. Enter the deviation and SOP
-        document IDs below; these can be pre-filled from the accepted-deviation selection flow when it is available.
+    <nav class="report-progress" aria-label="Report steps">
+        <div class="progress-step">
+            <span class="progress-step-number">01</span>
+            <span>Deviation details</span>
+        </div>
+        <span class="progress-connector" aria-hidden="true"></span>
+        <div class="progress-step">
+            <span class="progress-step-number pending">02</span>
+            <span>Report &amp; evidence</span>
+        </div>
+    </nav>
+
+    <div class="report-notice" role="status">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
+            <path d="M12 11v5m0-8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        <span><strong>Selection and submission are not connected yet.</strong> Enter the accepted deviation and SOP document IDs for now. They can be filled automatically when the SOP selection flow is available.</span>
     </div>
 
-    <form method="post" enctype="multipart/form-data">
-        <section class="report-card" aria-labelledby="deviation-details-heading">
-            <h2 id="deviation-details-heading" class="form-section-title">Deviation and SOP</h2>
-
-            <div class="row g-3 mb-4">
-                <div class="col-md-6">
-                    <label for="DeviationId" class="form-label">Accepted deviation ID <span class="text-danger">*</span></label>
-                    <input asp-for="DeviationId" type="number" class="form-control"
-                           min="1" required />
-                </div>
-                <div class="col-md-6">
-                    <label for="DocumentId" class="form-label">SOP document ID <span class="text-danger">*</span></label>
-                    <input asp-for="DocumentId" type="number" class="form-control"
-                           min="1" required />
-                </div>
-                <div class="col-md-6">
-                    <label for="AttemptNumber" class="form-label">Attempt number <span class="text-danger">*</span></label>
-                    <input asp-for="AttemptNumber" type="number" class="form-control"
-                           min="1" required />
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Report status</label>
-                    <div class="system-value">Pending</div>
-                    <div class="form-text">New reports are submitted with status 0 (Pending).</div>
+    <form method="post" enctype="multipart/form-data" class="report-form">
+        <section class="form-section" aria-labelledby="deviation-details-heading">
+            <div class="section-heading">
+                <span class="section-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M7 3.75h7l4 4v12.5H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                        <path d="M14 4v4h4M9 13h6m-6 3.5h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                    </svg>
+                </span>
+                <div>
+                    <h2 id="deviation-details-heading">Deviation and SOP</h2>
+                    <p>Identify the accepted deviation and the document it relates to.</p>
                 </div>
             </div>
 
-            <h2 class="form-section-title">Report and proof</h2>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label asp-for="DeviationId" class="form-label">Accepted deviation ID <span class="required-mark">*</span></label>
+                    <input asp-for="DeviationId" type="number" class="form-control" min="1" required />
+                    <div class="field-hint">The ID of the deviation that has been accepted.</div>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="DocumentId" class="form-label">SOP document ID <span class="required-mark">*</span></label>
+                    <input asp-for="DocumentId" type="number" class="form-control" min="1" required />
+                    <div class="field-hint">The SOP/document associated with the deviation.</div>
+                </div>
+            </div>
+        </section>
 
-            <div class="mb-3">
-                <label for="Summary" class="form-label">Summary <span class="text-danger">*</span></label>
-                <textarea asp-for="Summary" class="form-control" rows="5"
-                          maxlength="4000" required
-                          placeholder="Describe the corrective work completed and how it addresses the deviation."></textarea>
+        <section class="form-section" aria-labelledby="report-proof-heading">
+            <div class="section-heading">
+                <span class="section-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14.5v4A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5v-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </span>
+                <div>
+                    <h2 id="report-proof-heading">Report and proof</h2>
+                    <p>Explain what was done and attach evidence to support the report.</p>
+                </div>
             </div>
 
             <div class="mb-4">
-                <label for="Proof" class="form-label">Proof / supporting report <span class="text-danger">*</span></label>
+                <label asp-for="Summary" class="form-label">Summary <span class="required-mark">*</span></label>
+                <textarea asp-for="Summary" class="form-control" rows="5" maxlength="4000" required
+                          placeholder="Describe the corrective work completed, the outcome, and how it addresses the deviation."></textarea>
+                <div class="field-hint">Include enough detail for a reviewer to understand the work and its outcome.</div>
+            </div>
+
+            <div class="proof-upload mb-4">
+                <label asp-for="Proof" class="form-label">Proof / supporting report <span class="required-mark">*</span></label>
                 <input asp-for="Proof" type="file" class="form-control" required />
-                <div class="form-text">Attach the evidence file for this deviation report.</div>
+                <div class="form-text">Choose a report or evidence file to support the corrective work.</div>
             </div>
 
-            <div class="row g-3 mb-4">
-                <div class="col-md-6">
-                    <label class="form-label">Created by</label>
-                    <div class="system-value">@(string.IsNullOrWhiteSpace(Model.CreatedBy) ? "Not signed in" : Model.CreatedBy)</div>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Created date (UTC)</label>
-                    <div class="system-value">@Model.CreatedDate.ToString("yyyy-MM-dd HH:mm")</div>
-                </div>
-            </div>
-
-            <div class="d-flex flex-wrap gap-2">
-                <button type="submit" class="btn btn-primary" disabled>Submit report</button>
-                <a href="/Operator" class="btn btn-outline-secondary">Cancel</a>
-            </div>
-            <p class="form-text mt-3 mb-0">
-                Submission will be enabled after the report API is available.
-            </p>
         </section>
+
+        <footer class="report-footer">
+            <p class="footer-note">Report submission will be available once the report API is connected.</p>
+            <div class="report-actions">
+                <a href="/" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary" disabled>Submit report</button>
+            </div>
+        </footer>
     </form>
 </main>

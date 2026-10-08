@@ -1,0 +1,146 @@
+@page
+@model QMSSystem.Web.Pages.Supervisor.IndexModel
+
+@{
+    ViewData["Title"] = "Supervisor Dashboard";
+}
+
+<link rel="stylesheet"
+      href="~/css/supervisor.css"
+      asp-append-version="true" />
+
+<div class="supervisor-dashboard">
+
+    <!-- PAGE HEADING -->
+    <div class="supervisor-heading">
+
+        <div class="small-title">
+            QMS
+        </div>
+
+        <h1>
+            Supervisor Dashboard
+        </h1>
+
+        <p>
+            Review and approve pending QMS activities.
+        </p>
+
+    </div>
+
+
+    <!-- SUPERVISOR OPERATIONS -->
+    <div class="supervisor-cards">
+
+
+        <!-- DEVIATION REVIEW -->
+        <div class="supervisor-card">
+
+            <div class="card-top">
+
+                <h3>
+                    Deviation Review
+                </h3>
+
+                <span class="operation-count">
+                    @Model.PendingDeviations
+                </span>
+
+            </div>
+
+            <p>
+                Review and approve or reject pending deviation requests.
+            </p>
+
+            <a asp-page="/Supervisor/DeviationReview"
+               class="supervisor-button">
+                Deviation Review
+            </a>
+
+        </div>
+
+
+        <!-- CHANGE REQUEST APPROVAL -->
+        <div class="supervisor-card">
+
+            <div class="card-top">
+
+                <h3>
+                    Change Request Approval
+                </h3>
+
+                <span class="operation-count">
+                    @Model.PendingChangeRequests
+                </span>
+
+            </div>
+
+            <p>
+                Review and approve or reject pending change requests.
+            </p>
+
+            <a asp-page="/Supervisor/ChangeRequestApproval"
+               class="supervisor-button">
+                Change Request
+            </a>
+
+        </div>
+
+
+        <!-- DEVIATION REVIEW REPORT -->
+        <div class="supervisor-card">
+
+            <div class="card-top">
+
+                <h3>
+                    Deviation Review Report
+                </h3>
+
+                <span class="operation-count">
+                    @Model.PendingReports
+                </span>
+
+            </div>
+
+            <p>
+                Review pending deviation reports and take the required action.
+            </p>
+
+            <a asp-page="/Supervisor/DeviationReviewReport"
+               class="supervisor-button">
+                Deviation Report
+            </a>
+
+        </div>
+
+
+        <!-- DOCUMENT REVIEW -->
+        <div class="supervisor-card">
+
+            <div class="card-top">
+
+                <h3>
+                    Document Review
+                </h3>
+
+                <span class="operation-count">
+                    @Model.PendingDocuments
+                </span>
+
+            </div>
+
+            <p>
+                Review pending SOP documents and document revisions.
+            </p>
+
+            <a asp-page="/Supervisor/DocumentReview"
+               class="supervisor-button">
+                Document Review
+            </a>
+
+        </div>
+
+
+    </div>
+
+</div>
