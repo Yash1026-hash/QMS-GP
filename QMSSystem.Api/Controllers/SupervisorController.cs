@@ -18,6 +18,7 @@ public class SupervisorController : ControllerBase
         _context = context;
     }
 
+    // Get pending change request count
     [HttpGet("change-requests/count")]
     public async Task<IActionResult> GetPendingChangeRequestCount()
     {
@@ -27,6 +28,7 @@ public class SupervisorController : ControllerBase
         return Ok(count);
     }
 
+    // Get pending deviation count
     [HttpGet("deviations/count")]
     public async Task<IActionResult> GetPendingDeviationCount()
     {
@@ -36,6 +38,27 @@ public class SupervisorController : ControllerBase
         return Ok(count);
     }
 
+    // Get pending deviation report count
+    [HttpGet("deviation-reports/count")]
+    public async Task<IActionResult> GetPendingDeviationReportCount()
+    {
+        int count = await _context.DeviationReportRequests
+            .CountAsync(x => x.Status == 0);
+
+        return Ok(count);
+    }
+
+    // Get pending document count
+    [HttpGet("documents/count")]
+    public async Task<IActionResult> GetPendingDocumentCount()
+    {
+        int count = await _context.DocumentCreations
+            .CountAsync(x => x.Status == "Pending");
+
+        return Ok(count);
+    }
+
+    // Get pending documents with pagination and optional document-number search
     [HttpGet("documents/pending")]
     public async Task<IActionResult> GetPendingDocuments(
         CancellationToken cancellationToken,
@@ -47,7 +70,9 @@ public class SupervisorController : ControllerBase
         pageSize = Math.Clamp(pageSize, 1, 100);
 
         var reviewerIds = await GetReviewerIdsAsync(cancellationToken);
-        var reviewerId = reviewerIds.Count == 1 ? reviewerIds[0] : (int?)null;
+        var reviewerId = reviewerIds.Count == 1
+            ? reviewerIds[0]
+            : (int?)null;
 
         var pendingDocuments = _context.DocumentCreations
             .Where(document => document.Status == "Pending");
@@ -55,12 +80,17 @@ public class SupervisorController : ControllerBase
         if (!string.IsNullOrWhiteSpace(documentNumber))
         {
             var searchTerm = documentNumber.Trim();
+
             pendingDocuments = pendingDocuments.Where(document =>
                 document.DocumentNumber.Contains(searchTerm));
         }
 
-        var totalCount = await pendingDocuments.CountAsync(cancellationToken);
-        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+        var totalCount = await pendingDocuments
+            .CountAsync(cancellationToken);
+
+        var totalPages = (int)Math.Ceiling(
+            totalCount / (double)pageSize);
+
         page = Math.Min(page, Math.Max(totalPages, 1));
 
         var pendingPage = await pendingDocuments
@@ -70,6 +100,7 @@ public class SupervisorController : ControllerBase
             .ToListAsync(cancellationToken);
 
         var pendingDecisionDate = DateTime.UtcNow;
+
         if (reviewerId.HasValue)
         {
             foreach (var pendingDocument in pendingPage)
@@ -115,6 +146,7 @@ public class SupervisorController : ControllerBase
         });
     }
 
+    // Save supervisor decision for a document
     [HttpPost("documents/decision")]
     public async Task<IActionResult> SaveDocumentDecision(
         [FromBody] Document? decisionRequest,
@@ -125,30 +157,39 @@ public class SupervisorController : ControllerBase
             return BadRequest("A valid document ID is required.");
         }
 
-        var decision = decisionRequest.Decision?.Trim().ToLowerInvariant() switch
+        var decision = decisionRequest.Decision?
+            .Trim()
+            .ToLowerInvariant() switch
         {
             "approve" => "Approved",
-            // When a supervisor selects "revision", the document is sent back to the creator
-            // for corrections instead of being approved or rejected permanently.
+
+            // Return the document to its creator for corrections.
             "revision" => "Returned for revision",
+
             "reject" => "Rejected",
+
             _ => null
         };
 
         if (decision is null)
         {
-            return BadRequest("Decision must be approve, revision, or reject.");
+            return BadRequest(
+                "Decision must be approve, revision, or reject.");
         }
 
-        // Approved documents become active; revisions and rejections are kept inactive
-        // until the document owner resubmits or the rejection is handled separately.
-        var documentStatus = decision == "Approved" ? "Active" : "Inactive";
+        // Approved documents become active.
+        // Revision and rejection decisions leave documents inactive.
+        var documentStatus = decision == "Approved"
+            ? "Active"
+            : "Inactive";
+
         var decisionStatus = decision == "Approved" ? 1 : 2;
 
         if (string.IsNullOrWhiteSpace(decisionRequest.Comment) ||
             decisionRequest.Comment.Trim().Length > 1000)
         {
-            return BadRequest("Reviewer comments are required and must not exceed 1000 characters.");
+            return BadRequest(
+                "Reviewer comments are required and must not exceed 1000 characters.");
         }
 
         var document = await _context.DocumentCreations
@@ -163,10 +204,12 @@ public class SupervisorController : ControllerBase
 
         if (document.Status != "Pending")
         {
-            return Conflict("Only pending documents can receive a decision.");
+            return Conflict(
+                "Only pending documents can receive a decision.");
         }
 
         var reviewerIds = await GetReviewerIdsAsync(cancellationToken);
+
         if (reviewerIds.Count != 1)
         {
             return StatusCode(
@@ -176,19 +219,21 @@ public class SupervisorController : ControllerBase
 
         var decisionTime = DateTime.UtcNow;
         var comments = decisionRequest.Comment.Trim();
+
         document.Status = documentStatus;
         document.DecisionBy = reviewerIds[0].ToString();
         document.DecisionDate = decisionTime;
         document.DecisionStatus = decisionStatus;
+
         var reviewerNote = $"Reviewer decision ({decision}): {comments}";
+
         document.Comment = string.IsNullOrWhiteSpace(document.Comment)
             ? reviewerNote
             : $"{document.Comment}{Environment.NewLine}{Environment.NewLine}{reviewerNote}";
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        // Return the completed decision to the UI so "Returned for revision" is shown
-        // clearly on the document review screen and in the document details history.
+        // Return the completed decision to the UI.
         return Ok(new Document
         {
             Id = document.Id,
@@ -200,10 +245,12 @@ public class SupervisorController : ControllerBase
         });
     }
 
+    // Identify the authenticated supervisor's user account.
     private async Task<List<int>> GetReviewerIdsAsync(
         CancellationToken cancellationToken)
     {
         var reviewerName = User.Identity?.Name;
+
         if (string.IsNullOrWhiteSpace(reviewerName))
         {
             return [];
