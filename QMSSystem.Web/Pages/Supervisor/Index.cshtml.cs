@@ -11,9 +11,9 @@ public class IndexModel : PageModel
 
     public int PendingChangeRequests { get; set; }
 
-    public int PendingReports { get; set; } = 2;
+    public int PendingReports { get; set; }
 
-    public int PendingDocuments { get; set; } = 5;
+    public int PendingDocuments { get; set; }
 
     public int TotalPending { get; set; }
 
@@ -38,7 +38,6 @@ public class IndexModel : PageModel
             PendingDeviations = 0;
         }
 
-
         // Get pending change requests
         try
         {
@@ -51,8 +50,31 @@ public class IndexModel : PageModel
             PendingChangeRequests = 0;
         }
 
+        // Get pending deviation reports (Status = 0)
+        try
+        {
+            PendingReports =
+                await client.GetFromJsonAsync<int>(
+                    "api/supervisor/deviation-reports/count");
+        }
+        catch
+        {
+            PendingReports = 0;
+        }
 
-        // Calculate total
+        // Get pending documents (Status = 0)
+        try
+        {
+            PendingDocuments =
+                await client.GetFromJsonAsync<int>(
+                    "api/supervisor/documents/count");
+        }
+        catch
+        {
+            PendingDocuments = 0;
+        }
+
+        // Calculate total pending items
         TotalPending =
             PendingDeviations +
             PendingChangeRequests +
