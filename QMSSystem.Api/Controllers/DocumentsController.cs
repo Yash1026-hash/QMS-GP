@@ -138,7 +138,7 @@ public async Task<IActionResult> UploadRevision(
         Title           = doc.Title,
         Department      = doc.Department,
         DocumentVersion = doc.DocumentVersion,
-        Status          = doc.Status,
+        Status          = "Inactive",
         FileName        = doc.FileName,
         ContentType     = doc.ContentType,
         FileData        = doc.FileData,
@@ -163,6 +163,9 @@ public async Task<IActionResult> UploadRevision(
     doc.DocumentVersion = doc.DocumentVersion + 1;
     doc.Comment         = comment;
     doc.Status          = "Pending";
+    doc.DecisionStatus  = null;
+    doc.DecisionBy      = null;
+    doc.DecisionDate    = null;
 
     // EF Core saves the archive insert and active-document update in one transaction.
     await _context.SaveChangesAsync();

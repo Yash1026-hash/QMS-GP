@@ -18,10 +18,38 @@
         </a>
     </div>
 
+    <form method="get" class="row g-2 align-items-end mb-4">
+        <div class="col-md-5 col-lg-4">
+            <label asp-for="SearchQuery" class="form-label">Search documents</label>
+            <input asp-for="SearchQuery"
+                   class="form-control"
+                   placeholder="Document number, title, department, or status" />
+        </div>
+        <div class="col-md-3 col-lg-2">
+            <label asp-for="StatusFilter" class="form-label">Status</label>
+            <select asp-for="StatusFilter" class="form-select">
+                <option value="">All statuses</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-outline-primary">Search</button>
+            @if (!string.IsNullOrWhiteSpace(Model.SearchQuery) ||
+                 !string.IsNullOrWhiteSpace(Model.StatusFilter))
+            {
+                <a asp-page="/Documents/Index" class="btn btn-outline-secondary">Clear</a>
+            }
+        </div>
+    </form>
+
     @if (Model.Documents.Count == 0)
     {
         <div class="alert alert-info">
-            No documents found.
+            @(string.IsNullOrWhiteSpace(Model.SearchQuery) &&
+              string.IsNullOrWhiteSpace(Model.StatusFilter)
+                ? "No documents found."
+                : "No documents match the selected filters.")
         </div>
     }
     else
@@ -74,7 +102,8 @@
                                     <a asp-page="/Documents/UploadRevision/Index"
                                        asp-route-id="@document.Id"
                                        class="btn btn-sm btn-outline-warning">
-                                        Upload Revision
+                                       EDIT
+                                       
                                     </a>
                                 }
                                 </div>

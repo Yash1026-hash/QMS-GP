@@ -21,11 +21,6 @@ public class DocumentCreation
     public DateTime CreationOn { get; set; }
 
     public string? Comment { get; set; }
-<<<<<<< HEAD
-    public string? DecisionBy { get; set; }
-    public DateTime? DecisionDate { get; set; }
-    public int? Decision { get; set; }
-=======
 
     [Column("decisionBy", TypeName = "varchar")]
     public string? DecisionBy { get; set; }
@@ -35,5 +30,11 @@ public class DocumentCreation
 
     [Column("decision", TypeName = "int")]
     public int? DecisionStatus { get; set; }
->>>>>>> 9f4b6723144ddfe6d70b12b01a8b1c444fa9075f
+
+    [NotMapped]
+    public int? Decision
+    {
+        get => DecisionStatus;
+        set => DecisionStatus = value;
+    }
 }

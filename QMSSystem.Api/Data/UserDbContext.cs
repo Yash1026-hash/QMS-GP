@@ -202,7 +202,7 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
                 .HasColumnType("datetime")
                 .IsRequired(false);
 
-            entity.Property(document => document.Decision)
+            entity.Property(document => document.DecisionStatus)
                 .HasColumnName("decision")
                 .IsRequired(false);
         });

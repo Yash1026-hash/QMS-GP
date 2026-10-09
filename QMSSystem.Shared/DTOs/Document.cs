@@ -39,5 +39,13 @@ public class Document
 
     public int? Decision { get; set; }
 
+    public string? DecisionText { get; set; }
+
+    public int? DecisionStatus
+    {
+        get => Decision;
+        set => Decision = value;
+    }
+
     public DateTime? DecisionDate { get; set; }
 }
