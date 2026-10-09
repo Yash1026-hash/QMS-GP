@@ -11,6 +11,7 @@ public class UserAccount
     public string FullName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string RegistrationStatus { get; set; } = "Pending";
+    public string Department { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

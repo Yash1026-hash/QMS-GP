@@ -31,7 +31,7 @@ public class LoginModel : PageModel
 
         var client = HttpContext.RequestServices
             .GetRequiredService<IHttpClientFactory>()
-            .CreateClient("ApiClient");
+            .CreateClient("QMSApi");
 
         var loginRequest = new LoginRequest
         {
@@ -45,7 +45,15 @@ public class LoginModel : PageModel
 
             if (!response.IsSuccessStatusCode)
             {
-                ErrorMessage = "Invalid username or password.";
+                ErrorMessage = response.StatusCode switch
+                {
+                    System.Net.HttpStatusCode.Unauthorized =>
+                        "Invalid username or password, or the account is inactive or not registered.",
+                    System.Net.HttpStatusCode.BadRequest =>
+                        "The API rejected the login request. Check the username and password format.",
+                    _ =>
+                        $"The API returned an error (HTTP {(int)response.StatusCode}). Check that the API is running correctly."
+                };
                 return Page();
             }
 
