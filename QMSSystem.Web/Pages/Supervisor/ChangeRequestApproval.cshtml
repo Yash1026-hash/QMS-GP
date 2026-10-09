@@ -11,22 +11,37 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
-            <h1 class="mb-1">
-                Change Request Approval
-            </h1>
+            <h1 class="mb-1">Change Request Approval</h1>
 
             <p class="text-muted mb-0">
                 Review and approve pending change requests.
             </p>
         </div>
 
-        <!-- BACK TO SUPERVISOR DASHBOARD -->
         <a asp-page="/Supervisor/Index"
            class="btn btn-outline-secondary">
             ← Back to Supervisor Dashboard
         </a>
 
     </div>
+
+
+    <!-- ERROR MESSAGE -->
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            @Model.ErrorMessage
+        </div>
+    }
+
+
+    <!-- SUCCESS MESSAGE -->
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">
+            @Model.SuccessMessage
+        </div>
+    }
 
 
     <!-- CHANGE REQUEST TABLE -->
@@ -38,7 +53,9 @@
                 Change Requests Awaiting Approval
             </h5>
 
-            @if (Model.ChangeRequests != null && Model.ChangeRequests.Any())
+
+            @if (Model.ChangeRequests != null &&
+                 Model.ChangeRequests.Any())
             {
                 <div class="table-responsive">
 
@@ -47,36 +64,17 @@
                         <thead class="table-light">
 
                             <tr>
-                                <th>
-                                    Request ID
-                                </th>
-
-                                <th>
-                                    Title
-                                </th>
-
-                                <th>
-                                    Document ID
-                                </th>
-
-                                <th>
-                                    Change Type
-                                </th>
-
-                                <th>
-                                    Requested By
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Action
-                                </th>
+                                <th>Request ID</th>
+                                <th>Title</th>
+                                <th>Document ID</th>
+                                <th>Change Type</th>
+                                <th>Requested By</th>
+                                <th>Status</th>
+                                <th>Action</th>
                             </tr>
 
                         </thead>
+
 
                         <tbody>
 
@@ -105,18 +103,24 @@
                                     </td>
 
                                     <td>
+
                                         <span class="badge bg-warning text-dark">
                                             @request.Status
                                         </span>
+
                                     </td>
 
                                     <td>
 
-                                        <a asp-page="/Supervisor/ChangeRequestApprovalReview"
-                                           asp-route-id="@request.Id"
-                                           class="btn btn-primary btn-sm">
+                                        <!-- VIEW BUTTON -->
+                                        <button type="button"
+                                                class="btn btn-primary btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#changeRequestModal-@request.Id">
+
                                             View
-                                        </a>
+
+                                        </button>
 
                                     </td>
 
@@ -132,7 +136,9 @@
             else
             {
                 <div class="alert alert-info mb-0">
+
                     No pending change requests are available for approval.
+
                 </div>
             }
 
@@ -141,3 +147,248 @@
     </div>
 
 </div>
+
+
+<!-- ========================================================= -->
+<!-- CHANGE REQUEST MODALS                                     -->
+<!-- ========================================================= -->
+
+@if (Model.ChangeRequests != null &&
+     Model.ChangeRequests.Any())
+{
+    foreach (var request in Model.ChangeRequests)
+    {
+        <div class="modal fade"
+             id="changeRequestModal-@request.Id"
+             tabindex="-1"
+             aria-labelledby="changeRequestModalLabel-@request.Id"
+             aria-hidden="true">
+
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+
+                <div class="modal-content">
+
+
+                    <!-- MODAL HEADER -->
+                    <div class="modal-header">
+
+                        <div>
+
+                            <small class="text-muted">
+                                Change Request #@request.Id
+                            </small>
+
+                            <h4 class="modal-title mt-1"
+                                id="changeRequestModalLabel-@request.Id">
+
+                                @request.Title
+
+                            </h4>
+
+                        </div>
+
+
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close">
+                        </button>
+
+                    </div>
+
+
+                    <!-- MODAL BODY -->
+                    <div class="modal-body">
+
+
+                        <!-- BASIC INFORMATION -->
+                        <div class="row mb-4">
+
+                            <div class="col-md-6">
+
+                                <strong>
+                                    Document ID
+                                </strong>
+
+                                <div class="mt-1">
+                                    @request.DocumentId
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <strong>
+                                    Change Type
+                                </strong>
+
+                                <div class="mt-1">
+                                    @request.ChangeType
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="row mb-4">
+
+                            <div class="col-md-6">
+
+                                <strong>
+                                    Requested By
+                                </strong>
+
+                                <div class="mt-1">
+                                    @request.RequestedByUserId
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <strong>
+                                    Requested Date
+                                </strong>
+
+                                <div class="mt-1">
+
+                                    @request.RequestedDate.ToString(
+                                        "dd-MM-yyyy HH:mm")
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- DESCRIPTION -->
+                        <div class="mb-4">
+
+                            <strong>
+                                Description
+                            </strong>
+
+                            <div class="border rounded p-3 mt-2 bg-light">
+
+                                @request.Description
+
+                            </div>
+
+                        </div>
+
+
+                        <hr />
+
+
+                        <!-- APPROVAL SECTION -->
+                        <h5 class="mb-3">
+                            Approval Decision
+                        </h5>
+
+
+                        <form method="post">
+
+                            <!-- CHANGE REQUEST ID -->
+                            <input type="hidden"
+                                   name="ChangeRequestId"
+                                   value="@request.Id" />
+
+
+                            <!-- DECISION -->
+                            <div class="mb-4">
+
+                                <div class="form-check form-check-inline">
+
+                                    <input class="form-check-input"
+                                           type="radio"
+                                           name="Decision"
+                                           value="accept"
+                                           id="accept-@request.Id"
+                                           required />
+
+                                    <label class="form-check-label"
+                                           for="accept-@request.Id">
+
+                                        Accept
+
+                                    </label>
+
+                                </div>
+
+
+                                <div class="form-check form-check-inline">
+
+                                    <input class="form-check-input"
+                                           type="radio"
+                                           name="Decision"
+                                           value="reject"
+                                           id="reject-@request.Id" />
+
+                                    <label class="form-check-label"
+                                           for="reject-@request.Id">
+
+                                        Reject
+
+                                    </label>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- COMMENTS -->
+                            <div class="mb-3">
+
+                                <label class="form-label">
+
+                                    Reviewer Comments
+
+                                </label>
+
+
+                                <textarea class="form-control"
+                                          name="DecisionComment"
+                                          rows="4"
+                                          maxlength="1000"
+                                          placeholder="Enter comments for the requester"
+                                          required></textarea>
+
+                            </div>
+
+
+                            <!-- MODAL FOOTER -->
+                            <div class="modal-footer px-0 pb-0">
+
+                                <button type="button"
+                                        class="btn btn-outline-secondary"
+                                        data-bs-dismiss="modal">
+
+                                    Close
+
+                                </button>
+
+
+                                <button type="submit"
+                                        class="btn btn-primary">
+
+                                    Submit
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+}
