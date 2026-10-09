@@ -27,6 +27,12 @@ public sealed class ReportModel : PageModel
     [BindProperty(SupportsGet = true)]
     public int? DocumentId { get; set; }
 
+    [BindProperty]
+    public int? SelectedDeviationId { get; set; }
+
+    public IReadOnlyList<DeviationRequestDto> ApprovedDeviations { get; private set; } =
+        Array.Empty<DeviationRequestDto>();
+
     public int AttemptNumber { get; private set; } = 1;
 
     [BindProperty]
@@ -41,28 +47,43 @@ public sealed class ReportModel : PageModel
 
     public int Status { get; private set; }
 
-    public void OnGet()
+    public async Task OnGetAsync()
     {
         CreatedBy = User.Identity?.IsAuthenticated == true
             ? User.Identity.Name ?? "Unknown"
             : "Anonymous";
         CreatedDate = DateTime.UtcNow;
+        await LoadApprovedDeviationsAsync();
+
+        if (DeviationId.HasValue &&
+            ApprovedDeviations.Any(deviation => deviation.Id == DeviationId.Value))
+        {
+            SelectedDeviationId = DeviationId;
+        }
     }
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (DeviationId is not > 0)
-        {
-            ModelState.AddModelError(
-                nameof(DeviationId),
-                "Enter a valid accepted deviation ID.");
-        }
+        await LoadApprovedDeviationsAsync();
 
-        if (DocumentId is not > 0)
+        var selectedDeviation = SelectedDeviationId is > 0
+            ? ApprovedDeviations.FirstOrDefault(deviation => deviation.Id == SelectedDeviationId.Value)
+            : null;
+
+        if (selectedDeviation is null)
         {
-            ModelState.AddModelError(
-                nameof(DocumentId),
-                "Enter a valid SOP document ID.");
+            DeviationId = null;
+            DocumentId = null;
+            ModelState.Remove(nameof(DeviationId));
+            ModelState.Remove(nameof(DocumentId));
+            ModelState.AddModelError(nameof(SelectedDeviationId), "Select an approved deviation.");
+        }
+        else
+        {
+            DeviationId = selectedDeviation.Id;
+            DocumentId = selectedDeviation.DocumentId;
+            ModelState.Remove(nameof(DeviationId));
+            ModelState.Remove(nameof(DocumentId));
         }
 
         if (string.IsNullOrWhiteSpace(Summary))
@@ -170,6 +191,57 @@ public sealed class ReportModel : PageModel
                 string.Empty,
                 "The QMS API returned an invalid response. The report could not be confirmed.");
             return Page();
+        }
+    }
+
+    private async Task LoadApprovedDeviationsAsync()
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient("QMSApi");
+            using var response = await client.GetAsync("api/Deviation");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning(
+                    "Could not load deviations for the report form. API returned {StatusCode}.",
+                    response.StatusCode);
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Approved deviations could not be loaded. Please refresh the page or try again later.");
+                return;
+            }
+
+            var deviations =
+                await response.Content.ReadFromJsonAsync<List<DeviationRequestDto>>();
+
+            if (deviations is null)
+            {
+                _logger.LogWarning(
+                    "The deviation API returned an empty response while loading the report form.");
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Approved deviations could not be loaded. Please refresh the page or try again later.");
+                return;
+            }
+
+            ApprovedDeviations = deviations
+                .Where(deviation => deviation.Status == 1 && deviation.Decision == 1)
+                .ToList();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Could not connect to the QMS API to load approved deviations.");
+            ModelState.AddModelError(
+                string.Empty,
+                "Could not connect to the QMS API to load approved deviations. Check that the API is running and try again.");
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "The QMS API returned invalid deviation data for the report form.");
+            ModelState.AddModelError(
+                string.Empty,
+                "The QMS API returned invalid deviation data. Approved deviations could not be loaded.");
         }
     }
 }

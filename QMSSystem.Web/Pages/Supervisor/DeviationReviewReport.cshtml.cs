@@ -43,7 +43,7 @@ public class DeviationReviewReportModel : PageModel
 
     public bool IsRejected => Report.Decision == 2;
 
-    public async Task<IActionResult> OnGetAsync()
+    public async Task<IActionResult> OnGetAsync() 
     {
         if (Search <= 0)
         {
