@@ -80,7 +80,7 @@ else
                         <strong>Decision By:</strong> (@Model.ChangeRequest.DecisionByUserId.HasValue? $"User #{Model.ChangeRequest.DecisionByUserId.Value}" : "N/A")
                     </div>
                     <div class="col-md-4">
-                        <strong>Decision Date:</strong> (@Model.ChangeRequest.DecisionDate.HasValue? Model.ChangeRequest.DecisionDate.Value.ToString() : "N/A")
+                        <strong>Decision Date:</strong> @(Model.ChangeRequest.DecisionDate?.ToString("yyyy-MM-dd HH:mm") ?? "N/A")
                     </div>
                     <div class="col-md-12">
                         <strong>Comments:</strong>
@@ -142,4 +142,3 @@ else
         </div>
     </div>
 }
-

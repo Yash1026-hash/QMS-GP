@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using QMSSystem.Shared.Dtos;
+using QMSSystem.Shared.Models;
 using QMSSystem.Shared.Dtos.Deviations;
 using System.Net.Http.Json;
 
@@ -64,20 +64,21 @@ public class EditModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        var request = new OperatorChangeRequest
+        var request = new ChangeRequestForm
         {
             DocumentId = DocumentId,
             Title = Title,
             ChangeType = ChangeType,
             Description = Description,
             RequestedByUserId = RequestedByUserId,
-            RequestedDate = RequestedDate,
-            Status = "Pending"
+            RequestedDate = DateTime.Now,
+            Status = 0,
+            SelectedDeviationIds = SelectedDeviationIds
         };
 
         var response =
             await _httpClient.PostAsJsonAsync(
-                "api/ChangeRequest",
+                "api/ChangeRequestDocument/FormSubmission",
                 request);
 
         if (!response.IsSuccessStatusCode)
@@ -93,20 +94,6 @@ public class EditModel : PageModel
             return Page();
         }
 
-        foreach (var deviationId in SelectedDeviationIds)
-        {
-            var mapping =
-                new OperatorChangeRequestDeviation
-                {
-                    ChangeRequestId = changeRequestId,
-                    DeviationId = deviationId
-                };
-
-            await _httpClient.PostAsJsonAsync(
-                "api/ChangeRequest/deviation",
-                mapping);
-        }
-
-        return RedirectToPage("./Documents");
+        return RedirectToPage("/Operator/ChangeRequest/Index");
     }
 }
