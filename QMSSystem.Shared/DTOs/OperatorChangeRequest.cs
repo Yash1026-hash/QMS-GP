@@ -35,7 +35,6 @@ public class OperatorChangeRequest
     
     public int? DecisionByUserId { get; set; }
 
-   
     public DateTime? DecisionDate { get; set; }
 
     

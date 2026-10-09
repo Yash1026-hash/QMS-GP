@@ -307,6 +307,9 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
                 .HasMaxLength(1000)
                 .IsRequired(false);
 
+            entity.Property(changeRequest => changeRequest.DecisionDate)
+                .IsRequired(false);
+
             entity.Property(changeRequest => changeRequest.Status)
                 .HasMaxLength(20)
                 .IsRequired();
