@@ -1,3 +1,4 @@
+
 @page
 @model QMSSystem.Web.Pages.Supervisor.DeviationReviewReportModel
 
@@ -7,53 +8,57 @@
 
 <style>
     .review-page {
-        background: #f3f6fa;
+        background: #f5f7fa;
         min-height: 100vh;
-        padding: 24px;
+        padding: 32px 24px;
     }
 
     .review-card {
-        background: white;
+        background-color: #fff;
         border: 1px solid #e1e8ef;
-        border-radius: 14px;
-        margin-bottom: 24px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(31, 52, 73, 0.05);
+        margin-bottom: 20px;
         overflow: hidden;
     }
 
     .card-heading {
+        background-color: #fff;
         border-bottom: 1px solid #e7edf3;
-        padding: 22px 26px;
+        padding: 20px 24px;
     }
 
-    .card-body {
-        padding: 24px 26px;
+    .review-card > .card-body {
+        padding: 24px;
     }
 
     .search-button {
         background: #167e8d;
         border-color: #167e8d;
-        color: white;
+        color: #fff;
         min-width: 180px;
     }
 
     .search-button:hover {
         background: #116775;
-        color: white;
+        border-color: #116775;
+        color: #fff;
     }
 
     .field-label {
         color: #263b53;
         font-weight: 600;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
     }
 
     .field-value {
         background: #f7f9fb;
         border: 1px solid #dce5ed;
-        border-radius: 7px;
-        min-height: 44px;
-        padding: 11px 14px;
+        border-radius: 6px;
+        min-height: 42px;
+        padding: 10px 12px;
         overflow-wrap: anywhere;
+        white-space: pre-wrap;
     }
 
     .section-title {
@@ -69,8 +74,8 @@
     .status-badge {
         display: inline-block;
         border-radius: 20px;
-        padding: 6px 12px;
-        font-size: 13px;
+        padding: 5px 11px;
+        font-size: 12px;
         font-weight: 600;
     }
 
@@ -90,42 +95,58 @@
     }
 
     .decision-button {
-        min-width: 120px;
+        min-width: 130px;
+    }
+
+    .proof-note {
+        color: #6b7d91;
+        font-size: 13px;
+        line-height: 1.4;
     }
 
     @@media (max-width: 768px) {
         .review-page {
-            padding: 12px;
+            padding: 20px 12px;
         }
 
-        .card-body,
         .card-heading {
-            padding: 18px;
+            padding: 18px 16px;
+        }
+
+        .review-card > .card-body {
+            padding: 18px 16px;
         }
 
         .search-button {
             width: 100%;
         }
+
+        .decision-button {
+            width: 100%;
+            margin: 5px 0;
+        }
     }
 </style>
 
 <div class="review-page">
-    <div class="container-fluid">
+    <div class="container">
 
+        <!-- Page heading -->
         <div class="mb-4">
             <h2 class="fw-bold">Deviation Review Report</h2>
             <p class="text-muted">
-                Search by Deviation ID to view the submitted report.
+                Search by Deviation ID to view the submitted report and its review status.
             </p>
         </div>
 
-        <!-- Search by Deviation ID -->
+        <!-- Search section -->
         <div class="review-card">
             <div class="card-body">
                 <form method="get">
                     <div class="row align-items-end g-3">
                         <div class="col-md-8">
-                            <label asp-for="Search" class="form-label field-label">
+                            <label asp-for="Search"
+                                   class="form-label field-label">
                                 Deviation ID
                             </label>
 
@@ -140,7 +161,7 @@
                         <div class="col-md-4">
                             <button type="submit"
                                     class="btn search-button btn-lg w-100">
-                                Search
+                                Search Report
                             </button>
                         </div>
                     </div>
@@ -162,19 +183,22 @@
             </div>
         </div>
 
+        <!-- Report details -->
         @if (Model.Report.Id > 0)
         {
             <div class="review-card">
+
                 <div class="card-heading">
                     <h4 class="section-title">Deviation Report Details</h4>
                     <div class="section-description">
-                        Report information submitted by the deviation reporter.
+                        Report information submitted by the operator.
                     </div>
                 </div>
 
                 <div class="card-body">
 
-                    <h5 class="fw-bold mb-3">Deviation and SOP</h5>
+                    <!-- Deviation information -->
+                    <h5 class="fw-bold mb-3">Deviation and SOP Information</h5>
 
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
@@ -208,7 +232,8 @@
 
                     <hr />
 
-                    <h5 class="fw-bold mb-3">Report Information</h5>
+                    <!-- Submitted report -->
+                    <h5 class="fw-bold mb-3">Submitted Report</h5>
 
                     <div class="row g-3 mb-4">
                         <div class="col-12">
@@ -216,7 +241,9 @@
                             <div class="field-value">
                                 @if (string.IsNullOrWhiteSpace(Model.Report.Summary))
                                 {
-                                    <span class="text-muted">No summary provided.</span>
+                                    <span class="text-muted">
+                                        No summary provided.
+                                    </span>
                                 }
                                 else
                                 {
@@ -235,9 +262,10 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="field-label">Submitted Date</label>
+                            <label class="field-label">Submission Date</label>
                             <div class="field-value">
-                                @Model.Report.CreatedDate.ToLocalTime()
+                                @Model.Report.CreatedDate
+                                    .ToLocalTime()
                                     .ToString("dd MMM yyyy, hh:mm tt")
                             </div>
                         </div>
@@ -247,17 +275,23 @@
                             <div class="field-value">
                                 @if (Model.Report.Proof is { Length: > 0 })
                                 {
-                                    <span>Proof file is attached.</span>
+                                    <span>Proof data is attached to this report.</span>
                                 }
                                 else
                                 {
-                                    <span class="text-muted">No proof attached.</span>
+                                    <span class="text-muted">
+                                        No proof attached.
+                                    </span>
                                 }
+                            </div>
+                            <div class="proof-note mt-1">
+                                This section indicates whether proof data exists;
+                                it does not download or display the file.
                             </div>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="field-label">Report Status</label>
+                            <label class="field-label">Review Status</label>
                             <div class="field-value">
                                 @if (Model.Report.Decision == 1)
                                 {
@@ -283,6 +317,7 @@
 
                     <hr />
 
+                    <!-- Supervisor decision -->
                     <h5 class="fw-bold mb-3">Supervisor Decision</h5>
 
                     @if (Model.Report.Decision == 1 ||
@@ -291,11 +326,13 @@
                         <div class="alert @(Model.Report.Decision == 1
                             ? "alert-success"
                             : "alert-danger")">
+
                             <strong>
                                 @(Model.Report.Decision == 1
                                     ? "Report Approved"
                                     : "Report Rejected")
                             </strong>
+
                             <div class="mt-2">
                                 Decision by:
                                 @(string.IsNullOrWhiteSpace(Model.Report.DecisionBy)
@@ -320,15 +357,19 @@
                                     : Model.Report.DecisionComments)
                             </div>
                         </div>
+
+                        @if (Model.Report.Decision == 1)
+                        {
+                            <p class="text-muted small mb-0">
+                                The submitted report details are available above.
+                            </p>
+                        }
                     }
                     else
                     {
                         <form method="post">
-                            <input type="hidden"
-                                   asp-for="Report.Id" />
-
-                            <input type="hidden"
-                                   asp-for="Report.DeviationId" />
+                            <input type="hidden" asp-for="Report.Id" />
+                            <input type="hidden" asp-for="Report.DeviationId" />
 
                             <div class="mb-3">
                                 <label asp-for="DecisionComments"
@@ -360,15 +401,14 @@
                             </button>
                         </form>
                     }
-                </div>
-            </div>
-        }
-        else if (Model.Search > 0 &&
-                 string.IsNullOrWhiteSpace(Model.ErrorMessage))
-        {
-            <div class="review-card">
-                <div class="card-body text-muted">
-                    No report details are available for this Deviation ID.
+
+                    @if (!string.IsNullOrWhiteSpace(Model.DecisionMessage))
+                    {
+                        <div class="alert alert-success mt-3" role="status">
+                            @Model.DecisionMessage
+                        </div>
+                    }
+
                 </div>
             </div>
         }
