@@ -21,14 +21,22 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<QMSSystem.Web.Services.ApiCookieForwardingHandler>();
 
-builder.Services.AddHttpClient("QMSApi", client =>
+Action<HttpClient> configureClient = client =>
 {
-    
-    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!
-);
+    var baseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5070/";
+    client.BaseAddress = new Uri(baseUrl);
     client.DefaultRequestHeaders.Accept.Add(
         new MediaTypeWithQualityHeaderValue("application/json"));
-}).AddHttpMessageHandler<QMSSystem.Web.Services.ApiCookieForwardingHandler>();
+};
+
+builder.Services.AddHttpClient("QMSApi", configureClient)
+    .AddHttpMessageHandler<QMSSystem.Web.Services.ApiCookieForwardingHandler>();
+
+builder.Services.AddHttpClient("ApiClient", configureClient)
+    .AddHttpMessageHandler<QMSSystem.Web.Services.ApiCookieForwardingHandler>();
+
+builder.Services.AddHttpClient(string.Empty, configureClient)
+    .AddHttpMessageHandler<QMSSystem.Web.Services.ApiCookieForwardingHandler>();
 
 var dataProtectionKeysPath = builder.Configuration["DataProtection:KeysPath"]
     ?? Path.Combine(

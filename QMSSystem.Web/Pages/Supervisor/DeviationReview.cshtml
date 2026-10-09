@@ -1,3 +1,4 @@
+
 @page
 @model QMSSystem.Web.Pages.Supervisor.DeviationReviewModel
 
@@ -47,7 +48,6 @@
             </form>
 
         </div>
-
 
         <!-- Deviation Details -->
         @if (Model.Deviation != null)
@@ -100,7 +100,6 @@
 
                 </div>
 
-
                 <!-- Approval Section -->
                 @if (Model.Deviation.Status == 0)
                 {
@@ -142,10 +141,8 @@
                 else
                 {
                     <div class="operation-message">
-
                         This deviation has already been processed and
                         cannot be reviewed again.
-
                     </div>
                 }
 
@@ -154,9 +151,7 @@
 
         <a asp-page="/Supervisor/Index"
            class="back-button">
-
             ← Back to Supervisor Home
-
         </a>
 
     </div>

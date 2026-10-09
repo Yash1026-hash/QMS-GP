@@ -83,6 +83,18 @@
     .deviation-submit-button:hover {
         background: #1d4ed8;
     }
+    .back-to-sop {
+    display: inline-block;
+    margin-bottom: 24px;
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.back-to-sop:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
 
     @@media (max-width: 600px) {
         .deviation-form-page {
@@ -96,19 +108,21 @@
 </style>
 
 <main class="deviation-form-page">
+    <a href="/Deviations/SelectSop" class="back-to-sop">
+        &larr; Back to SOP selection
+    </a>
+
     <header class="deviation-form-header">
-        <p class="eyebrow">QMS / DEVIATIONS</p>
-        <h1>Create Deviation</h1>
-        <p>Provide the deviation details and set its initial priority.</p>
-    </header>
 
     @if (!string.IsNullOrWhiteSpace(Model.Message))
-    {
-        <div class="alert @(Model.IsFormValid ? "alert-info" : "alert-danger")" role="status">
-            @Model.Message
-        </div>
-    }
+{
+    <div class="alert @(Model.IsFormValid ? "alert-info" : "alert-danger")"
+         role="alert">
+        @Model.Message
+    </div>
+}
 
+<div asp-validation-summary="All" class="text-danger mb-3"></div>
     <form method="post">
         <input asp-for="Deviation.Id" type="hidden" />
         @if (Model.Deviation.DocumentId > 0)
@@ -188,14 +202,13 @@
                 </div>
             </div>
 
-            <div class="form-actions">
-                <button type="submit" class="deviation-submit-button">Submit Deviation Request</button>
-                <a href="/Deviations/SelectSop" class="btn btn-outline-secondary">Back to SOP selection</a>
-                <a href="/Deviations/Index" class="btn btn-link">Cancel</a>
-            </div>
-            <p class="form-text mt-3 mb-0">
-                The deviation form is not connected to a save service yet. Submitting validates the fields but does not create a stored record.
-            </p>
+           <div class="form-actions">
+    <button type="submit" class="deviation-submit-button">
+        Submit Deviation Request
+    </button>
+    <a href="/Deviations/Index" class="btn btn-link">Cancel</a>
+</div>
+            
         </section>
     </form>
 </main>

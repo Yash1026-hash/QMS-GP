@@ -1,3 +1,5 @@
+
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -13,6 +15,11 @@ public class DeviationReviewModel : PageModel
     private readonly IHttpClientFactory _httpClientFactory;
 
     private const string ApiBaseUrl = "http://localhost:5070";
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
 
     public DeviationReviewModel(IHttpClientFactory httpClientFactory)
     {
@@ -37,52 +44,12 @@ public class DeviationReviewModel : PageModel
             return;
         }
 
-        var client = CreateApiClient();
+        await LoadDeviationAsync();
 
-        var response = await client.GetAsync(
-            $"{ApiBaseUrl}/api/deviation-review/{SearchId.Value}");
-
-        if (response.IsSuccessStatusCode)
-        {
-            var json = await response.Content.ReadAsStringAsync();
-
-            Deviation = JsonSerializer.Deserialize<DeviationRequestDto>(
-                json,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-
-            if (Deviation != null)
-            {
-                Approval.DeviationRequestId = Deviation.Id;
-            }
-
-            return;
-        }
-
-        if (response.StatusCode ==
-            System.Net.HttpStatusCode.NotFound)
+        if (Deviation == null && Message == null)
         {
             Message = $"Deviation with ID {SearchId.Value} was not found.";
-            return;
         }
-
-        if (response.StatusCode ==
-            System.Net.HttpStatusCode.Unauthorized)
-        {
-            Message = "You are not authenticated.";
-            return;
-        }
-
-        if (response.StatusCode ==
-            System.Net.HttpStatusCode.Forbidden)
-        {
-            Message = "You are not authorized to review deviations.";
-            return;
-        }
-
-        Message = "Unable to load the deviation.";
     }
 
 
@@ -98,8 +65,7 @@ public class DeviationReviewModel : PageModel
     {
         Approval.Decision = 2;
 
-        if (string.IsNullOrWhiteSpace(
-            Approval.DecisionComments))
+        if (string.IsNullOrWhiteSpace(Approval.DecisionComments))
         {
             SearchId = Approval.DeviationRequestId;
 
@@ -116,12 +82,11 @@ public class DeviationReviewModel : PageModel
 
     private async Task<IActionResult> SubmitDecisionAsync()
     {
-        var deviationId = Approval.DeviationRequestId;
+        int deviationId = Approval.DeviationRequestId;
 
         if (deviationId <= 0)
         {
             Message = "Invalid deviation ID.";
-
             return Page();
         }
 
@@ -133,71 +98,47 @@ public class DeviationReviewModel : PageModel
             decisionComments = Approval.DecisionComments
         };
 
-        var json = JsonSerializer.Serialize(requestBody);
+        string json = JsonSerializer.Serialize(requestBody);
 
         using var content = new StringContent(
             json,
             Encoding.UTF8,
             "application/json");
 
-        var response = await client.PostAsync(
+        using var response = await client.PostAsync(
             $"{ApiBaseUrl}/api/deviation-review/{deviationId}",
             content);
 
         if (response.IsSuccessStatusCode)
         {
             return RedirectToPage(
-                new
-                {
-                    SearchId = deviationId
-                });
+                new { SearchId = deviationId });
         }
 
-        if (response.StatusCode ==
-            System.Net.HttpStatusCode.NotFound)
+        SearchId = deviationId;
+
+        if (response.StatusCode == HttpStatusCode.BadRequest)
         {
-            Message =
-                "Deviation was not found or has already been processed.";
-
-            SearchId = deviationId;
-
-            await LoadDeviationAsync();
-
-            return Page();
+            Message = await response.Content.ReadAsStringAsync();
         }
-
-        if (response.StatusCode ==
-            System.Net.HttpStatusCode.BadRequest)
+        else if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            var error =
-                await response.Content.ReadAsStringAsync();
-
-            Message = error;
-
-            SearchId = deviationId;
-
-            await LoadDeviationAsync();
-
-            return Page();
+            Message = "Deviation was not found or has already been processed.";
         }
-
-        if (response.StatusCode ==
-            System.Net.HttpStatusCode.Unauthorized)
+        else if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
-            Message = "You are not authenticated.";
-
-            return Page();
+            Message = "You are not authenticated. Please sign in again.";
         }
-
-        if (response.StatusCode ==
-            System.Net.HttpStatusCode.Forbidden)
+        else if (response.StatusCode == HttpStatusCode.Forbidden)
         {
             Message = "You are not authorized to review deviations.";
-
-            return Page();
+        }
+        else
+        {
+            Message = "Unable to submit the decision. Please try again.";
         }
 
-        Message = "Unable to submit the decision.";
+        await LoadDeviationAsync();
 
         return Page();
     }
@@ -205,33 +146,54 @@ public class DeviationReviewModel : PageModel
 
     private async Task LoadDeviationAsync()
     {
-        if (SearchId == null || SearchId <= 0)
+        Deviation = null;
+
+        if (!SearchId.HasValue || SearchId.Value <= 0)
         {
+            Message = "Enter a valid deviation ID.";
             return;
         }
 
         var client = CreateApiClient();
 
-        var response = await client.GetAsync(
+        using var response = await client.GetAsync(
             $"{ApiBaseUrl}/api/deviation-review/{SearchId.Value}");
 
-        if (!response.IsSuccessStatusCode)
+        if (response.IsSuccessStatusCode)
         {
+            string json = await response.Content.ReadAsStringAsync();
+
+            Deviation = JsonSerializer.Deserialize<DeviationRequestDto>(
+                json,
+                JsonOptions);
+
+            if (Deviation != null)
+            {
+                Approval.DeviationRequestId = Deviation.Id;
+            }
+            else
+            {
+                Message = "The API returned no deviation data.";
+            }
+
             return;
         }
 
-        var json = await response.Content.ReadAsStringAsync();
-
-        Deviation = JsonSerializer.Deserialize<DeviationRequestDto>(
-            json,
-            new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
-        if (Deviation != null)
+        if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            Approval.DeviationRequestId = Deviation.Id;
+            Message = $"Deviation with ID {SearchId.Value} was not found.";
+        }
+        else if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            Message = "You are not authenticated. Please sign in again.";
+        }
+        else if (response.StatusCode == HttpStatusCode.Forbidden)
+        {
+            Message = "You are not authorized to review deviations.";
+        }
+        else
+        {
+            Message = "Unable to load the deviation. Please try again.";
         }
     }
 
@@ -241,14 +203,11 @@ public class DeviationReviewModel : PageModel
         var client = _httpClientFactory.CreateClient();
 
         client.DefaultRequestHeaders.Accept.Add(
-            new MediaTypeWithQualityHeaderValue(
-                "application/json"));
+            new MediaTypeWithQualityHeaderValue("application/json"));
 
-        if (Request.Headers.TryGetValue(
-                "Cookie",
-                out var cookie))
+        if (Request.Headers.TryGetValue("Cookie", out var cookie))
         {
-            client.DefaultRequestHeaders.Add(
+            client.DefaultRequestHeaders.TryAddWithoutValidation(
                 "Cookie",
                 cookie.ToString());
         }
