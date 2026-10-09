@@ -70,7 +70,13 @@ public class DocumentReviewModel(
                 return;
             }
 
-            Documents = result.Documents;
+            Documents = result.Documents
+                .Select(document =>
+                {
+                    document.Status = GetDocumentStatusLabel(document.Status);
+                    return document;
+                })
+                .ToList();
             TotalCount = result.TotalCount;
             TotalPages = (int)Math.Ceiling(TotalCount / (double)PageSize);
             PageNumber = result.Page;
@@ -88,6 +94,15 @@ public class DocumentReviewModel(
                 "Pending documents could not be loaded. Please try again.";
         }
     }
+
+    private static string GetDocumentStatusLabel(string status) =>
+        status.Trim().ToLowerInvariant() switch
+        {
+            "0" or "pending" => "Pending",
+            "1" or "active" or "approved" => "Active",
+            "2" or "inactive" or "rejected" or "returned for revision" => "Inactive",
+            _ => status
+        };
 
     public sealed class PendingDocumentsResponse
     {
