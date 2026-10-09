@@ -7,33 +7,411 @@
 
 <link rel="stylesheet" href="~/css/supervisor.css" />
 
-<div class="operation-page">
-
+<div class="operation-page document-review-page">
     <div class="operation-container">
-
-        <h1>Document Review</h1>
-
-        <p class="operation-description">
-            Review pending SOP documents and document revisions.
-        </p>
-
-        <div class="operation-message">
-
-            <h3>Welcome to Document Review</h3>
-
-            <p>
-                The document review functionality will be implemented here.
-            </p>
-
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="mb-1">Document Review</h1>
+                <p class="text-body-secondary mb-0">
+                    Select a pending document to review its details.
+                </p>
+            </div>
+            <a asp-page="/Supervisor/Index"
+               class="btn btn-outline-secondary">
+                ← Back to Supervisor Home
+            </a>
         </div>
 
-        <a asp-page="/Supervisor/Index"
-           class="back-button">
-
-            ← Back to Supervisor Home
-
-        </a>
-
+        <div class="card document-review-card">
+            @* <div class="card-header bg-body py-3">
+                <h2 class="h5 mb-0">Documents awaiting approval</h2>
+            </div> *@
+            <form method="get" class="card-body border-bottom">
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="documentNumber">Search by document number</label>
+                        <input class="form-control"
+                               type="search"
+                               id="documentNumber"
+                               name="documentNumber"
+                               value="@Model.DocumentNumber"
+                               placeholder="Enter document number" />
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label" for="pageSize">Show entries per page</label>
+                        <select class="form-select"
+                                id="pageSize"
+                                name="pageSize"
+                                onchange="this.form.submit()">
+                            @foreach (var size in Model.PageSizeOptions)
+                            {
+                                <option value="@size" selected="@(Model.PageSize == size)">@size</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        <a asp-page="/Supervisor/DocumentReview" class="btn btn-outline-secondary">Clear</a>
+                    </div>
+                </div>
+            </form>
+            @if (Model.LoadErrorMessage is not null)
+            {
+                <div class="alert alert-danger m-3" role="alert">@Model.LoadErrorMessage</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table id="documentApprovalTable" class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Document number</th>
+                                <th scope="col">Title</th>
+                                <th scope="col">Department</th>
+                                <th scope="col">Version</th>
+                                <th scope="col">Created by</th>
+                                <th scope="col">Created on</th>
+                                <th scope="col">Status</th>
+                                <th scope="col" class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var document in Model.Documents)
+                            {
+                                <tr>
+                                    <td>@document.DocumentNumber</td>
+                                    <td>@document.Title</td>
+                                    <td>@document.Department</td>
+                                    <td>Rev. @document.DocumentVersion</td>
+                                    <td>User #@document.CreatedBy</td>
+                                    <td>@document.CreationOn.ToString("yyyy-MM-dd")</td>
+                                    <td><span class="badge text-bg-warning">@document.Status</span></td>
+                                    <td class="text-end">
+                                        <button type="button"
+                                                class="btn btn-sm btn-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#documentReviewModal"
+                                                data-id="@document.Id"
+                                                data-number="@document.DocumentNumber"
+                                                data-title="@document.Title"
+                                                data-department="@document.Department"
+                                                data-version="@document.DocumentVersion"
+                                                data-status="@document.Status"
+                                                data-file-name="@document.FileName"
+                                                data-preview-url="@Url.Page("/Supervisor/DocumentReview", "Preview", new { id = document.Id })"
+                                                data-content-type="@document.ContentType"
+                                                data-created-by="@document.CreatedBy"
+                                                data-created-on="@document.CreationOn.ToString("yyyy-MM-dd HH:mm")"
+                                                data-comment="@document.Comment">
+                                            View details
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                            @if (Model.Documents.Count == 0)
+                            {
+                                <tr class="empty-state-row">
+                                    <td colspan="8" class="py-4 text-center text-body-secondary">
+                                        @(string.IsNullOrWhiteSpace(Model.DocumentNumber)
+                                            ? "There are no pending documents to review."
+                                            : "No pending documents match that document number.")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            <div class="card-footer bg-body d-flex flex-wrap justify-content-between align-items-center gap-2">
+                @if (Model.LoadErrorMessage is null)
+                {
+                    var firstRow = Model.TotalCount == 0 ? 0 : (Model.PageNumber - 1) * Model.PageSize + 1;
+                    var lastRow = Math.Min(Model.PageNumber * Model.PageSize, Model.TotalCount);
+                    <small class="text-body-secondary" aria-live="polite">
+                        Showing @firstRow to @lastRow of @Model.TotalCount documents
+                    </small>
+                }
+                <nav aria-label="Document table pagination">
+                    @if (Model.LoadErrorMessage is null && Model.TotalPages > 1)
+                    {
+                        var firstPage = Math.Max(1, Model.PageNumber - 2);
+                        var lastPage = Math.Min(Model.TotalPages, Model.PageNumber + 2);
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-page="/Supervisor/DocumentReview"
+                                   asp-route-page="@(Model.PageNumber - 1)"
+                                   asp-route-pageSize="@Model.PageSize"
+                                   asp-route-documentNumber="@Model.DocumentNumber"
+                                   aria-label="Go to previous page">Previous</a>
+                            </li>
+                            @for (var pageNumber = firstPage; pageNumber <= lastPage; pageNumber++)
+                            {
+                                <li class="page-item @(pageNumber == Model.PageNumber ? "active" : "")">
+                                    <a class="page-link"
+                                       asp-page="/Supervisor/DocumentReview"
+                                       asp-route-page="@pageNumber"
+                                       asp-route-pageSize="@Model.PageSize"
+                                       asp-route-documentNumber="@Model.DocumentNumber"
+                                       aria-current="@(pageNumber == Model.PageNumber ? "page" : null)">@pageNumber</a>
+                                </li>
+                            }
+                            <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-page="/Supervisor/DocumentReview"
+                                   asp-route-page="@(Model.PageNumber + 1)"
+                                   asp-route-pageSize="@Model.PageSize"
+                                   asp-route-documentNumber="@Model.DocumentNumber"
+                                   aria-label="Go to next page">Next</a>
+                            </li>
+                        </ul>
+                    }
+                </nav>
+            </div>
+        </div>
     </div>
-
 </div>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090">
+        <div id="documentDecisionToast"
+             class="toast align-items-center border-0 text-bg-danger"
+             role="alert"
+             aria-live="assertive"
+             aria-atomic="true"
+             data-bs-delay="5000">
+            <div class="d-flex">
+                <div class="toast-body">
+                    @Model.ErrorMessage
+                </div>
+                <button type="button"
+                        class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="modal fade"
+     id="documentReviewModal"
+     tabindex="-1"
+     aria-labelledby="documentReviewModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <div class="small text-body-secondary" id="reviewDocumentNumber"></div>
+                    <h2 class="modal-title fs-5" id="documentReviewModalLabel"></h2>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="Decision" id="approvalDecisionForm">
+                <input type="hidden" name="documentId" id="approvalDocumentId" />
+                <input type="hidden" name="page" value="@Model.PageNumber" />
+                <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                <input type="hidden" name="documentNumber" value="@Model.DocumentNumber" />
+                <div class="modal-body">
+                <div id="approvalValidationMessage" class="alert alert-success d-none" role="status">
+                    Saving document decision...
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="small text-body-secondary">Document ID</div>
+                        <div class="fw-semibold" id="reviewDocumentId"></div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="small text-body-secondary">Revision</div>
+                        <div class="fw-semibold" id="reviewDocumentVersion"></div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="small text-body-secondary">Requested by</div>
+                        <div class="fw-semibold" id="reviewDocumentCreatedBy"></div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="small text-body-secondary">Created on</div>
+                        <div class="fw-semibold" id="reviewDocumentCreatedOn"></div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="small text-body-secondary">Department</div>
+                        <div class="fw-semibold" id="reviewDocumentDepartment"></div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="small text-body-secondary">Status</div>
+                        <div class="fw-semibold" id="reviewDocumentStatus"></div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="small text-body-secondary">File</div>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <span class="fw-semibold text-break" id="reviewDocumentFileName"></span>
+                            <a id="previewDocumentFile"
+                               class="btn btn-sm btn-outline-primary d-none"
+                               href="#"
+                               aria-label="Preview document in a new tab"
+                               title="Preview document"
+                               target="_blank"
+                               rel="noopener noreferrer">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     width="16"
+                                     height="16"
+                                     fill="currentColor"
+                                     viewBox="0 0 16 16"
+                                     aria-hidden="true">
+                                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.7 5.88 3.5 8 3.5s3.879 1.2 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.334.475-.833 1.108-1.465 1.74C11.88 11.3 10.12 12.5 8 12.5s-3.879-1.2-5.168-2.457A13 13 0 0 1 1.172 8z" />
+                                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="h6">Change summary</h3>
+                <p class="mb-4 text-break" id="reviewDocumentComment"></p>
+                @* <div class="border-top pt-3 mb-3">
+                    <h3 class="h6">Previous decision details</h3>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Decision</dt>
+                        <dd class="col-sm-8" id="reviewDocumentDecision"></dd>
+                        <dt class="col-sm-4">Decision by</dt>
+                        <dd class="col-sm-8" id="reviewDocumentDecisionBy"></dd>
+                        <dt class="col-sm-4">Decision date</dt>
+                        <dd class="col-sm-8" id="reviewDocumentDecisionDate"></dd>
+                        <dt class="col-sm-4">Decision status</dt>
+                        <dd class="col-sm-8" id="reviewDocumentDecisionStatus"></dd>
+                    </dl>
+                </div> *@
+                <fieldset class="mb-3">
+                    <legend class="form-label fs-6">Approval decision</legend>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="decision" id="approve014" value="approve">
+                            <label class="form-check-label" for="approve014">Approve</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="decision" id="revision014" value="revision">
+                            <label class="form-check-label" for="revision014">Return for revision</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="decision" id="reject014" value="reject">
+                            <label class="form-check-label" for="reject014">Reject</label>
+                        </div>
+                    </div>
+                    <div id="decision014Feedback" class="invalid-feedback" aria-live="polite">
+                        Select a decision before continuing.
+                    </div>
+                </fieldset>
+                <div>
+                    <label class="form-label" for="comments014">Reviewer comments</label>
+                    <textarea class="form-control"
+                              id="comments014"
+                              name="comments"
+                              rows="3"
+                              maxlength="1000"
+                              aria-describedby="comments014Feedback"
+                              placeholder="Enter comments for the requester"></textarea>
+                    <div id="comments014Feedback" class="invalid-feedback" aria-live="polite">
+                        Reviewer comments are required for every approval decision.
+                    </div>
+                </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="submitApproval">Submit decision</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            const decisionToast = document.getElementById('documentDecisionToast');
+            if (decisionToast) {
+                bootstrap.Toast.getOrCreateInstance(decisionToast).show();
+            }
+
+            const $approvalModal = $('#documentReviewModal');
+            const $decisionInputs = $('input[name="decision"]');
+            const $decisionFeedback = $('#decision014Feedback');
+            const $comments = $('#comments014');
+            const $commentsFeedback = $('#comments014Feedback');
+            const $approvalValidationMessage = $('#approvalValidationMessage');
+
+            function clearApprovalValidation() {
+                $approvalValidationMessage.addClass('d-none');
+                $decisionInputs.removeClass('is-invalid');
+                $decisionFeedback
+                    .text('Select a decision before continuing.')
+                    .removeClass('d-block');
+                $comments
+                    .removeClass('is-invalid')
+                    .removeAttr('aria-invalid');
+                $commentsFeedback.removeClass('d-block');
+            }
+
+            $approvalModal.on('show.bs.modal', function (event) {
+                const $button = $(event.relatedTarget);
+                const data = $button.data();
+
+                clearApprovalValidation();
+                $decisionInputs.prop('checked', false);
+                $comments.val('');
+                $('#approvalDocumentId').val(data.id || '');
+                $('#reviewDocumentNumber').text(data.number || '');
+                $('#documentReviewModalLabel').text(data.title || 'Document details');
+                $('#reviewDocumentId').text(data.id || 'Not available');
+                $('#reviewDocumentDepartment').text(data.department || 'Not available');
+                $('#reviewDocumentVersion').text(data.version == null ? 'Not available' : `Rev. ${data.version}`);
+                $('#reviewDocumentStatus').text(data.status || 'Not available');
+                $('#reviewDocumentFileName').text(data.fileName || 'Not available');
+                $('#previewDocumentFile')
+                    .attr('href', data.previewUrl || '#')
+                    .toggleClass('d-none', !data.fileName || !data.previewUrl);
+                $('#reviewDocumentCreatedBy').text(data.createdBy || 'Not available');
+                $('#reviewDocumentCreatedOn').text(data.createdOn || 'Not available');
+                $('#reviewDocumentComment').text(data.comment || 'None');
+            });
+
+            $approvalModal.on('hidden.bs.modal', clearApprovalValidation);
+            $decisionInputs.on('change', clearApprovalValidation);
+            $comments.on('input', function () {
+                if (($comments.val() || '').trim()) {
+                    $comments.removeClass('is-invalid').removeAttr('aria-invalid');
+                    $commentsFeedback.removeClass('d-block');
+                }
+            });
+
+            $('#approvalDecisionForm').on('submit', function (event) {
+                clearApprovalValidation();
+
+                const selectedDecision = $('input[name="decision"]:checked').val();
+                const commentsValue = ($comments.val() || '').trim();
+                let isValid = true;
+
+                if (!selectedDecision) {
+                    $decisionInputs.addClass('is-invalid');
+                    $decisionFeedback.addClass('d-block');
+                    isValid = false;
+                }
+
+                if (!commentsValue) {
+                    $comments.addClass('is-invalid').attr('aria-invalid', 'true');
+                    $commentsFeedback.addClass('d-block');
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    event.preventDefault();
+                    $('#documentReviewModal .is-invalid').first().trigger('focus');
+                    return;
+                }
+
+                $approvalValidationMessage.removeClass('d-none');
+                $('#submitApproval').prop('disabled', true);
+            });
+
+        });
+    </script>
+}
