@@ -1,4 +1,4 @@
-﻿# .NET build artifacts
+# .NET build artifacts
 bin/
 obj/
 .vs/
@@ -14,3 +14,10 @@ Desktop.ini
 
 # logs
 *.log
+
+# SQLite databases
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3

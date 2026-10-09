@@ -80,7 +80,7 @@ else
                         <strong>Decision By:</strong> User #@Model.ChangeRequest.DecisionByUserId
                     </div>
                     <div class="col-md-4">
-                        <strong>Decision Date:</strong> @Model.ChangeRequest.DecisionDate.ToString("yyyy-MM-dd HH:mm")
+                        <strong>Decision Date:</strong> @(Model.ChangeRequest.DecisionDate?.ToString("yyyy-MM-dd HH:mm") ?? "-")
                     </div>
                     <div class="col-md-12">
                         <strong>Comments:</strong>

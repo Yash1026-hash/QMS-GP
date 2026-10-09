@@ -32,11 +32,9 @@ public class OperatorChangeRequest
     [StringLength(1000)]
     public string DecisionComment { get; set; } = string.Empty;
 
-    [Required]
-    public int DecisionByUserId { get; set; }
+    public int? DecisionByUserId { get; set; }
 
-    [Required]
-    public DateTime DecisionDate { get; set; }
+    public DateTime? DecisionDate { get; set; }
 
     [Required]
     public string Status { get; set; } = string.Empty;  //active,inactive,pending

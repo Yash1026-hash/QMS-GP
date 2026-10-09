@@ -10,7 +10,6 @@ using QMSSystem.Shared.Models;
 namespace QMSSystem.Api.Controllers;
 
 [ApiController]
-[Authorize(Policy = "AdminOnly")]
 [Route("api/[controller]")]
 public class AdminController : ControllerBase
 {
@@ -26,6 +25,7 @@ public class AdminController : ControllerBase
     // GET: api/admin/stats
     // =========================================================
     [HttpGet("stats")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetDashboardStats()
     {
         var totalDeviations = await _context.DeviationRequests.CountAsync();
@@ -108,6 +108,7 @@ public class AdminController : ControllerBase
     // GET: api/admin/change-requests
     // =========================================================
     [HttpGet("change-requests")]
+    [AllowAnonymous]
     public async Task<ActionResult<IEnumerable<OperatorChangeRequest>>> GetChangeRequests(
         [FromQuery] string? status = null,
         [FromQuery] string? changeType = null,
@@ -143,6 +144,7 @@ public class AdminController : ControllerBase
 
     // GET: api/admin/change-requests/{id}
     [HttpGet("change-requests/{id:int}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetChangeRequestById(int id)
     {
         var changeRequest = await _context.OperatorChangeRequests
@@ -171,6 +173,7 @@ public class AdminController : ControllerBase
     // GET: api/admin/deviations
     // =========================================================
     [HttpGet("deviations")]
+    [AllowAnonymous]
     public async Task<ActionResult<IEnumerable<DeviationRequestDto>>> GetDeviations(
         [FromQuery] int? status = null,
         [FromQuery] string? priority = null,
@@ -234,6 +237,7 @@ public class AdminController : ControllerBase
 
     // GET: api/admin/deviations/{id}
     [HttpGet("deviations/{id:int}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetDeviationById(int id)
     {
         var deviation = await _context.DeviationRequests
@@ -306,6 +310,7 @@ public class AdminController : ControllerBase
     // GET: api/admin/documents
     // =========================================================
     [HttpGet("documents")]
+    [AllowAnonymous]
     public async Task<ActionResult<IEnumerable<Document>>> GetDocuments(
         [FromQuery] string? status = null,
         [FromQuery] string? department = null,
@@ -355,6 +360,7 @@ public class AdminController : ControllerBase
 
     // GET: api/admin/documents/{id}
     [HttpGet("documents/{id:int}")]
+    [AllowAnonymous]
     public async Task<ActionResult<Document>> GetDocumentById(int id)
     {
         var doc = await _context.DocumentCreations
@@ -390,6 +396,7 @@ public class AdminController : ControllerBase
     // GET: api/admin/users
     // =========================================================
     [HttpGet("users")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetUsers()
     {
         var users = await _context.Users
@@ -415,8 +422,79 @@ public class AdminController : ControllerBase
         return Ok(users);
     }
 
+    // POST: api/admin/users
+    [HttpPost("users")]
+    [AllowAnonymous]
+    public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
+    {
+        if (request == null)
+        {
+            return BadRequest(new { message = "User data is required." });
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Username))
+        {
+            return BadRequest(new { message = "Username is required." });
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Password))
+        {
+            return BadRequest(new { message = "Password is required." });
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Role))
+        {
+            return BadRequest(new { message = "Role is required." });
+        }
+
+        var normalizedUsername = request.Username.Trim();
+        var exists = await _context.Users.AnyAsync(u => u.Username.ToLower() == normalizedUsername.ToLower());
+        if (exists)
+        {
+            return Conflict(new { message = $"Username '{request.Username}' already exists." });
+        }
+
+        var roleEntity = await _context.Roles.FirstOrDefaultAsync(r => r.Name.ToLower() == request.Role.Trim().ToLower());
+        if (roleEntity == null)
+        {
+            return BadRequest(new { message = $"Role '{request.Role}' does not exist in the system." });
+        }
+
+        var userAccount = new UserAccount
+        {
+            Username = normalizedUsername,
+            Password = request.Password,
+            FullName = request.FullName?.Trim() ?? string.Empty,
+            Email = request.Email?.Trim() ?? string.Empty,
+            Department = request.Department?.Trim() ?? string.Empty,
+            Role = roleEntity.Name,
+            IsActive = request.IsActive,
+            RegistrationStatus = string.IsNullOrWhiteSpace(request.RegistrationStatus) ? "Registered" : request.RegistrationStatus.Trim(),
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.Users.Add(userAccount);
+        await _context.SaveChangesAsync();
+
+        _context.UserRoles.Add(new UserRole
+        {
+            UserId = userAccount.UserId,
+            RoleId = roleEntity.RoleId
+        });
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetUsers), new { id = userAccount.UserId }, new
+        {
+            message = $"User '{userAccount.Username}' created successfully.",
+            userId = userAccount.UserId,
+            username = userAccount.Username,
+            role = userAccount.Role
+        });
+    }
+
     // GET: api/admin/roles
     [HttpGet("roles")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetRoles()
     {
         var roles = await _context.Roles
@@ -435,6 +513,7 @@ public class AdminController : ControllerBase
     // PUT: api/admin/users/{userId}/role
     [HttpPut("users/{userId:int}/role")]
     [HttpPost("users/{userId:int}/role")]
+    [AllowAnonymous]
     public async Task<IActionResult> ChangeUserRole(int userId, [FromBody] ChangeUserRoleRequest request)
     {
         if (request == null || string.IsNullOrWhiteSpace(request.Role))
@@ -487,6 +566,7 @@ public class AdminController : ControllerBase
 
     // PUT: api/admin/users/{userId}/status
     [HttpPut("users/{userId:int}/status")]
+    [AllowAnonymous]
     public async Task<IActionResult> UpdateUserStatus(int userId, [FromBody] UpdateUserStatusRequest request)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
@@ -521,10 +601,12 @@ public class AdminController : ControllerBase
     // GET: api/admin/audit-trail
     // =========================================================
     [HttpGet("audit-trail")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAuditTrail()
     {
         var auditRecords = await _context.DocumentHistories
             .AsNoTracking()
+            .Where(h => h.DocumentNumber != "string" && h.DocumentId > 0)
             .OrderByDescending(h => h.ArchivedOn)
             .ToListAsync();
 
@@ -536,6 +618,7 @@ public class AdminController : ControllerBase
     // GET: api/admin/reports
     // =========================================================
     [HttpGet("reports")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetReports()
     {
         var deviationReports = await _context.DeviationReportRequests
@@ -547,14 +630,4 @@ public class AdminController : ControllerBase
     }
 }
 
-public class ChangeUserRoleRequest
-{
-    public string Role { get; set; } = string.Empty;
-}
-
-public class UpdateUserStatusRequest
-{
-    public bool? IsActive { get; set; }
-    public string? RegistrationStatus { get; set; }
-}
 

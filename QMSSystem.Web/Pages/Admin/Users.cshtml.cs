@@ -108,6 +108,43 @@ public class UsersModel : PageModel
         return RedirectToPage();
     }
 
+    [BindProperty]
+    public CreateUserRequest NewUser { get; set; } = new();
+
+    public async Task<IActionResult> OnPostCreateUserAsync()
+    {
+        if (string.IsNullOrWhiteSpace(NewUser.Username) ||
+            string.IsNullOrWhiteSpace(NewUser.Password) ||
+            string.IsNullOrWhiteSpace(NewUser.Role))
+        {
+            ErrorMessage = "Username, password, and role are required.";
+            return RedirectToPage();
+        }
+
+        try
+        {
+            var client = _httpClientFactory.CreateClient("QMSApi");
+            var response = await client.PostAsJsonAsync("api/admin/users", NewUser);
+
+            if (response.IsSuccessStatusCode)
+            {
+                SuccessMessage = $"New user '{NewUser.Username}' created successfully!";
+            }
+            else
+            {
+                var errContent = await response.Content.ReadAsStringAsync();
+                ErrorMessage = $"Failed to create user: {errContent}";
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create user {Username}", NewUser.Username);
+            ErrorMessage = $"Error creating user: {ex.Message}";
+        }
+
+        return RedirectToPage();
+    }
+
     private async Task LoadDataAsync()
     {
         try
