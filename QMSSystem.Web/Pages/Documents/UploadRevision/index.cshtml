@@ -1,5 +1,5 @@
  @page "{id:int}"
-@model QMSSystem.Web.Pages.Documents.UploadRevisionModel
+ @model QMSSystem.Web.Pages.Documents.UploadRevision.IndexModel
 @{
     ViewData["Title"] = "Upload New Revision";
 }
@@ -8,16 +8,35 @@
     <h2 class="mb-1">Upload New Revision</h2>
     <small class="text-muted d-block mb-4">
         <code>@Model.Document.DocumentNumber</code> · @Model.Document.Title · 
-        current version v@Model.Document.DocumentVersion
+        @Model.Document.Department · current version v@Model.Document.DocumentVersion · @Model.Document.Status
     </small>
 
     <div class="alert alert-info">
+        Document number, title, and department are editable. Version and status are managed by QMS.
         Uploading a new file will:
         <ul class="mb-0 mt-1">
-            <li>Save the current version (v@Model.Document.DocumentVersion) into history</li>
-            <li>Replace the live file with your new upload</li>
-            <li>Bump the version to v@(Model.Document.DocumentVersion + 1)</li>
+            <li>Archive the current version (v@Model.Document.DocumentVersion) in document history</li>
+            <li>Replace the active file and increase the version to v@(Model.Document.DocumentVersion + 1)</li>
         </ul>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="h6 card-title">Current file</h3>
+            @if (!string.IsNullOrWhiteSpace(Model.Document.FileName))
+            {
+                <p class="mb-2">@Model.Document.FileName</p>
+                <a asp-page-handler="CurrentFile"
+                   asp-route-id="@Model.Document.Id"
+                   class="btn btn-sm btn-outline-primary">
+                    Download current file (v@Model.Document.DocumentVersion)
+                </a>
+            }
+            else
+            {
+                <p class="text-muted mb-0">No current file is attached.</p>
+            }
+        </div>
     </div>
 
     <form method="post" enctype="multipart/form-data">
@@ -32,14 +51,34 @@
         }
 
         <div class="mb-3">
+            <label asp-for="DocumentNumber" class="form-label">Document Number</label>
+            <input asp-for="DocumentNumber" class="form-control" required />
+            <span asp-validation-for="DocumentNumber" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Title" class="form-label">Title</label>
+            <input asp-for="Title" class="form-control" required />
+            <span asp-validation-for="Title" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Department" class="form-label">Department</label>
+            <input asp-for="Department" class="form-control" required />
+            <span asp-validation-for="Department" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
             <label class="form-label">New File</label>
-            <input asp-for="File" type="file" class="form-control" required />
+            <input asp-for="UploadFile" type="file" class="form-control" required />
+            <span asp-validation-for="UploadFile" class="text-danger small"></span>
         </div>
 
         <div class="mb-4">
-            <label class="form-label">Change Description</label>
+            <label asp-for="Comment" class="form-label">Change Description</label>
             <textarea asp-for="Comment" class="form-control" rows="3"
                       placeholder="What changed in this revision?"></textarea>
+            <span asp-validation-for="Comment" class="text-danger small"></span>
         </div>
 
         <div class="d-flex justify-content-end gap-2">
@@ -49,3 +88,7 @@
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

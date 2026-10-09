@@ -68,12 +68,12 @@
                                     View
                                 </a>
 
-                                @if (document.Status == "Approved")
+                                @if (document.Status == "Active")
                                 {
-                                    <a asp-page="/Documents/Revise"
+                                    <a asp-page="/Documents/UploadRevision/Index"
                                        asp-route-id="@document.Id"
                                        class="btn btn-sm btn-outline-warning ms-1">
-                                        Revise
+                                        Upload Revision
                                     </a>
                                 }
                             </td>

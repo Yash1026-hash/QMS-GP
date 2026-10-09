@@ -59,4 +59,88 @@ public async Task<IActionResult> GetDocument(int id)
 
     return Ok(document);
 }
+
+[HttpGet("{id}/current-file")]
+public async Task<IActionResult> DownloadCurrentFile(int id)
+{
+    var document = await _context.DocumentCreations
+        .AsNoTracking()
+        .Where(item => item.Id == id)
+        .Select(item => new
+        {
+            item.FileName,
+            item.ContentType,
+            item.FileData
+        })
+        .FirstOrDefaultAsync();
+
+    if (document is null || document.FileData.Length == 0)
+    {
+        return NotFound(new { message = "The current document file was not found." });
+    }
+
+    return File(
+        document.FileData,
+        string.IsNullOrWhiteSpace(document.ContentType) ? "application/octet-stream" : document.ContentType,
+        Path.GetFileName(document.FileName));
+}
+
+[HttpPost("{id}/upload-revision")]
+public async Task<IActionResult> UploadRevision(
+    int id,
+    IFormFile file,
+    [FromForm] string documentNumber,
+    [FromForm] string title,
+    [FromForm] string department,
+    [FromForm] string? comment)
+{
+    var doc = await _context.DocumentCreations.FindAsync(id);
+    if (doc is null) return NotFound(new { message = $"Document {id} not found." });
+    if (file is null || file.Length == 0) return BadRequest(new { message = "File required." });
+    if (string.IsNullOrWhiteSpace(documentNumber)
+        || string.IsNullOrWhiteSpace(title)
+        || string.IsNullOrWhiteSpace(department))
+    {
+        return BadRequest(new { message = "Document number, title, and department are required." });
+    }
+
+    // 1. Snapshot the CURRENT version into history
+     _context.DocumentHistories.Add(new DocumentHistory
+    {
+        DocumentId      = doc.Id,
+        DocumentNumber  = doc.DocumentNumber,
+        Title           = doc.Title,
+        Department      = doc.Department,
+        DocumentVersion = doc.DocumentVersion,
+        Status          = doc.Status,
+        FileName        = doc.FileName,
+        ContentType     = doc.ContentType,
+        FileData        = doc.FileData,
+        CreatedBy       = doc.CreatedBy,
+        CreationOn      = doc.CreationOn,
+        Comment         = doc.Comment,
+        ArchivedOn      = DateTime.UtcNow,
+        ArchivedBy      = 1
+    });
+
+    // 2. Read uploaded file
+    using var ms = new MemoryStream();
+    await file.CopyToAsync(ms);
+
+    // 3. Update the live row + bump version
+    doc.FileName        = file.FileName;
+    doc.ContentType     = file.ContentType;
+    doc.FileData        = ms.ToArray();
+    doc.DocumentNumber = documentNumber.Trim();
+    doc.Title           = title.Trim();
+    doc.Department     = department.Trim();
+    doc.DocumentVersion = doc.DocumentVersion + 1;
+    doc.Comment         = comment;
+    doc.Status          = "Pending";
+
+    // EF Core saves the archive insert and active-document update in one transaction.
+    await _context.SaveChangesAsync();
+
+    return Ok(new { message = "Revision uploaded.", documentId = doc.Id, version = doc.DocumentVersion });
+}
 }

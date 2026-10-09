@@ -1,81 +1,138 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using QMSSystem.Api.Data;
+using System.Net.Http.Json;
 using QMSSystem.Shared.Models;
+using System.ComponentModel.DataAnnotations;
 
-namespace QMSSystem.Web.Pages.Documents;
+namespace QMSSystem.Web.Pages.Documents.UploadRevision;
 
-public class UploadRevisionModel : PageModel
+public class IndexModel : PageModel
 {
-    private readonly UserDbContext _db;
-    public UploadRevisionModel(UserDbContext db) => _db = db;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public DocumentCreation Document { get; set; } = null!;
+    public IndexModel(IHttpClientFactory httpClientFactory)
+    {
+        _httpClientFactory = httpClientFactory;
+    }
 
-    [BindProperty] public string? Comment { get; set; }
-    [BindProperty] public IFormFile? File { get; set; }
+    public Document Document { get; set; } = null!;
 
-    // Load the current document to show info
+    [BindProperty, Required, StringLength(50)]
+    public string DocumentNumber { get; set; } = string.Empty;
+
+    [BindProperty, Required, StringLength(200)]
+    public string Title { get; set; } = string.Empty;
+
+    [BindProperty, Required, StringLength(100)]
+    public string Department { get; set; } = string.Empty;
+
+    [BindProperty, Required, StringLength(2000)]
+    public string Comment { get; set; } = string.Empty;
+
+    [BindProperty] public IFormFile? UploadFile { get; set; }
+
     public async Task<IActionResult> OnGetAsync(int id)
     {
-        var doc = await _db.DocumentCreations.FindAsync(id);
-        if (doc is null) return NotFound();
+        var client = _httpClientFactory.CreateClient("QMSApi");
 
-        Document = doc;
+        var response = await client.GetAsync($"api/Documents/{id}");
+        if (!response.IsSuccessStatusCode) return NotFound();
+
+        var document = await response.Content.ReadFromJsonAsync<Document>();
+        if (document is null) return NotFound();
+
+        Document = document;
+        SetEditableFields(document);
         return Page();
     }
 
-    // Handle upload
-    public async Task<IActionResult> OnPostAsync(int id)
+    public async Task<IActionResult> OnGetCurrentFileAsync(int id, CancellationToken cancellationToken)
     {
-        var doc = await _db.DocumentCreations.FindAsync(id);
-        if (doc is null) return NotFound();
+        var client = _httpClientFactory.CreateClient("QMSApi");
+        using var response = await client.GetAsync(
+            $"api/Documents/{id}/current-file",
+            cancellationToken);
 
-        Document = doc;
-
-        if (File is null || File.Length == 0)
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
-            ModelState.AddModelError("", "Please choose a file.");
+            return NotFound();
+        }
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return StatusCode((int)response.StatusCode);
+        }
+
+        var content = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+        var fileName = response.Content.Headers.ContentDisposition?.FileNameStar
+            ?? response.Content.Headers.ContentDisposition?.FileName
+            ?? "current-document";
+        fileName = Path.GetFileName(fileName.Trim('"'));
+        var contentType = response.Content.Headers.ContentType?.ToString()
+            ?? "application/octet-stream";
+
+        return File(content, contentType, fileName);
+    }
+
+    public async Task<IActionResult> OnPostAsync(int id, CancellationToken cancellationToken)
+    {
+        var client = _httpClientFactory.CreateClient("QMSApi");
+
+        // Reload doc for redisplay if validation fails
+        var getResp = await client.GetAsync($"api/Documents/{id}", cancellationToken);
+        if (!getResp.IsSuccessStatusCode) return NotFound();
+        var document = await getResp.Content.ReadFromJsonAsync<Document>();
+        if (document is null) return NotFound();
+
+        Document = document;
+
+        if (UploadFile is null || UploadFile.Length == 0)
+        {
+            ModelState.AddModelError(nameof(UploadFile), "Please choose a file.");
+        }
+
+        if (!ModelState.IsValid)
+        {
             return Page();
         }
 
-        // ── STEP 1: Snapshot the CURRENT version into history ──
-        _db.DocumentHistories.Add(new DocumentHistory
+        var uploadFile = UploadFile
+            ?? throw new InvalidOperationException("Please choose a file.");
+
+        using var content = new MultipartFormDataContent();
+        using var stream = uploadFile.OpenReadStream();
+
+        var fileContent = new StreamContent(stream);
+        fileContent.Headers.ContentType =
+            new System.Net.Http.Headers.MediaTypeHeaderValue(
+                uploadFile.ContentType ?? "application/octet-stream");
+
+        content.Add(fileContent, "file", uploadFile.FileName);
+        content.Add(new StringContent(DocumentNumber.Trim()), "documentNumber");
+        content.Add(new StringContent(Title.Trim()), "title");
+        content.Add(new StringContent(Department.Trim()), "department");
+        content.Add(new StringContent(Comment.Trim()), "comment");
+
+        using var response = await client.PostAsync(
+            $"api/Documents/{id}/upload-revision",
+            content,
+            cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
         {
-            DocumentId      = doc.Id,
-            DocumentNumber  = doc.DocumentNumber,
-            Title           = doc.Title,
-            Department      = doc.Department,
-            DocumentVersion = doc.DocumentVersion,
-            Status          = doc.Status,
-            FileName        = doc.FileName,
-            ContentType     = doc.ContentType,
-            FileData        = doc.FileData,
-            CreatedBy       = doc.CreatedBy,
-            CreationOn      = doc.CreationOn,
-            Comment         = doc.Comment,
-            ArchivedOn      = DateTime.UtcNow,
-            ArchivedBy      = 1        // TODO: current logged-in user
-        });
+            var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
+            ModelState.AddModelError("", $"Upload failed ({response.StatusCode}): {errorBody}");
+            return Page();
+        }
 
-        // ── STEP 2: Read uploaded file into byte[] ──
-        using var ms = new MemoryStream();
-        await File.CopyToAsync(ms);
+        return RedirectToPage("/Documents/Index");
+    }
 
-        // ── STEP 3: Update the LIVE row with new file + bump version ──
-        doc.FileName        = File.FileName;
-        doc.ContentType     = File.ContentType;
-        doc.FileData        = ms.ToArray();
-        doc.DocumentVersion = doc.DocumentVersion + 1;
-        doc.Comment         = Comment;         // new revision's change note
-        doc.Status          = "Draft";         // reset status for review flow
-        doc.CreationOn      = DateTime.UtcNow;
-        doc.CreatedBy       = 1;
-
-        // ── STEP 4: Save both changes in one transaction ──
-        await _db.SaveChangesAsync();
-
-        return RedirectToPage("./Details", new { id = doc.Id });
+    private void SetEditableFields(Document document)
+    {
+        DocumentNumber = document.DocumentNumber;
+        Title = document.Title;
+        Department = document.Department;
+        Comment = document.Comment ?? string.Empty;
     }
 }
