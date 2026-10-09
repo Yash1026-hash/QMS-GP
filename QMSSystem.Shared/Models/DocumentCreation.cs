@@ -30,4 +30,11 @@ public class DocumentCreation
 
     [Column("decision", TypeName = "int")]
     public int? DecisionStatus { get; set; }
+
+    [NotMapped]
+    public int? Decision
+    {
+        get => DecisionStatus;
+        set => DecisionStatus = value;
+    }
 }

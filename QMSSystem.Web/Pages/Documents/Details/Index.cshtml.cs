@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using QMSSystem.Shared.DTOs;
 using QMSSystem.Shared.Models;
 using System.Net.Http.Json;
 
@@ -14,13 +15,19 @@ public class DetailsModel : PageModel
         _httpClientFactory = httpClientFactory;
     }
 
-    public DocumentCreation? Document { get; set; }
+    public Document? Document { get; set; }
+    public List<DocumentHistoryDto> History { get; set; } = [];
+    public bool HistoryLoadFailed { get; set; }
 
-    public async Task<IActionResult> OnGetAsync(int id)
+    public async Task<IActionResult> OnGetAsync(
+        int id,
+        CancellationToken cancellationToken)
     {
         var client = _httpClientFactory.CreateClient("QMSApi");
 
-        var response = await client.GetAsync($"api/Documents/{id}");
+        using var response = await client.GetAsync(
+            $"api/Documents/{id}",
+            cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -28,11 +35,26 @@ public class DetailsModel : PageModel
         }
 
         Document = await response.Content
-            .ReadFromJsonAsync<DocumentCreation>();
+            .ReadFromJsonAsync<Document>();
 
         if (Document == null)
         {
             return NotFound();
+        }
+
+        using var historyResponse = await client.GetAsync(
+            $"api/documenthistory/document/{id}",
+            cancellationToken);
+
+        if (historyResponse.IsSuccessStatusCode)
+        {
+            History = await historyResponse.Content
+                .ReadFromJsonAsync<List<DocumentHistoryDto>>(
+                    cancellationToken: cancellationToken) ?? [];
+        }
+        else
+        {
+            HistoryLoadFailed = true;
         }
 
         return Page();

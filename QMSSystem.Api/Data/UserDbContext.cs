@@ -19,7 +19,6 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
 
     public DbSet<UserRole> UserRoles => Set<UserRole>();
 
-
     // =========================================================
     // DOCUMENTS
     // =========================================================
@@ -191,6 +190,20 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
                 .IsRequired();
 
             entity.Property(document => document.Comment)
+                .IsRequired(false);
+
+            entity.Property(document => document.DecisionBy)
+                .HasColumnName("decisionBy")
+                .HasColumnType("varchar")
+                .IsRequired(false);
+
+            entity.Property(document => document.DecisionDate)
+                .HasColumnName("decisionDate")
+                .HasColumnType("datetime")
+                .IsRequired(false);
+
+            entity.Property(document => document.DecisionStatus)
+                .HasColumnName("decision")
                 .IsRequired(false);
         });
 
