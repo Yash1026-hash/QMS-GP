@@ -35,6 +35,7 @@ public class DeviationReviewReportModel : PageModel
     public string SearchMessage { get; private set; } = string.Empty;
 
     public string ErrorMessage { get; private set; } = string.Empty;
+    public bool IsSubmitted { get; private set; }
 
     public string DecisionMessage { get; private set; } = string.Empty;
 

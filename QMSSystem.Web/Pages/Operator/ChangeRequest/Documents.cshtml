@@ -1,0 +1,38 @@
+@page
+@model QMSSystem.Web.Pages.Operator.ChangeRequest.DocumentsModel
+
+<h2>Active Documents</h2>
+
+<table class="table table-bordered">
+
+    <thead>
+        <tr>
+            <th>Document Id</th>
+            <th>Document Title</th>
+            <th>Department</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var document in Model.Documents)
+        {
+            <tr>
+
+                <td>@document.Id</td>
+
+                <td>
+                    <a asp-page="/Operator/ChangeRequest/Edit"
+                       asp-route-documentId="@document.Id">
+                        @document.Title
+                    </a>
+                </td>
+
+                <td>@document.Department</td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>
