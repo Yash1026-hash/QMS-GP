@@ -190,6 +190,20 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
 
             entity.Property(document => document.Comment)
                 .IsRequired(false);
+
+            entity.Property(document => document.DecisionBy)
+                .HasColumnName("decisionBy")
+                .HasColumnType("varchar")
+                .IsRequired(false);
+
+            entity.Property(document => document.DecisionDate)
+                .HasColumnName("decisionDate")
+                .HasColumnType("datetime")
+                .IsRequired(false);
+
+            entity.Property(document => document.Decision)
+                .HasColumnName("decision")
+                .IsRequired(false);
         });
 
 

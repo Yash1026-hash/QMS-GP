@@ -50,14 +50,40 @@ public async Task<IActionResult> GetDocument(int id)
 {
     var document = await _context.DocumentCreations
         .AsNoTracking()
-        .FirstOrDefaultAsync(d => d.Id == id);
+        .Where(d => d.Id == id)
+        .Select(d => new
+        {
+            Document = d,
+            CreatedByName = _context.Users
+                .Where(user => user.UserId == d.CreatedBy)
+                .Select(user => string.IsNullOrWhiteSpace(user.FullName) ? user.Username : user.FullName)
+                .FirstOrDefault()
+        })
+        .FirstOrDefaultAsync();
 
     if (document == null)
     {
         return NotFound();
     }
 
-    return Ok(document);
+    return Ok(new
+    {
+        document.Document.Id,
+        document.Document.DocumentNumber,
+        document.Document.Title,
+        document.Document.Department,
+        document.Document.DocumentVersion,
+        document.Document.Status,
+        document.Document.FileName,
+        document.Document.ContentType,
+        document.Document.CreatedBy,
+        document.CreatedByName,
+        document.Document.CreationOn,
+        document.Document.Comment,
+        document.Document.DecisionBy,
+        document.Document.DecisionDate,
+        document.Document.Decision
+    });
 }
 
 [HttpGet("{id}/current-file")]

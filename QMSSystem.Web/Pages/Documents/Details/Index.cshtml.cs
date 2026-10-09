@@ -14,7 +14,7 @@ public class DetailsModel : PageModel
         _httpClientFactory = httpClientFactory;
     }
 
-    public DocumentCreation? Document { get; set; }
+    public Document? Document { get; set; }
 
     public async Task<IActionResult> OnGetAsync(int id)
     {
@@ -28,7 +28,7 @@ public class DetailsModel : PageModel
         }
 
         Document = await response.Content
-            .ReadFromJsonAsync<DocumentCreation>();
+            .ReadFromJsonAsync<Document>();
 
         if (Document == null)
         {

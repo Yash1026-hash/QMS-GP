@@ -26,6 +26,8 @@ public class Document
   
     public int CreatedBy { get; set; }
 
+    public string? CreatedByName { get; set; }
+
     public DateTime CreationOn { get; set; }
 
   
@@ -33,11 +35,9 @@ public class Document
 
    
   
-    public int? DecisionBy { get; set; }
+    public string? DecisionBy { get; set; }
 
-    public string? Decision { get; set; }
+    public int? Decision { get; set; }
 
     public DateTime? DecisionDate { get; set; }
-
-    public int DecisionStatus { get; set; }
 }

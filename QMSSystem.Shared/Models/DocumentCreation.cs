@@ -19,4 +19,7 @@ public class DocumentCreation
     public DateTime CreationOn { get; set; }
 
     public string? Comment { get; set; }
+    public string? DecisionBy { get; set; }
+    public DateTime? DecisionDate { get; set; }
+    public int? Decision { get; set; }
 }
