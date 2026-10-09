@@ -85,7 +85,15 @@
                                     <span class="small text-muted">@doc.FileName</span>
                                 </td>
                                 <td>@doc.Status</td>
-                                <td>@(string.IsNullOrWhiteSpace(doc.Decision) ? "Pending" : doc.Decision)</td>
+                                <td>
+                                    @(doc.Decision switch
+                                    {
+                                        1 => "Approved",
+                                        2 => "Rejected",
+                                        null => "Pending",
+                                        _ => doc.Decision.ToString()
+                                    })
+                                </td>
                                 <td>User #@doc.CreatedBy</td>
                                 <td>@doc.CreationOn.ToString("yyyy-MM-dd")</td>
                                 <td class="text-end">
@@ -99,4 +107,3 @@
         }
     </div>
 </div>
-

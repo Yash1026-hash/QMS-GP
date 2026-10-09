@@ -130,10 +130,9 @@ public class SupervisorController : ControllerBase
                 CreatedBy = document.CreatedBy,
                 CreationOn = document.CreationOn,
                 Comment = document.Comment,
-                DecisionBy = reviewerId,
+                DecisionBy = reviewerId?.ToString(),
                 DecisionDate = pendingDecisionDate,
-                DecisionStatus = document.DecisionStatus ?? 0,
-                Decision = "Pending",
+                Decision = document.DecisionStatus,
             })
             .ToList();
 
@@ -157,7 +156,7 @@ public class SupervisorController : ControllerBase
             return BadRequest("A valid document ID is required.");
         }
 
-        var decision = decisionRequest.Decision?
+        var decision = decisionRequest.DecisionText?
             .Trim()
             .ToLowerInvariant() switch
         {
@@ -238,8 +237,9 @@ public class SupervisorController : ControllerBase
         {
             Id = document.Id,
             Status = document.Status,
-            Decision = decision,
-            DecisionBy = reviewerIds[0],
+            DecisionText = decision,
+            Decision = document.DecisionStatus,
+            DecisionBy = reviewerIds[0].ToString(),
             DecisionDate = document.DecisionDate,
             DecisionStatus = document.DecisionStatus ?? 0
         });

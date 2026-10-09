@@ -211,7 +211,7 @@ public class DocumentReviewModel(
         var request = new Document
         {
             Id = documentId,
-            Decision = decision.Trim(),
+            DecisionText = decision.Trim(),
             Comment = comments.Trim()
         };
 

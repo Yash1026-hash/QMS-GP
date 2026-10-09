@@ -94,19 +94,22 @@ else
         <div class="card-body">
             <div class="row g-3">
                 <div class="col-md-4">
-                    <strong>Decision:</strong> @(string.IsNullOrWhiteSpace(Model.Document.Decision) ? "Pending" : Model.Document.Decision)
+                    <strong>Decision:</strong>
+                    @(Model.Document.Decision switch
+                    {
+                        1 => "Approved",
+                        2 => "Rejected",
+                        null => "Pending",
+                        _ => Model.Document.Decision.ToString()
+                    })
                 </div>
                 <div class="col-md-4">
-                    <strong>Decision By:</strong> @(Model.Document.DecisionBy.HasValue ? $"User #{Model.Document.DecisionBy.Value}" : "N/A")
+                    <strong>Decision By:</strong> @(string.IsNullOrWhiteSpace(Model.Document.DecisionBy) ? "N/A" : Model.Document.DecisionBy)
                 </div>
                 <div class="col-md-4">
                     <strong>Decision Date:</strong> @(Model.Document.DecisionDate.HasValue ? Model.Document.DecisionDate.Value.ToString("yyyy-MM-dd") : "N/A")
-                </div>
-                <div class="col-md-4">
-                    <strong>Decision Status:</strong> @Model.Document.DecisionStatus
                 </div>
             </div>
         </div>
     </div>
 }
-
