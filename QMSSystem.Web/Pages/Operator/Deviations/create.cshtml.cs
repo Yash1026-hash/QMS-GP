@@ -41,10 +41,6 @@ public class CreateModel : PageModel
 
         return Page();
     }
-<<<<<<< Updated upstream
-}      
-=======
-
     public async Task<IActionResult> OnPostAsync()
     {
         // Validate fields entered by the operator.
@@ -158,4 +154,3 @@ public class CreateModel : PageModel
         }
     }
 }
->>>>>>> Stashed changes
