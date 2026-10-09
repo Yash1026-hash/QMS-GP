@@ -32,19 +32,6 @@
         padding: 24px;
     }
 
-    .search-button {
-        background: #167e8d;
-        border-color: #167e8d;
-        color: #fff;
-        min-width: 180px;
-    }
-
-    .search-button:hover {
-        background: #116775;
-        border-color: #116775;
-        color: #fff;
-    }
-
     .field-label {
         color: #263b53;
         font-weight: 600;
@@ -104,6 +91,18 @@
         line-height: 1.4;
     }
 
+    .reports-table th {
+        background: #f7f9fb;
+        color: #263b53;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .reports-table td {
+        vertical-align: middle;
+    }
+
     @@media (max-width: 768px) {
         .review-page {
             padding: 20px 12px;
@@ -115,10 +114,6 @@
 
         .review-card > .card-body {
             padding: 18px 16px;
-        }
-
-        .search-button {
-            width: 100%;
         }
 
         .decision-button {
@@ -133,65 +128,108 @@
 
         <!-- Page heading -->
         <div class="mb-4">
-            <h2 class="fw-bold">Deviation Review Report</h2>
+            <h2 class="fw-bold">
+                @(Model.ReportId > 0 ? "Deviation Report Details" : "Submitted Deviation Reports")
+            </h2>
             <p class="text-muted">
-                Search by Deviation ID to view the submitted report and its review status.
+                @(Model.ReportId > 0
+                    ? "Review the submitted report and record your decision."
+                    : "View and review deviation reports submitted by operators.")
             </p>
         </div>
 
-        <!-- Search section -->
-        <div class="review-card">
-            <div class="card-body">
-                <form method="get">
-                    <div class="row align-items-end g-3">
-                        <div class="col-md-8">
-                            <label asp-for="Search"
-                                   class="form-label field-label">
-                                Deviation ID
-                            </label>
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                @Model.ErrorMessage
+            </div>
+        }
 
-                            <input asp-for="Search"
-                                   type="number"
-                                   min="1"
-                                   class="form-control form-control-lg"
-                                   placeholder="Enter Deviation ID"
-                                   required />
-                        </div>
-
-                        <div class="col-md-4">
-                            <button type="submit"
-                                    class="btn search-button btn-lg w-100">
-                                Search Report
-                            </button>
-                        </div>
+        @if (Model.ReportId <= 0)
+        {
+            <div class="review-card">
+                <div class="card-heading">
+                    <h4 class="section-title">Submitted Reports</h4>
+                    <div class="section-description">
+                        Reports are listed with the most recently submitted first.
                     </div>
-                </form>
+                </div>
 
-                @if (!string.IsNullOrWhiteSpace(Model.SearchMessage))
+                @if (Model.Reports.Count > 0)
                 {
-                    <div class="alert alert-info mt-3 mb-0" role="status">
-                        @Model.SearchMessage
+                    <div class="table-responsive">
+                        <table class="table table-hover reports-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Report ID</th>
+                                    <th>Deviation ID</th>
+                                    <th>Document ID</th>
+                                    <th>Submitted By</th>
+                                    <th>Submitted Date</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var report in Model.Reports)
+                                {
+                                    <tr>
+                                        <td>@report.Id</td>
+                                        <td>@report.DeviationId</td>
+                                        <td>@report.DocumentId</td>
+                                        <td>@(string.IsNullOrWhiteSpace(report.CreatedBy) ? "Unknown" : report.CreatedBy)</td>
+                                        <td>@report.CreatedDate.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</td>
+                                        <td>
+                                            @if (report.Status == 1)
+                                            {
+                                                <span class="status-badge status-approved">Approved</span>
+                                            }
+                                            else if (report.Status == 2)
+                                            {
+                                                <span class="status-badge status-rejected">Rejected</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-badge status-pending">Pending Review</span>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            <a asp-page="/Supervisor/DeviationReviewReport"
+                                               asp-route-ReportId="@report.Id"
+                                               class="btn btn-sm btn-outline-primary">
+                                                View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
                 }
-
-                @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+                else if (string.IsNullOrWhiteSpace(Model.ErrorMessage))
                 {
-                    <div class="alert alert-danger mt-3 mb-0" role="alert">
-                        @Model.ErrorMessage
+                    <div class="card-body text-center text-muted">
+                        No deviation reports have been submitted yet.
                     </div>
                 }
             </div>
-        </div>
-
-        <!-- Report details -->
-        @if (Model.Report.Id > 0)
+        }
+        else if (Model.Report.Id > 0)
         {
             <div class="review-card">
 
                 <div class="card-heading">
-                    <h4 class="section-title">Deviation Report Details</h4>
-                    <div class="section-description">
-                        Report information submitted by the operator.
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+                        <div>
+                            <h4 class="section-title">Deviation Report Details</h4>
+                            <div class="section-description">
+                                Report information submitted by the operator.
+                            </div>
+                        </div>
+                        <a asp-page="/Supervisor/DeviationReviewReport"
+                           class="btn btn-outline-secondary btn-sm">
+                            Back to Reports
+                        </a>
                     </div>
                 </div>
 
@@ -317,7 +355,6 @@
 
                     <hr />
 
-                    <!-- Supervisor decision -->
                     <h5 class="fw-bold mb-3">Supervisor Decision</h5>
 
                     @if (Model.Report.Decision == 1 ||
@@ -326,7 +363,6 @@
                         <div class="alert @(Model.Report.Decision == 1
                             ? "alert-success"
                             : "alert-danger")">
-
                             <strong>
                                 @(Model.Report.Decision == 1
                                     ? "Report Approved"
@@ -357,19 +393,13 @@
                                     : Model.Report.DecisionComments)
                             </div>
                         </div>
-
-                        @if (Model.Report.Decision == 1)
-                        {
-                            <p class="text-muted small mb-0">
-                                The submitted report details are available above.
-                            </p>
-                        }
                     }
                     else
                     {
                         <form method="post">
                             <input type="hidden" asp-for="Report.Id" />
                             <input type="hidden" asp-for="Report.DeviationId" />
+                            <input type="hidden" asp-for="ReportId" />
 
                             <div class="mb-3">
                                 <label asp-for="DecisionComments"
@@ -386,18 +416,32 @@
                             <div asp-validation-summary="All"
                                  class="text-danger mb-3"></div>
 
-                            <button type="submit"
-                                    name="Decision"
-                                    value="1"
-                                    class="btn btn-success decision-button me-2">
-                                Approve
-                            </button>
+                            <div class="mb-3">
+                                <span class="form-label field-label d-block">Decision</span>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input"
+                                           type="radio"
+                                           asp-for="Decision"
+                                           value="1"
+                                           id="decisionApprove" />
+                                    <label class="form-check-label" for="decisionApprove">
+                                        Approve
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input"
+                                           type="radio"
+                                           asp-for="Decision"
+                                           value="2"
+                                           id="decisionReject" />
+                                    <label class="form-check-label" for="decisionReject">
+                                        Reject
+                                    </label>
+                                </div>
+                            </div>
 
-                            <button type="submit"
-                                    name="Decision"
-                                    value="2"
-                                    class="btn btn-danger decision-button">
-                                Reject
+                            <button type="submit" class="btn btn-primary decision-button">
+                                Submit
                             </button>
                         </form>
                     }
@@ -409,6 +453,18 @@
                         </div>
                     }
 
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="review-card">
+                <div class="card-body">
+                    <p class="mb-3">The selected report could not be loaded.</p>
+                    <a asp-page="/Supervisor/DeviationReviewReport"
+                       class="btn btn-outline-secondary">
+                        Back to Reports
+                    </a>
                 </div>
             </div>
         }

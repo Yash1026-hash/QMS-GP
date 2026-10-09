@@ -30,9 +30,9 @@ public class DeviationReviewReportModel : PageModel
     public string DecisionComments { get; set; } = string.Empty;
 
     [BindProperty(SupportsGet = true)]
-    public int Search { get; set; }
+    public int ReportId { get; set; }
 
-    public string SearchMessage { get; private set; } = string.Empty;
+    public List<DeviationReportDto> Reports { get; private set; } = [];
 
     public string ErrorMessage { get; private set; } = string.Empty;
     public bool IsSubmitted { get; private set; }
@@ -45,13 +45,13 @@ public class DeviationReviewReportModel : PageModel
 
     public async Task<IActionResult> OnGetAsync() 
     {
-        if (Search <= 0)
+        if (ReportId <= 0)
         {
-            SearchMessage = "Enter a Deviation ID to search for its report.";
+            await LoadReportsAsync();
             return Page();
         }
 
-        await LoadReportByDeviationAsync(Search);
+        await LoadReportByIdAsync(ReportId);
         return Page();
     }
 
@@ -59,16 +59,17 @@ public class DeviationReviewReportModel : PageModel
     {
         int deviationId = Report.DeviationId;
         int reportId = Report.Id;
+        ReportId = reportId;
 
         if (deviationId <= 0 || reportId <= 0)
         {
-            ErrorMessage = "Search for a report using its Deviation ID first.";
+            ErrorMessage = "Select a report from the submitted reports list first.";
             return Page();
         }
 
         if (Decision != 1 && Decision != 2)
         {
-            await LoadReportByDeviationAsync(deviationId);
+            await LoadReportByIdAsync(reportId);
             ErrorMessage = "Please select Approve or Reject.";
             return Page();
         }
@@ -115,12 +116,12 @@ public class DeviationReviewReportModel : PageModel
                     _ => $"Could not save the decision (HTTP {(int)response.StatusCode})."
                 };
 
-                await LoadReportByDeviationAsync(deviationId);
+                await LoadReportByIdAsync(reportId);
                 ErrorMessage = errorMessage;
                 return Page();
             }
 
-            await LoadReportByDeviationAsync(deviationId);
+            await LoadReportByIdAsync(reportId);
             if (Report.Id <= 0 ||
                 Report.Decision != decision ||
                 !string.Equals(
@@ -146,7 +147,7 @@ public class DeviationReviewReportModel : PageModel
                 "Could not save decision for report {ReportId}",
                 reportId);
 
-            await LoadReportByDeviationAsync(deviationId);
+            await LoadReportByIdAsync(reportId);
             ErrorMessage =
                 $"Could not connect to the API at {ApiBaseUrl}. Check that the API is running.";
         }
@@ -156,14 +157,14 @@ public class DeviationReviewReportModel : PageModel
                 "Unexpected error saving decision for report {ReportId}",
                 reportId);
 
-            await LoadReportByDeviationAsync(deviationId);
+            await LoadReportByIdAsync(reportId);
             ErrorMessage = "An unexpected error occurred while saving the decision.";
         }
 
         return Page();
     }
 
-    private async Task LoadReportByDeviationAsync(int deviationId)
+    private async Task LoadReportsAsync()
     {
         try
         {
@@ -174,7 +175,67 @@ public class DeviationReviewReportModel : PageModel
 
             using var request = new HttpRequestMessage(
                 HttpMethod.Get,
-                $"api/DeviationReports/deviation/{deviationId}");
+                "api/DeviationReports");
+
+            if (Request.Headers.TryGetValue("Cookie", out var cookie))
+            {
+                request.Headers.TryAddWithoutValidation(
+                    "Cookie", cookie.ToString());
+            }
+
+            using var response = await client.SendAsync(request);
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                ErrorMessage = "The API returned 401 Unauthorized. Check the authentication cookie.";
+                return;
+            }
+
+            if (response.StatusCode == HttpStatusCode.Forbidden)
+            {
+                ErrorMessage = "Access denied. Your account may not have permission.";
+                return;
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            var savedReports =
+                await response.Content.ReadFromJsonAsync<List<DeviationReportRequest>>();
+
+            if (savedReports is null)
+            {
+                ErrorMessage = "The API returned no report data.";
+                return;
+            }
+
+            Reports = savedReports
+                .Select(MapReport)
+                .ToList();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Could not load submitted deviation reports");
+            ErrorMessage =
+                $"Could not connect to the API at {ApiBaseUrl}. Check that the API is running.";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error loading submitted deviation reports");
+            ErrorMessage = "An unexpected error occurred while loading submitted reports.";
+        }
+    }
+
+    private async Task LoadReportByIdAsync(int reportId)
+    {
+        try
+        {
+            using var client = new HttpClient
+            {
+                BaseAddress = new Uri(ApiBaseUrl.TrimEnd('/') + "/")
+            };
+
+            using var request = new HttpRequestMessage(
+                HttpMethod.Get,
+                $"api/DeviationReports/{reportId}");
 
             if (Request.Headers.TryGetValue("Cookie", out var cookie))
             {
@@ -199,7 +260,7 @@ public class DeviationReviewReportModel : PageModel
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
                 Report = new DeviationReportDto();
-                ErrorMessage = $"No report was found for Deviation ID {deviationId}.";
+                ErrorMessage = $"Deviation report {reportId} was not found.";
                 return;
             }
 
@@ -214,17 +275,14 @@ public class DeviationReviewReportModel : PageModel
                 return;
             }
 
-            MapReport(savedReport);
-
-            Search = deviationId;
-            SearchMessage = $"Report loaded for Deviation ID {deviationId}.";
+            Report = MapReport(savedReport);
             ErrorMessage = string.Empty;
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex,
-                "Could not load report for Deviation ID {DeviationId}",
-                deviationId);
+                "Could not load report {ReportId}",
+                reportId);
 
             ErrorMessage =
                 $"Could not connect to the API at {ApiBaseUrl}. Check that the API is running.";
@@ -232,16 +290,16 @@ public class DeviationReviewReportModel : PageModel
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                "Unexpected error loading Deviation ID {DeviationId}",
-                deviationId);
+                "Unexpected error loading report {ReportId}",
+                reportId);
 
             ErrorMessage = "An unexpected error occurred while loading the report.";
         }
     }
 
-    private void MapReport(DeviationReportRequest source)
+    private static DeviationReportDto MapReport(DeviationReportRequest source)
     {
-        Report = new DeviationReportDto
+        return new DeviationReportDto
         {
             Id = source.Id,
             DeviationId = source.DeviationId,
