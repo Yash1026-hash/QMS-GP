@@ -128,7 +128,9 @@ public class SupervisorController : ControllerBase
         var decision = decisionRequest.Decision?.Trim().ToLowerInvariant() switch
         {
             "approve" => "Approved",
-            "revision" => "Returned",
+            // When a supervisor selects "revision", the document is sent back to the creator
+            // for corrections instead of being approved or rejected permanently.
+            "revision" => "Returned for revision",
             "reject" => "Rejected",
             _ => null
         };
@@ -138,6 +140,8 @@ public class SupervisorController : ControllerBase
             return BadRequest("Decision must be approve, revision, or reject.");
         }
 
+        // Approved documents become active; revisions and rejections are kept inactive
+        // until the document owner resubmits or the rejection is handled separately.
         var documentStatus = decision == "Approved" ? "Active" : "Inactive";
         var decisionStatus = decision == "Approved" ? 1 : 2;
 
@@ -183,6 +187,8 @@ public class SupervisorController : ControllerBase
 
         await _context.SaveChangesAsync(cancellationToken);
 
+        // Return the completed decision to the UI so "Returned for revision" is shown
+        // clearly on the document review screen and in the document details history.
         return Ok(new Document
         {
             Id = document.Id,
