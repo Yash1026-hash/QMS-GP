@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace QMSSystem.Web.Pages.Operator.Deviations;
 
-public class DetailsModel : PageModel
+public class DetailsModel : PageModel   
 {
     [BindProperty(SupportsGet = true)]
     public int Id { get; set; }

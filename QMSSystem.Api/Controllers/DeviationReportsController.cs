@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QMSSystem.Api.Data;
+using QMSSystem.Shared.Dtos.Deviations;
 using QMSSystem.Shared.Models;
 
 namespace QMSSystem.Api.Controllers;
@@ -95,5 +97,52 @@ public class DeviationReportsController : ControllerBase
             nameof(GetById),
             new { id = request.Id },
             request);
+    }
+
+    // PUT: api/DeviationReports/5/decision
+    [Authorize(Policy = "SupervisorOnly")]
+    [HttpPut("{id:int}/decision")]
+    public async Task<ActionResult<DeviationReportRequest>> UpdateDecision(
+        int id,
+        DeviationReportDecisionDto decision)
+    {
+        if (id <= 0)
+        {
+            return BadRequest(new { message = "Invalid report ID." });
+        }
+
+        if (decision.Decision != 1 && decision.Decision != 2)
+        {
+            return BadRequest(new
+            {
+                message = "Decision must be either 1 (Approve) or 2 (Reject)."
+            });
+        }
+
+        var report = await _context.DeviationReportRequests
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (report is null)
+        {
+            return NotFound(new { message = $"Deviation report {id} was not found." });
+        }
+
+        if (report.Decision.HasValue)
+        {
+            return Conflict(new
+            {
+                message = "This deviation report has already been reviewed."
+            });
+        }
+
+        report.Decision = decision.Decision;
+        report.DecisionBy = User.Identity?.Name ?? "Supervisor";
+        report.DecisionOn = DateTime.UtcNow;
+        report.DecisionComments = decision.DecisionComments;
+        report.Status = decision.Decision;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(report);
     }
 }

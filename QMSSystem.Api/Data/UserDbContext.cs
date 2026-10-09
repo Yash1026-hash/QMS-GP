@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using QMSSystem.Shared.Dtos;
 using QMSSystem.Shared.DTOs;
+using QMSSystem.Shared.Dtos;
 using QMSSystem.Shared.Models;
 
 namespace QMSSystem.Api.Data;
@@ -13,7 +14,7 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
     // =========================================================
 
     public DbSet<UserAccount> Users => Set<UserAccount>();
-
+    public DbSet<DocumentCreation> DocumentCreations => Set<DocumentCreation>();
     public DbSet<Role> Roles => Set<Role>();
 
     public DbSet<UserRole> UserRoles => Set<UserRole>();
@@ -22,7 +23,7 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
     // DOCUMENTS
     // =========================================================
 
-    public DbSet<DocumentCreation> DocumentCreations => Set<DocumentCreation>();
+    // public DbSet<DocumentCreation> DocumentCreations => Set<DocumentCreation>();
 
     public DbSet<DocumentHistory> DocumentHistories => Set<DocumentHistory>();
 
