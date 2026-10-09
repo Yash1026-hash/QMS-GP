@@ -39,8 +39,6 @@ public class DeviationReviewReportModel : PageModel
 
     public string DecisionMessage { get; private set; } = string.Empty;
 
-    public bool IsSubmitted { get; private set; }
-
     public bool IsApproved => Report.Decision == 1;
 
     public bool IsRejected => Report.Decision == 2;
