@@ -1,0 +1,97 @@
+@page
+@model QMSSystem.Web.Pages.Admin.AuditTrailModel
+@{
+    ViewData["Title"] = "Document Audit Trail";
+    ViewData["ActivePage"] = "AuditTrail";
+}
+
+<partial name="_AdminNav" />
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="h4 mb-1">Document Audit Trail</h2>
+        <p class="text-muted mb-0">Complete historical revision logs and document archiving records.</p>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-1"></i> @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Filters -->
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <label class="form-label small">Search</label>
+                <input type="text" name="SearchQuery" value="@Model.SearchQuery" class="form-control" placeholder="Search document number, title, comment..." />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small">Department</label>
+                <input type="text" name="DepartmentFilter" value="@Model.DepartmentFilter" class="form-control" placeholder="Filter by department..." />
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1">Filter</button>
+                <a asp-page="/Admin/AuditTrail" class="btn btn-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Audit Trail Table -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <span class="fw-semibold">Historical Audit Log Entries (@Model.AuditRecords.Count)</span>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.AuditRecords.Count == 0)
+        {
+            <div class="p-4 text-center text-muted">
+                No archived document history records found.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Archived Date</th>
+                            <th>Doc Number</th>
+                            <th>Ver</th>
+                            <th>Title</th>
+                            <th>Department</th>
+                            <th>Archived By</th>
+                            <th>Status</th>
+                            <th>Comments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var record in Model.AuditRecords)
+                        {
+                            <tr>
+                                <td>@record.ArchivedOn.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>
+                                    <a asp-page="/Admin/DocumentRegister/Details" asp-route-id="@record.DocumentId" class="fw-semibold text-decoration-none">
+                                        @record.DocumentNumber
+                                    </a>
+                                </td>
+                                <td><span class="badge bg-light text-dark border">v@record.DocumentVersion</span></td>
+                                <td>@record.Title</td>
+                                <td>@record.Department</td>
+                                <td>User #@record.ArchivedBy</td>
+                                <td><span class="badge bg-secondary">@record.Status</span></td>
+                                <td class="small">@(string.IsNullOrWhiteSpace(record.Comment) ? "-" : record.Comment)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+

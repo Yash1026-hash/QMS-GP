@@ -1,0 +1,164 @@
+@page
+@model QMSSystem.Web.Pages.Admin.MasterDataModel
+@{
+    ViewData["Title"] = "Master Data & Configurations";
+    ViewData["ActivePage"] = "MasterData";
+}
+
+<partial name="_AdminNav" />
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="h4 mb-1">Master Data & Configurations</h2>
+        <p class="text-muted mb-0">System roles, organizational departments, and workflow reference dictionaries.</p>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-1"></i> @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row g-4 mb-4">
+    <!-- System Roles -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">System Security Roles (@Model.Roles.Count)</span>
+                <a asp-page="/Admin/Users" class="small text-decoration-none">Manage User Assignments</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;">Role ID</th>
+                                <th>Role Name</th>
+                                <th>Assigned Users</th>
+                                <th>Access Scope</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var role in Model.Roles)
+                            {
+                                <tr>
+                                    <td>#ROL-@role.RoleId</td>
+                                    <td>
+                                        <span class="badge @(role.Name switch {
+                                            "Admin" => "bg-danger",
+                                            "Supervisor" => "bg-warning text-dark",
+                                            "Operator" => "bg-primary",
+                                            _ => "bg-secondary"
+                                        })">@role.Name</span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-semibold">@(Model.RoleUserCounts.TryGetValue(role.Name, out var count) ? count : 0)</span> active
+                                    </td>
+                                    <td class="small text-muted">
+                                        @(role.Name switch {
+                                            "Admin" => "Full system administration, user role assignments, audit trail review",
+                                            "Supervisor" => "Review and approval of deviation reports and change proposals",
+                                            "Operator" => "Creation of documents, submission of deviations and change requests",
+                                            _ => "Standard access"
+                                        })
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Departments -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <span class="fw-semibold">Registered Departments (@Model.Departments.Count)</span>
+            </div>
+            <div class="card-body">
+                @if (Model.Departments.Count == 0)
+                {
+                    <div class="p-3 text-center text-muted">No department records found.</div>
+                }
+                else
+                {
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var dept in Model.Departments)
+                        {
+                            <span class="badge bg-light text-dark border p-2 fs-6">
+                                <i class="bi bi-building me-1 text-primary"></i> @dept
+                            </span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Workflow Configurations Reference -->
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-light fw-semibold">Deviation Statuses</div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Status 0: Pending</span>
+                        <span class="badge bg-secondary">Pending</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Status 1: Active</span>
+                        <span class="badge bg-success">Active</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Status 2: Inactive</span>
+                        <span class="badge bg-dark">Inactive</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-light fw-semibold">Deviation Review Decisions</div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Decision null: Pending Review</span>
+                        <span class="badge bg-warning text-dark">Under Review</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Decision 1: Approved</span>
+                        <span class="badge bg-success">Approved</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Decision 2: Rejected</span>
+                        <span class="badge bg-danger">Rejected</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-light fw-semibold">Change Request Categories</div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item"><strong>Process:</strong> Manufacturing and SOP alterations</li>
+                    <li class="list-group-item"><strong>Equipment:</strong> Tooling, instrumentation, machinery changes</li>
+                    <li class="list-group-item"><strong>Software:</strong> Automated systems, firmware, IT configuration</li>
+                    <li class="list-group-item"><strong>Documentation:</strong> Manuals, specifications, guidelines</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
