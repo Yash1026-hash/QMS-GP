@@ -32,7 +32,6 @@ public class OperatorChangeRequest
     [StringLength(1000)]
     public string? DecisionComment { get; set; }
 
-    
     public int? DecisionByUserId { get; set; }
 
     public DateTime? DecisionDate { get; set; }

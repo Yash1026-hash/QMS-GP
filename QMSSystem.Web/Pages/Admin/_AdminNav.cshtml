@@ -14,6 +14,9 @@
             <a class="nav-link @(activePage == "Deviations" ? "active" : "")" asp-page="/Admin/Deviations/Index">Deviations</a>
         </li>
         <li class="nav-item">
+            <a class="nav-link @(activePage == "DeviationReports" || activePage == "Reports" ? "active" : "")" asp-page="/Admin/Reports">Deviation Reports</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link @(activePage == "ChangeRequests" ? "active" : "")" asp-page="/Admin/ChangeRequests/Index">Change Requests</a>
         </li>
         <li class="nav-item">
@@ -27,9 +30,6 @@
         </li>
         <li class="nav-item">
             <a class="nav-link @(activePage == "AuditTrail" ? "active" : "")" asp-page="/Admin/AuditTrail">Audit Trail</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link @(activePage == "Reports" ? "active" : "")" asp-page="/Admin/Reports">Reports</a>
         </li>
     </ul>
 </div>
