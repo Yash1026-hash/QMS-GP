@@ -329,10 +329,16 @@
             <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
             <path d="M12 11v5m0-8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
         </svg>
-        <span><strong>Selection and submission are not connected yet.</strong> Enter the accepted deviation and SOP document IDs for now. They can be filled automatically when the SOP selection flow is available.</span>
+        <span><strong>Before you submit:</strong> Enter the accepted deviation and SOP document IDs, summarize the corrective work, and attach supporting evidence.</span>
     </div>
 
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success" role="status">@successMessage</div>
+    }
+
     <form method="post" enctype="multipart/form-data" class="report-form">
+        <div asp-validation-summary="All" class="alert alert-danger m-3" role="alert"></div>
         <section class="form-section" aria-labelledby="deviation-details-heading">
             <div class="section-heading">
                 <span class="section-icon" aria-hidden="true">
@@ -390,10 +396,10 @@
         </section>
 
         <footer class="report-footer">
-            <p class="footer-note">Report submission will be available once the report API is connected.</p>
+            <p class="footer-note">Your report and evidence will be submitted for review.</p>
             <div class="report-actions">
                 <a href="/" class="btn btn-outline-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary" disabled>Submit report</button>
+                <button type="submit" class="btn btn-primary">Submit report</button>
             </div>
         </footer>
     </form>
