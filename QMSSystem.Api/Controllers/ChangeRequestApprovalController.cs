@@ -114,7 +114,7 @@ public class ChangeRequestApprovalController : ControllerBase
 
                     DecisionDate = reader.IsDBNull(
                         reader.GetOrdinal("DecisionDate"))
-                        ? default
+                        ? null
                         : reader.GetDateTime(
                             reader.GetOrdinal("DecisionDate")),
 
@@ -231,7 +231,7 @@ public class ChangeRequestApprovalController : ControllerBase
 
                 DecisionDate = reader.IsDBNull(
                     reader.GetOrdinal("DecisionDate"))
-                    ? default
+                    ? null
                     : reader.GetDateTime(
                         reader.GetOrdinal("DecisionDate")),
 

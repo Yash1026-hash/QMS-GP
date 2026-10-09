@@ -9,5 +9,14 @@
     <ProjectReference Include="..\QMSSystem.Shared\QMSSystem.Shared.csproj" />
     <Using Include="QMSSystem.Shared.DTOs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\QMSSystem.Api\QMSSystem.Api.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="10.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.12" />
+  </ItemGroup>
 
 </Project>

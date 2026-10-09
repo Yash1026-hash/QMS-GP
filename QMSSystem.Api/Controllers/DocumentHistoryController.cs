@@ -94,15 +94,5 @@ public class DocumentHistoryController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = entity.Id }, entity);
     }
 
-    // DELETE: api/documenthistory/5
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var row = await _db.DocumentHistories.FindAsync(id);
-        if (row is null) return NotFound();
-
-        _db.DocumentHistories.Remove(row);
-        await _db.SaveChangesAsync();
-        return NoContent();
-    }
+     
 }

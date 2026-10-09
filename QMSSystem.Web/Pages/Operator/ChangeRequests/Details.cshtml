@@ -1,0 +1,13 @@
+@page "{id:int}"
+@model QMSSystem.Web.Pages.Operator.ChangeRequests.DetailsModel
+
+@{
+    ViewData["Title"] = "Change Request Details";
+}
+
+<h2>Change Request Details</h2>
+
+@await Component.InvokeAsync(
+    "ChangeRequestDetails",
+    new { dto = Model.Dto }
+)
