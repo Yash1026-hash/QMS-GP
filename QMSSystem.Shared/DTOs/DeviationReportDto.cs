@@ -19,7 +19,7 @@ public class DeviationReportDto
 
     public DateTime CreatedDate { get; set; }
 
-    // 0 = Pending, 1 = Active, 2 = Inactive
+    // 0 = Pending, 1 = Approved, 2 = Rejected
     public int Status { get; set; }
 
     // 1 = Approve, 2 = Reject

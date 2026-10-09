@@ -139,6 +139,7 @@ public class DeviationReportsController : ControllerBase
         report.DecisionBy = User.Identity?.Name ?? "Supervisor";
         report.DecisionOn = DateTime.UtcNow;
         report.DecisionComments = decision.DecisionComments;
+        report.Status = decision.Decision;
 
         await _context.SaveChangesAsync();
 

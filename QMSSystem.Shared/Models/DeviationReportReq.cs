@@ -20,7 +20,7 @@ public class DeviationReportRequest
 
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
-    // 0 = Pending, 1 = Active, 2 = Inactive
+    // 0 = Pending, 1 = Approved, 2 = Rejected
     public int Status { get; set; } = 0;
 
     // 1 = Approve, 2 = Reject
