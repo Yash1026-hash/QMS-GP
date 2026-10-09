@@ -1,3 +1,4 @@
+
 using Microsoft.EntityFrameworkCore;
 using QMSSystem.Api.Data;
 using QMSSystem.Shared.Dtos.Deviations;
@@ -19,6 +20,7 @@ public class DeviationService
     {
         return await _context.DeviationRequests
             .AsNoTracking()
+            .OrderByDescending(d => d.CreatedDate)
             .Select(d => new DeviationRequestDto
             {
                 Id = d.Id,
@@ -34,7 +36,6 @@ public class DeviationService
                 Decision = d.Decision,
                 DecisionComments = d.DecisionComments
             })
-            .OrderByDescending(d => d.CreatedDate)
             .ToListAsync();
     }
 
@@ -79,15 +80,14 @@ public class DeviationService
             CreatedBy = dto.CreatedBy,
             CreatedDate = DateTime.UtcNow,
 
-            // Supervisor decision is not created here.
+            // Supervisor review fields remain NULL until reviewed.
             Decision = null,
-            DecisionBy = string.Empty,
+            DecisionBy = null,
             DecisionOn = null,
-            DecisionComments = string.Empty
+            DecisionComments = null
         };
 
         _context.DeviationRequests.Add(deviation);
-
         await _context.SaveChangesAsync();
 
         return new DeviationRequestDto

@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Mvc;
 using QMSSystem.Api.Services;
 using QMSSystem.Shared.Dtos.Deviations;
@@ -20,7 +21,6 @@ public class DeviationController : ControllerBase
     public async Task<ActionResult<IEnumerable<DeviationRequestDto>>> GetDeviations()
     {
         var deviations = await _deviationService.GetDeviationsAsync();
-
         return Ok(deviations);
     }
 
@@ -46,14 +46,6 @@ public class DeviationController : ControllerBase
     public async Task<ActionResult<DeviationRequestDto>> CreateDeviation(
         [FromBody] DeviationRequestDto dto)
     {
-        if (dto == null)
-        {
-            return BadRequest(new
-            {
-                message = "Deviation data is required."
-            });
-        }
-
         if (string.IsNullOrWhiteSpace(dto.Title))
         {
             return BadRequest(new
@@ -78,11 +70,11 @@ public class DeviationController : ControllerBase
             });
         }
 
-        if (string.IsNullOrWhiteSpace(dto.Priority))
+        if (dto.Priority is not ("Minor" or "Major" or "Critical"))
         {
             return BadRequest(new
             {
-                message = "Priority is required."
+                message = "Select a valid priority."
             });
         }
 

@@ -1,3 +1,4 @@
+
 @page
 @model QMSSystem.Web.Pages.Supervisor.DeviationReviewReportModel
 
@@ -7,1106 +8,409 @@
 
 <style>
     .review-page {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 40px 20px 60px;
-    }
-
-    .review-header {
-        margin-bottom: 30px;
-    }
-
-    .review-header .eyebrow {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        margin-bottom: 10px;
-        color: #667085;
-        font-size: 12px;
-        font-weight: 600;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-    }
-
-    .eyebrow-mark {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: #167d8d;
-    }
-
-    .review-header h1 {
-        margin: 0;
-        color: #152536;
-        font-size: clamp(30px, 4vw, 40px);
-        font-weight: 700;
-        letter-spacing: -1px;
-    }
-
-    .review-header p {
-        max-width: 700px;
-        margin: 10px 0 0;
-        color: #667085;
-        font-size: 16px;
-        line-height: 1.6;
+        background: #f5f7fa;
+        min-height: 100vh;
+        padding: 32px 24px;
     }
 
     .review-card {
-        background: #fff;
-        border: 1px solid #e5eaf0;
-        border-radius: 16px;
-        box-shadow: 0 8px 25px rgba(21, 37, 54, 0.06);
-        margin-bottom: 24px;
+        background-color: #fff;
+        border: 1px solid #e1e8ef;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(31, 52, 73, 0.05);
+        margin-bottom: 20px;
         overflow: hidden;
     }
 
-    .review-card-header {
-        padding: 22px 26px;
-        background: #fff;
-        border-bottom: 1px solid #edf0f3;
+    .card-heading {
+        background-color: #fff;
+        border-bottom: 1px solid #e7edf3;
+        padding: 20px 24px;
     }
 
-    .review-card-header h2 {
-        margin: 0;
-        color: #152536;
-        font-size: 19px;
-        font-weight: 700;
+    .review-card > .card-body {
+        padding: 24px;
     }
 
-    .review-card-header p {
-        margin: 5px 0 0;
-        color: #7a8695;
-        font-size: 13px;
+    .search-button {
+        background: #167e8d;
+        border-color: #167e8d;
+        color: #fff;
+        min-width: 180px;
     }
 
-    .review-card-body {
-        padding: 26px;
+    .search-button:hover {
+        background: #116775;
+        border-color: #116775;
+        color: #fff;
     }
 
-    .form-label {
-        color: #344054;
-        font-size: 13px;
+    .field-label {
+        color: #263b53;
         font-weight: 600;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
     }
 
-    .form-control {
-        min-height: 44px;
-        border-color: #d9e0e7;
-        border-radius: 8px;
-    }
-
-    .form-control:focus {
-        border-color: #167d8d;
-        box-shadow: 0 0 0 3px rgba(22, 125, 141, 0.13);
-    }
-
-    textarea.form-control {
-        min-height: 130px;
-        resize: vertical;
-    }
-
-    .readonly-field {
-        background-color: #f8fafc;
-    }
-
-    .section-title {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-
-    .section-title-icon {
-        display: grid;
-        width: 36px;
-        height: 36px;
-        place-items: center;
-        color: #167d8d;
-        background: #eaf5f6;
-        border-radius: 10px;
-    }
-
-    .section-title h3 {
-        margin: 0;
-        color: #152536;
-        font-size: 17px;
-        font-weight: 700;
-    }
-
-    .section-title p {
-        margin: 3px 0 0;
-        color: #7a8695;
-        font-size: 12px;
-    }
-
-    .detail-value {
-        min-height: 44px;
-        padding: 11px 14px;
-        background: #f8fafc;
-        border: 1px solid #d9e0e7;
-        border-radius: 8px;
-        color: #344054;
-        word-break: break-word;
-    }
-
-    .summary-box {
-        min-height: 130px;
+    .field-value {
+        background: #f7f9fb;
+        border: 1px solid #dce5ed;
+        border-radius: 6px;
+        min-height: 42px;
+        padding: 10px 12px;
+        overflow-wrap: anywhere;
         white-space: pre-wrap;
     }
 
-    .proof-box {
-        padding: 18px;
-        background: #fbfcfd;
-        border: 1px dashed #b8c5d1;
-        border-radius: 10px;
-    }
-
-    .search-button,
-    .submit-button {
-        min-height: 44px;
-        padding: 9px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-    }
-
-    .search-button,
-    .submit-button {
-        background: #167d8d;
-        border-color: #167d8d;
-        color: #fff;
-    }
-
-    .search-button:hover,
-    .submit-button:hover {
-        background: #126b79;
-        border-color: #126b79;
-        color: #fff;
-    }
-
-    .decision-option {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 14px 16px;
-        border: 1px solid #d9e0e7;
-        border-radius: 9px;
-        cursor: pointer;
-        margin-bottom: 10px;
-    }
-
-    .decision-option:hover {
-        background: #f8fafc;
-    }
-
-    .decision-option input {
-        margin: 0;
-    }
-
-    .decision-option label {
-        margin: 0;
-        font-weight: 600;
-        color: #344054;
-        cursor: pointer;
-    }
-
-    .review-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        padding: 20px 26px;
-        background: #fbfcfd;
-        border-top: 1px solid #edf0f3;
-    }
-
-    .view-details-wrapper {
-        text-align: center;
-        padding: 20px;
-    }
-
-    .view-details-button {
-        min-height: 44px;
-        padding: 9px 24px;
-        border-radius: 8px;
-        font-weight: 600;
-        background: #167d8d;
-        border-color: #167d8d;
-        color: #fff;
-    }
-
-    .view-details-button:hover {
-        background: #126b79;
-        border-color: #126b79;
-        color: #fff;
-    }
-
-    .status-approved {
-        display: inline-block;
-        padding: 6px 12px;
-        border-radius: 20px;
-        background: #d1fae5;
-        color: #065f46;
+    .section-title {
         font-weight: 700;
-        font-size: 13px;
+        margin-bottom: 5px;
     }
 
-    .status-rejected {
+    .section-description {
+        color: #6b7d91;
+        font-size: 14px;
+    }
+
+    .status-badge {
         display: inline-block;
-        padding: 6px 12px;
         border-radius: 20px;
-        background: #fee2e2;
-        color: #991b1b;
-        font-weight: 700;
-        font-size: 13px;
+        padding: 5px 11px;
+        font-size: 12px;
+        font-weight: 600;
     }
 
     .status-pending {
-        display: inline-block;
-        padding: 6px 12px;
-        border-radius: 20px;
-        background: #fef3c7;
-        color: #92400e;
-        font-weight: 700;
+        background: #fff3cd;
+        color: #795900;
+    }
+
+    .status-approved {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+
+    .status-rejected {
+        background: #f8d7da;
+        color: #842029;
+    }
+
+    .decision-button {
+        min-width: 130px;
+    }
+
+    .proof-note {
+        color: #6b7d91;
         font-size: 13px;
+        line-height: 1.4;
     }
 
-    .details-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .details-table tr {
-        border-bottom: 1px solid #edf0f3;
-    }
-
-    .details-table tr:last-child {
-        border-bottom: none;
-    }
-
-    .details-table th {
-        width: 240px;
-        padding: 14px 10px;
-        color: #667085;
-        font-size: 13px;
-        font-weight: 600;
-        text-align: left;
-        vertical-align: top;
-    }
-
-    .details-table td {
-        padding: 14px 10px;
-        color: #344054;
-        font-size: 14px;
-        vertical-align: top;
-        word-break: break-word;
-    }
-
-    .back-button {
-        min-height: 42px;
-        padding: 9px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-    }
-
-    @@media (max-width: 600px) {
+    @@media (max-width: 768px) {
         .review-page {
-            padding: 25px 14px 40px;
+            padding: 20px 12px;
         }
 
-        .review-card-body {
-            padding: 20px 18px;
+        .card-heading {
+            padding: 18px 16px;
         }
 
-        .review-card-header {
-            padding: 18px;
+        .review-card > .card-body {
+            padding: 18px 16px;
         }
 
-        .review-footer {
-            padding: 18px;
+        .search-button {
+            width: 100%;
         }
 
-        .details-table th {
-            width: 40%;
+        .decision-button {
+            width: 100%;
+            margin: 5px 0;
         }
     }
 </style>
 
-<main class="review-page">
+<div class="review-page">
+    <div class="container">
 
-    <!-- ========================================================= -->
-    <!-- PAGE HEADER                                                -->
-    <!-- ========================================================= -->
+        <!-- Page heading -->
+        <div class="mb-4">
+            <h2 class="fw-bold">Deviation Review Report</h2>
+            <p class="text-muted">
+                Search by Deviation ID to view the submitted report and its review status.
+            </p>
+        </div>
 
-    <header class="review-header">
-        <p class="eyebrow">
-            <span class="eyebrow-mark"></span>
-            QMS / SUPERVISOR
-        </p>
-
-        <h1>Deviation Review Report</h1>
-
-        <p>
-            Search the deviation report submitted by the reporter,
-            review the submitted information, and complete the final
-            supervisor decision.
-        </p>
-    </header>
-
-
-    <!-- ========================================================= -->
-    <!-- SEARCH DEVIATION REPORT                                    -->
-    <!-- ========================================================= -->
-
-    @if (!Model.IsSubmitted)
-    {
-        <section class="review-card">
-
-            <div class="review-card-header">
-                <h2>Search Deviation Report</h2>
-                <p>
-                    Enter the deviation report ID to retrieve the report
-                    submitted by the reporter.
-                </p>
-            </div>
-
-            <div class="review-card-body">
-
+        <!-- Search section -->
+        <div class="review-card">
+            <div class="card-body">
                 <form method="get">
-
-                    <div class="row g-3 align-items-end">
-
+                    <div class="row align-items-end g-3">
                         <div class="col-md-8">
-                            <label asp-for="Search" class="form-label">
-                                Deviation Report ID
+                            <label asp-for="Search"
+                                   class="form-label field-label">
+                                Deviation ID
                             </label>
 
                             <input asp-for="Search"
-                                   class="form-control"
-                                   placeholder="Enter deviation report ID" />
+                                   type="number"
+                                   min="1"
+                                   class="form-control form-control-lg"
+                                   placeholder="Enter Deviation ID"
+                                   required />
                         </div>
 
                         <div class="col-md-4">
                             <button type="submit"
-                                    class="btn search-button w-100">
-                                Search
+                                    class="btn search-button btn-lg w-100">
+                                Search Report
                             </button>
                         </div>
-
                     </div>
-
                 </form>
 
                 @if (!string.IsNullOrWhiteSpace(Model.SearchMessage))
                 {
-                    <div class="alert alert-info mt-3 mb-0">
+                    <div class="alert alert-info mt-3 mb-0" role="status">
                         @Model.SearchMessage
                     </div>
                 }
 
-            </div>
-
-        </section>
-    }
-
-
-    <!-- ========================================================= -->
-    <!-- DEVIATION REPORT DETAILS                                   -->
-    <!-- ========================================================= -->
-
-    @if (!Model.IsSubmitted)
-    {
-        <section class="review-card">
-
-            <div class="review-card-header">
-                <h2>Deviation Report Details</h2>
-                <p>
-                    Report information submitted by the deviation reporter.
-                </p>
-            </div>
-
-            <div class="review-card-body">
-
-                <!-- Deviation and SOP -->
-                <div class="section-title">
-
-                    <span class="section-title-icon">
-                        <svg width="19"
-                             height="19"
-                             viewBox="0 0 24 24"
-                             fill="none">
-
-                            <path d="M7 3.75h7l4 4v12.5H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z"
-                                  stroke="currentColor"
-                                  stroke-width="1.7"
-                                  stroke-linejoin="round" />
-
-                            <path d="M14 4v4h4M9 13h6m-6 3.5h6"
-                                  stroke="currentColor"
-                                  stroke-width="1.7"
-                                  stroke-linecap="round" />
-                        </svg>
-                    </span>
-
-                    <div>
-                        <h3>Deviation and SOP</h3>
-                        <p>
-                            Details of the accepted deviation and related SOP document.
-                        </p>
+                @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger mt-3 mb-0" role="alert">
+                        @Model.ErrorMessage
                     </div>
-
-                </div>
-
-
-                <div class="row g-4 mb-4">
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Accepted Deviation ID
-                        </label>
-
-                        <div class="detail-value">
-                            @Model.Report.DeviationId
-                        </div>
-
-                    </div>
-
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            SOP Document ID
-                        </label>
-
-                        <div class="detail-value">
-                            @Model.Report.DocumentId
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Report and Proof -->
-                <div class="section-title mt-4">
-
-                    <span class="section-title-icon">
-                        <svg width="19"
-                             height="19"
-                             viewBox="0 0 24 24"
-                             fill="none">
-
-                            <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14.5v4A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5v-4"
-                                  stroke="currentColor"
-                                  stroke-width="1.7"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round" />
-                        </svg>
-                    </span>
-
-                    <div>
-                        <h3>Report and Proof</h3>
-                        <p>
-                            Corrective work summary and supporting evidence submitted by the reporter.
-                        </p>
-                    </div>
-
-                </div>
-
-
-                <div class="mb-4">
-
-                    <label class="form-label">
-                        Summary
-                    </label>
-
-                    <div class="detail-value summary-box">
-                        @if (string.IsNullOrWhiteSpace(Model.Report.Summary))
-                        {
-                            <span class="text-muted">
-                                No summary available.
-                            </span>
-                        }
-                        else
-                        {
-                            @Model.Report.Summary
-                        }
-                    </div>
-
-                </div>
-
-
-                <div class="proof-box mb-4">
-
-                    <label class="form-label">
-                        Proof / Supporting Report
-                    </label>
-
-                    @if (Model.Report.Proof != null &&
-                         Model.Report.Proof.Length > 0)
-                    {
-                        <div class="alert alert-success mb-0">
-                            Proof / supporting report is available.
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-secondary mb-0">
-                            No proof / supporting report is available.
-                        </div>
-                    }
-
-                </div>
-
-
-                <!-- Report Information -->
-                <div class="section-title mt-4">
-
-                    <span class="section-title-icon">
-                        <svg width="19"
-                             height="19"
-                             viewBox="0 0 24 24"
-                             fill="none">
-
-                            <circle cx="12"
-                                    cy="12"
-                                    r="9"
-                                    stroke="currentColor"
-                                    stroke-width="1.7" />
-
-                            <path d="M12 10v6"
-                                  stroke="currentColor"
-                                  stroke-width="1.7"
-                                  stroke-linecap="round" />
-
-                            <circle cx="12"
-                                    cy="7"
-                                    r="1"
-                                    fill="currentColor" />
-                        </svg>
-                    </span>
-
-                    <div>
-                        <h3>Report Information</h3>
-                        <p>
-                            Basic information about the submitted report.
-                        </p>
-                    </div>
-
-                </div>
-
-
-                <div class="row g-4">
-
-                    <div class="col-md-3">
-
-                        <label class="form-label">
-                            Report ID
-                        </label>
-
-                        <div class="detail-value">
-                            @Model.Report.Id
-                        </div>
-
-                    </div>
-
-
-                    <div class="col-md-3">
-
-                        <label class="form-label">
-                            Attempt Number
-                        </label>
-
-                        <div class="detail-value">
-                            @Model.Report.AttemptNumber
-                        </div>
-
-                    </div>
-
-
-                    <div class="col-md-3">
-
-                        <label class="form-label">
-                            Created By
-                        </label>
-
-                        <div class="detail-value">
-                            @(string.IsNullOrWhiteSpace(Model.Report.CreatedBy)
-                                ? "Not available"
-                                : Model.Report.CreatedBy)
-                        </div>
-
-                    </div>
-
-
-                    <div class="col-md-3">
-
-                        <label class="form-label">
-                            Created Date
-                        </label>
-
-                        <div class="detail-value">
-                            @(Model.Report.CreatedDate == default
-                                ? "Not available"
-                                : Model.Report.CreatedDate.ToString("dd-MM-yyyy HH:mm"))
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-    }
-
-
-    <!-- ========================================================= -->
-    <!-- SUPERVISOR FINAL REVIEW                                    -->
-    <!-- ========================================================= -->
-
-    @if (!Model.IsSubmitted)
-    {
-        <section class="review-card">
-
-            <div class="review-card-header">
-                <h2>Supervisor Final Review</h2>
-                <p>
-                    Final approval or rejection is mandatory before submission.
-                </p>
-            </div>
-
-            <form method="post">
-
-                <div class="review-card-body">
-
-                    <div asp-validation-summary="ModelOnly"
-                         class="text-danger mb-3">
-                    </div>
-
-
-                    <!-- Decision -->
-                    <div class="mb-4">
-
-                        <label class="form-label">
-                            Final Decision
-                        </label>
-
-                        <div class="decision-option">
-
-                            <input type="radio"
-                                   asp-for="Decision"
-                                   value="1"
-                                   id="approveDecision" />
-
-                            <label for="approveDecision">
-                                Approve
-                            </label>
-
-                        </div>
-
-
-                        <div class="decision-option">
-
-                            <input type="radio"
-                                   asp-for="Decision"
-                                   value="2"
-                                   id="rejectDecision" />
-
-                            <label for="rejectDecision">
-                                Reject
-                            </label>
-
-                        </div>
-
-                        <span asp-validation-for="Decision"
-                              class="text-danger">
-                        </span>
-
-                    </div>
-
-
-                    <!-- Decision Comments -->
-                    <div>
-
-                        <label asp-for="DecisionComments"
-                               class="form-label">
-                            Decision Comments
-                        </label>
-
-                        <textarea asp-for="DecisionComments"
-                                  class="form-control"
-                                  rows="5"
-                                  placeholder="Enter your final review comments..."></textarea>
-
-                        <div class="form-text">
-                            Provide comments explaining the approval or rejection decision.
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="review-footer">
-
-                    <button type="submit"
-                            class="btn submit-button">
-                        Final Submission
-                    </button>
-
-                </div>
-
-            </form>
-
-        </section>
-    }
-
-
-    <!-- ========================================================= -->
-    <!-- AFTER FINAL SUBMISSION                                     -->
-    <!-- ========================================================= -->
-
-    @if (Model.IsSubmitted)
-    {
-        <div class="alert alert-success">
-            <strong>Final submission completed successfully.</strong>
-            <div>
-                @Model.DecisionMessage
+                }
             </div>
         </div>
 
+        <!-- Report details -->
+        @if (Model.Report.Id > 0)
+        {
+            <div class="review-card">
 
-        <!-- View Details button -->
-        <section id="viewDetailsSection"
-                 class="review-card">
-
-            <div class="view-details-wrapper">
-
-                <button type="button"
-                        id="viewDetailsButton"
-                        class="btn view-details-button">
-                    View Details
-                </button>
-
-            </div>
-
-        </section>
-
-
-        <!-- Full Review Details -->
-        <section id="reviewDetails"
-                 class="review-card"
-                 style="display:none;">
-
-            <div class="review-card-header">
-
-                <h2>Full Review Details</h2>
-
-                <p>
-                    Complete deviation report and supervisor decision details.
-                </p>
-
-            </div>
-
-
-            <div class="review-card-body">
-
-                <!-- Report Information -->
-                <div class="section-title">
-
-                    <span class="section-title-icon">
-                        <svg width="19"
-                             height="19"
-                             viewBox="0 0 24 24"
-                             fill="none">
-
-                            <circle cx="12"
-                                    cy="12"
-                                    r="9"
-                                    stroke="currentColor"
-                                    stroke-width="1.7" />
-
-                            <path d="M12 10v6"
-                                  stroke="currentColor"
-                                  stroke-width="1.7"
-                                  stroke-linecap="round" />
-
-                            <circle cx="12"
-                                    cy="7"
-                                    r="1"
-                                    fill="currentColor" />
-                        </svg>
-                    </span>
-
-                    <div>
-                        <h3>Report Information</h3>
-                        <p>
-                            Submitted deviation report details.
-                        </p>
+                <div class="card-heading">
+                    <h4 class="section-title">Deviation Report Details</h4>
+                    <div class="section-description">
+                        Report information submitted by the operator.
                     </div>
-
                 </div>
 
+                <div class="card-body">
 
-                <table class="details-table mb-5">
+                    <!-- Deviation information -->
+                    <h5 class="fw-bold mb-3">Deviation and SOP Information</h5>
 
-                    <tr>
-                        <th>Report ID</th>
-                        <td>@Model.Report.Id</td>
-                    </tr>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="field-label">Deviation ID</label>
+                            <div class="field-value">
+                                @Model.Report.DeviationId
+                            </div>
+                        </div>
 
-                    <tr>
-                        <th>Deviation ID</th>
-                        <td>@Model.Report.DeviationId</td>
-                    </tr>
+                        <div class="col-md-6">
+                            <label class="field-label">SOP Document ID</label>
+                            <div class="field-value">
+                                @Model.Report.DocumentId
+                            </div>
+                        </div>
 
-                    <tr>
-                        <th>Document ID</th>
-                        <td>@Model.Report.DocumentId</td>
-                    </tr>
+                        <div class="col-md-6">
+                            <label class="field-label">Deviation Report ID</label>
+                            <div class="field-value">
+                                @Model.Report.Id
+                            </div>
+                        </div>
 
-                    <tr>
-                        <th>Attempt Number</th>
-                        <td>@Model.Report.AttemptNumber</td>
-                    </tr>
-
-                    <tr>
-                        <th>Created By</th>
-                        <td>
-                            @(string.IsNullOrWhiteSpace(Model.Report.CreatedBy)
-                                ? "Not available"
-                                : Model.Report.CreatedBy)
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th>Created Date</th>
-                        <td>
-                            @(Model.Report.CreatedDate == default
-                                ? "Not available"
-                                : Model.Report.CreatedDate.ToString("dd-MM-yyyy HH:mm"))
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th>Summary</th>
-                        <td>
-                            @(string.IsNullOrWhiteSpace(Model.Report.Summary)
-                                ? "No summary available."
-                                : Model.Report.Summary)
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th>Proof</th>
-                        <td>
-                            @if (Model.Report.Proof != null &&
-                                 Model.Report.Proof.Length > 0)
-                            {
-                                <span class="text-success fw-semibold">
-                                    Proof available
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="text-muted">
-                                    No proof available
-                                </span>
-                            }
-                        </td>
-                    </tr>
-
-                </table>
-
-
-                <!-- Supervisor Review -->
-                <div class="section-title">
-
-                    <span class="section-title-icon">
-                        <svg width="19"
-                             height="19"
-                             viewBox="0 0 24 24"
-                             fill="none">
-
-                            <path d="M12 3l7 3v5c0 4.5-3 7.5-7 10-4-2.5-7-5.5-7-10V6l7-3Z"
-                                  stroke="currentColor"
-                                  stroke-width="1.7"
-                                  stroke-linejoin="round" />
-
-                            <path d="m9 12 2 2 4-4"
-                                  stroke="currentColor"
-                                  stroke-width="1.7"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round" />
-                        </svg>
-                    </span>
-
-                    <div>
-                        <h3>Supervisor Review</h3>
-                        <p>
-                            Final supervisor approval information.
-                        </p>
+                        <div class="col-md-6">
+                            <label class="field-label">Attempt Number</label>
+                            <div class="field-value">
+                                @Model.Report.AttemptNumber
+                            </div>
+                        </div>
                     </div>
 
+                    <hr />
+
+                    <!-- Submitted report -->
+                    <h5 class="fw-bold mb-3">Submitted Report</h5>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <label class="field-label">Summary</label>
+                            <div class="field-value">
+                                @if (string.IsNullOrWhiteSpace(Model.Report.Summary))
+                                {
+                                    <span class="text-muted">
+                                        No summary provided.
+                                    </span>
+                                }
+                                else
+                                {
+                                    @Model.Report.Summary
+                                }
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="field-label">Submitted By</label>
+                            <div class="field-value">
+                                @(string.IsNullOrWhiteSpace(Model.Report.CreatedBy)
+                                    ? "Unknown"
+                                    : Model.Report.CreatedBy)
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="field-label">Submission Date</label>
+                            <div class="field-value">
+                                @Model.Report.CreatedDate
+                                    .ToLocalTime()
+                                    .ToString("dd MMM yyyy, hh:mm tt")
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="field-label">Proof Attachment</label>
+                            <div class="field-value">
+                                @if (Model.Report.Proof is { Length: > 0 })
+                                {
+                                    <span>Proof data is attached to this report.</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        No proof attached.
+                                    </span>
+                                }
+                            </div>
+                            <div class="proof-note mt-1">
+                                This section indicates whether proof data exists;
+                                it does not download or display the file.
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="field-label">Review Status</label>
+                            <div class="field-value">
+                                @if (Model.Report.Decision == 1)
+                                {
+                                    <span class="status-badge status-approved">
+                                        Approved
+                                    </span>
+                                }
+                                else if (Model.Report.Decision == 2)
+                                {
+                                    <span class="status-badge status-rejected">
+                                        Rejected
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-pending">
+                                        Pending Review
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <!-- Supervisor decision -->
+                    <h5 class="fw-bold mb-3">Supervisor Decision</h5>
+
+                    @if (Model.Report.Decision == 1 ||
+                         Model.Report.Decision == 2)
+                    {
+                        <div class="alert @(Model.Report.Decision == 1
+                            ? "alert-success"
+                            : "alert-danger")">
+
+                            <strong>
+                                @(Model.Report.Decision == 1
+                                    ? "Report Approved"
+                                    : "Report Rejected")
+                            </strong>
+
+                            <div class="mt-2">
+                                Decision by:
+                                @(string.IsNullOrWhiteSpace(Model.Report.DecisionBy)
+                                    ? "Unknown"
+                                    : Model.Report.DecisionBy)
+                            </div>
+
+                            @if (Model.Report.DecisionOn.HasValue)
+                            {
+                                <div>
+                                    Decision date:
+                                    @Model.Report.DecisionOn.Value
+                                        .ToLocalTime()
+                                        .ToString("dd MMM yyyy, hh:mm tt")
+                                </div>
+                            }
+
+                            <div class="mt-2">
+                                Comments:
+                                @(string.IsNullOrWhiteSpace(Model.Report.DecisionComments)
+                                    ? "No comments provided."
+                                    : Model.Report.DecisionComments)
+                            </div>
+                        </div>
+
+                        @if (Model.Report.Decision == 1)
+                        {
+                            <p class="text-muted small mb-0">
+                                The submitted report details are available above.
+                            </p>
+                        }
+                    }
+                    else
+                    {
+                        <form method="post">
+                            <input type="hidden" asp-for="Report.Id" />
+                            <input type="hidden" asp-for="Report.DeviationId" />
+
+                            <div class="mb-3">
+                                <label asp-for="DecisionComments"
+                                       class="form-label field-label">
+                                    Supervisor Comments
+                                </label>
+
+                                <textarea asp-for="DecisionComments"
+                                          class="form-control"
+                                          rows="4"
+                                          placeholder="Enter review comments"></textarea>
+                            </div>
+
+                            <div asp-validation-summary="All"
+                                 class="text-danger mb-3"></div>
+
+                            <button type="submit"
+                                    name="Decision"
+                                    value="1"
+                                    class="btn btn-success decision-button me-2">
+                                Approve
+                            </button>
+
+                            <button type="submit"
+                                    name="Decision"
+                                    value="2"
+                                    class="btn btn-danger decision-button">
+                                Reject
+                            </button>
+                        </form>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.DecisionMessage))
+                    {
+                        <div class="alert alert-success mt-3" role="status">
+                            @Model.DecisionMessage
+                        </div>
+                    }
+
                 </div>
-
-
-                <table class="details-table">
-
-                    <tr>
-                        <th>Status</th>
-                        <td>
-
-                            @if (Model.IsApproved)
-                            {
-                                <span class="status-approved">
-                                    Approved
-                                </span>
-                            }
-                            else if (Model.IsRejected)
-                            {
-                                <span class="status-rejected">
-                                    Rejected
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="status-pending">
-                                    Pending
-                                </span>
-                            }
-
-                        </td>
-                    </tr>
-
-
-                    <tr>
-                        <th>Decision</th>
-                        <td>
-                            @if (Model.Report.Decision == 1)
-                            {
-                                <span>Approve</span>
-                            }
-                            else if (Model.Report.Decision == 2)
-                            {
-                                <span>Reject</span>
-                            }
-                            else
-                            {
-                                <span>Pending</span>
-                            }
-                        </td>
-                    </tr>
-
-
-                    <tr>
-                        <th>Decision By</th>
-                        <td>
-                            @(string.IsNullOrWhiteSpace(Model.Report.DecisionBy)
-                                ? "Not available"
-                                : Model.Report.DecisionBy)
-                        </td>
-                    </tr>
-
-
-                    <tr>
-                        <th>Decision On</th>
-                        <td>
-                            @(Model.Report.DecisionOn.HasValue
-                                ? Model.Report.DecisionOn.Value.ToString("dd-MM-yyyy HH:mm")
-                                : "Not available")
-                        </td>
-                    </tr>
-
-
-                    <tr>
-                        <th>Decision Comments</th>
-                        <td>
-                            @(string.IsNullOrWhiteSpace(Model.Report.DecisionComments)
-                                ? "No comments provided."
-                                : Model.Report.DecisionComments)
-                        </td>
-                    </tr>
-
-                </table>
-
             </div>
-
-
-            <div class="review-footer">
-
-                <button type="button"
-                        id="backButton"
-                        class="btn btn-outline-secondary back-button">
-                    Back
-                </button>
-
-            </div>
-
-        </section>
-    }
-
-</main>
-
-
-<!-- ============================================================= -->
-<!-- VIEW DETAILS / BACK JAVASCRIPT                                -->
-<!-- ============================================================= -->
-
-@if (Model.IsSubmitted)
-{
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-
-            const viewDetailsButton =
-                document.getElementById("viewDetailsButton");
-
-            const viewDetailsSection =
-                document.getElementById("viewDetailsSection");
-
-            const reviewDetails =
-                document.getElementById("reviewDetails");
-
-            const backButton =
-                document.getElementById("backButton");
-
-
-            if (viewDetailsButton) {
-
-                viewDetailsButton.addEventListener("click", function () {
-
-                    viewDetailsSection.style.display = "none";
-
-                    reviewDetails.style.display = "block";
-
-                    reviewDetails.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
-                    });
-
-                });
-
-            }
-
-
-            if (backButton) {
-
-                backButton.addEventListener("click", function () {
-
-                    reviewDetails.style.display = "none";
-
-                    viewDetailsSection.style.display = "block";
-
-                    viewDetailsSection.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center"
-                    });
-
-                });
-
-            }
-
-        });
-    </script>
-}
+        }
+    </div>
+</div>
