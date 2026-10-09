@@ -186,6 +186,10 @@
         box-shadow: 0 0 0 3px rgba(22, 125, 141, 0.13);
     }
 
+    .report-page select.form-control {
+        min-height: 46px;
+    }
+
     .report-page textarea.form-control {
         min-height: 145px;
         resize: vertical;
@@ -329,7 +333,7 @@
             <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
             <path d="M12 11v5m0-8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
         </svg>
-        <span><strong>Before you submit:</strong> Enter the accepted deviation and SOP document IDs, summarize the corrective work, and attach supporting evidence.</span>
+        <span><strong>Before you submit:</strong> Select an approved deviation, summarize the corrective work, and attach supporting evidence.</span>
     </div>
 
     @if (TempData["SuccessMessage"] is string successMessage)
@@ -355,14 +359,36 @@
 
             <div class="row g-4">
                 <div class="col-md-6">
-                    <label asp-for="DeviationId" class="form-label">Accepted deviation ID <span class="required-mark">*</span></label>
-                    <input asp-for="DeviationId" type="number" class="form-control" min="1" required />
-                    <div class="field-hint">The ID of the deviation that has been accepted.</div>
+                    <label asp-for="SelectedDeviationId" class="form-label">Select approved deviation <span class="required-mark">*</span></label>
+                    <input id="deviation-search" type="search" class="form-control mb-2"
+                           placeholder="Search by ID, title, description, or SOP ID"
+                           aria-label="Search approved deviations" />
+                    <select asp-for="SelectedDeviationId" class="form-control" required>
+                        <option value="">Select an approved deviation</option>
+                        @foreach (var deviation in Model.ApprovedDeviations)
+                        {
+                            <option value="@deviation.Id"
+                                    data-document-id="@deviation.DocumentId"
+                                    data-search="@($"{deviation.Id} {deviation.Title} {deviation.Description} {deviation.DocumentId}")">
+                                #@deviation.Id - @deviation.Title (SOP #@deviation.DocumentId)
+                            </option>
+                        }
+                    </select>
+                    @if (Model.ApprovedDeviations.Count == 0)
+                    {
+                        <div class="field-hint">There are no approved deviations available to report.</div>
+                    }
+                    else
+                    {
+                        <div class="field-hint">Only approved deviations are listed. Search above, then select the deviation for this report.</div>
+                    }
                 </div>
                 <div class="col-md-6">
+                    <label asp-for="DeviationId" class="form-label">Deviation ID</label>
+                    <input asp-for="DeviationId" type="number" class="form-control mb-3" readonly />
                     <label asp-for="DocumentId" class="form-label">SOP document ID <span class="required-mark">*</span></label>
-                    <input asp-for="DocumentId" type="number" class="form-control" min="1" required />
-                    <div class="field-hint">The SOP/document associated with the deviation.</div>
+                    <input asp-for="DocumentId" type="number" class="form-control" readonly />
+                    <div class="field-hint">Both IDs are filled in automatically from the selected deviation.</div>
                 </div>
             </div>
         </section>
@@ -404,3 +430,44 @@
         </footer>
     </form>
 </main>
+
+<script>
+    (() => {
+        const search = document.getElementById("deviation-search");
+        const select = document.getElementById("SelectedDeviationId");
+        const deviationId = document.getElementById("DeviationId");
+        const documentId = document.getElementById("DocumentId");
+
+        if (!search || !select || !deviationId || !documentId) {
+            return;
+        }
+
+        const options = Array.from(select.options).slice(1);
+        const updateIds = () => {
+            const selectedOption = select.selectedOptions[0];
+            deviationId.value = selectedOption?.value ?? "";
+            documentId.value = selectedOption?.dataset.documentId ?? "";
+        };
+
+        select.addEventListener("change", updateIds);
+        updateIds();
+
+        search.addEventListener("input", () => {
+            const query = search.value.trim().toLocaleLowerCase();
+            let selectedOptionHidden = false;
+
+            for (const option of options) {
+                const matches = option.dataset.search.toLocaleLowerCase().includes(query);
+                option.hidden = !matches;
+                if (option.selected && !matches) {
+                    selectedOptionHidden = true;
+                }
+            }
+
+            if (selectedOptionHidden) {
+                select.value = "";
+                updateIds();
+            }
+        });
+    })();
+</script>
