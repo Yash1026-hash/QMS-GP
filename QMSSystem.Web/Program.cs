@@ -6,7 +6,37 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 
-var builder = WebApplication.CreateBuilder(args);
+var contentRoot = Directory.GetCurrentDirectory();
+var candidateRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+if (!Directory.Exists(Path.Combine(contentRoot, "Pages")) && Directory.Exists(Path.Combine(candidateRoot, "Pages")))
+{
+    contentRoot = candidateRoot;
+}
+
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = contentRoot
+});
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<QMSSystem.Web.Services.ApiCookieForwardingHandler>();
+
+Action<HttpClient> configureClient = client =>
+{
+    var baseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5070/";
+    client.BaseAddress = new Uri(baseUrl);
+    client.DefaultRequestHeaders.Accept.Add(
+        new MediaTypeWithQualityHeaderValue("application/json"));
+};
+
+builder.Services.AddHttpClient("QMSApi", configureClient)
+    .AddHttpMessageHandler<QMSSystem.Web.Services.ApiCookieForwardingHandler>();
+
+builder.Services.AddHttpClient("ApiClient", configureClient)
+    .AddHttpMessageHandler<QMSSystem.Web.Services.ApiCookieForwardingHandler>();
+
+builder.Services.AddHttpClient(string.Empty, configureClient)
+    .AddHttpMessageHandler<QMSSystem.Web.Services.ApiCookieForwardingHandler>();
 
 var dataProtectionKeysPath = builder.Configuration["DataProtection:KeysPath"]
     ?? Path.Combine(
@@ -35,21 +65,11 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("SupervisorOnly", policy => policy.RequireRole("Supervisor"));
 });
 
-builder.Services.AddHttpClient("ApiClient", client =>
-{
-    client.BaseAddress = new Uri("http://localhost:5070");
-    client.DefaultRequestHeaders.Accept.Add(
-        new MediaTypeWithQualityHeaderValue("application/json"));
-}).AddHttpMessageHandler<QMSSystem.Web.Services.ApiCookieForwardingHandler>();
-
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddTransient<QMSSystem.Web.Services.ApiCookieForwardingHandler>();
 builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AllowAnonymousToPage("/Index");
     options.Conventions.AllowAnonymousToPage("/Account/Login");
     options.Conventions.AllowAnonymousToPage("/Account/AccessDenied");
-    options.Conventions.AllowAnonymousToPage("/Operator/Deviations/Report");
     options.Conventions.AuthorizeFolder("/Admin", "AdminOnly");
     options.Conventions.AuthorizeFolder("/Operator", "OperatorOnly");
     options.Conventions.AuthorizeFolder("/Supervisor", "SupervisorOnly");

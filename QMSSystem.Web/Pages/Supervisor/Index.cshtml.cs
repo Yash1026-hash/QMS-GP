@@ -7,7 +7,7 @@ public class IndexModel : PageModel
 {
     private readonly IHttpClientFactory _httpClientFactory;
 
-    public int PendingDeviations { get; set; } = 3;
+    public int PendingDeviations { get; set; }
 
     public int PendingChangeRequests { get; set; }
 
@@ -24,8 +24,22 @@ public class IndexModel : PageModel
 
     public async Task OnGetAsync()
     {
-        var client = _httpClientFactory.CreateClient("ApiClient");
+        var client = _httpClientFactory.CreateClient("QMSApi");
 
+        // Get pending deviations
+        try
+        {
+            PendingDeviations =
+                await client.GetFromJsonAsync<int>(
+                    "api/supervisor/deviations/count");
+        }
+        catch
+        {
+            PendingDeviations = 0;
+        }
+
+
+        // Get pending change requests
         try
         {
             PendingChangeRequests =
@@ -37,6 +51,8 @@ public class IndexModel : PageModel
             PendingChangeRequests = 0;
         }
 
+
+        // Calculate total
         TotalPending =
             PendingDeviations +
             PendingChangeRequests +

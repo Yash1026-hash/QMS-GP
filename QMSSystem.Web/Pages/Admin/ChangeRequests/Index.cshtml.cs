@@ -56,4 +56,3 @@ public class IndexModel : PageModel
         ChangeRequests = query.OrderByDescending(c => c.RequestedDate).ToList();
     }
 }
-
