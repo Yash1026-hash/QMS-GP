@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using QMSSystem.Shared.Dtos;
 using QMSSystem.Shared.DTOs;
+using QMSSystem.Shared.Dtos;
 using QMSSystem.Shared.Models;
 
 namespace QMSSystem.Api.Data;
@@ -13,7 +14,7 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
     // =========================================================
 
     public DbSet<UserAccount> Users => Set<UserAccount>();
-
+    public DbSet<DocumentCreation> DocumentCreations => Set<DocumentCreation>();
     public DbSet<Role> Roles => Set<Role>();
 
     public DbSet<UserRole> UserRoles => Set<UserRole>();
@@ -23,8 +24,8 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
     // DOCUMENTS
     // =========================================================
 
-    public DbSet<DocumentCreation> DocumentCreations
-        => Set<DocumentCreation>();
+    // public DbSet<DocumentCreation> DocumentCreations
+    //     => Set<DocumentCreation>();
 
     public DbSet<DocumentHistory> DocumentHistories
         => Set<DocumentHistory>();
@@ -59,6 +60,49 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
         // OPERATOR CHANGE REQUEST
         // =====================================================
 
+         modelBuilder.Entity<DocumentCreation>(entity =>
+        {
+            entity.ToTable("DocumentCreations", "dbo");
+        
+            entity.HasKey(document => document.Id);
+        
+            entity.Property(document => document.DocumentNumber)
+                .IsRequired()
+                .HasMaxLength(50);
+        
+            entity.Property(document => document.Title)
+                .IsRequired()
+                .HasMaxLength(200);
+        
+            entity.Property(document => document.Department)
+                .IsRequired()
+                .HasMaxLength(100);
+        
+            entity.Property(document => document.DocumentVersion)
+                .IsRequired();
+        
+            entity.Property(document => document.Status)
+                .IsRequired();
+        
+            entity.Property(document => document.FileName)
+                .IsRequired();
+        
+            entity.Property(document => document.ContentType)
+                .IsRequired();
+        
+            entity.Property(document => document.FileData)
+                .IsRequired();
+        
+            entity.Property(document => document.CreatedBy)
+                .IsRequired();
+        
+            entity.Property(document => document.CreationOn)
+                .IsRequired();
+        
+            entity.Property(document => document.Comment)
+            .IsRequired(false);    
+        });
+    
         modelBuilder.Entity<OperatorChangeRequest>(entity =>
         {
             entity.ToTable("OperatorChangeRequests", "dbo");
