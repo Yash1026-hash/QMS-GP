@@ -13,12 +13,20 @@
             <div>
                 <h1 class="mb-1">Document Review</h1>
                 <p class="text-body-secondary mb-0">
-                    Select a pending document to review its details.
+                    Review pending SOP documents and document revisions.
                 </p>
             </div>
             <a asp-page="/Supervisor/Index"
                class="btn btn-outline-secondary">
                 ← Back to Supervisor Home
+            </a>
+        </div>
+        <div class="operation-message mb-4">
+            <p class="mb-3">
+                Review pending document requests, record approval decisions, and return requests for changes.
+            </p>
+            <a asp-page="/Documents/DocumentApproval" class="btn btn-primary">
+                Open Document Review Queue
             </a>
         </div>
 

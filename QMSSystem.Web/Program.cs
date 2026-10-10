@@ -63,6 +63,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
     options.AddPolicy("OperatorOnly", policy => policy.RequireRole("Operator"));
     options.AddPolicy("SupervisorOnly", policy => policy.RequireRole("Supervisor"));
+    options.AddPolicy("DocumentReviewer", policy => policy.RequireRole("Admin", "Supervisor"));
 });
 
 builder.Services.AddRazorPages(options =>
@@ -73,6 +74,7 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeFolder("/Admin", "AdminOnly");
     options.Conventions.AuthorizeFolder("/Operator", "OperatorOnly");
     options.Conventions.AuthorizeFolder("/Supervisor", "SupervisorOnly");
+    options.Conventions.AuthorizePage("/Documents/DocumentApproval", "DocumentReviewer");
 });
 
 var app = builder.Build();

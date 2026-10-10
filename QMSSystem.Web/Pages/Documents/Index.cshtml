@@ -13,7 +13,7 @@
             <p class="text-muted">View and manage controlled documents.</p>
         </div>
 
-        <a asp-page="/Documents/Create" class="btn btn-primary">
+        <a href="/documents/create" class="btn btn-primary">
             Create Document
         </a>
     </div>
@@ -30,7 +30,9 @@
             <select asp-for="StatusFilter" class="form-select">
                 <option value="">All statuses</option>
                 <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
+                <option value="Pending">Pending</option>
+                <option value="Returned">Returned</option>
+                <option value="Rejected">Rejected</option>
             </select>
         </div>
         <div class="col-auto">

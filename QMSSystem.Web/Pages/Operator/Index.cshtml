@@ -30,7 +30,7 @@
 
     .operator-actions {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 20px;
     }
 
@@ -109,6 +109,18 @@
 
             <a href="/Documents/Create" class="action-btn">
                 New Request
+            </a>
+        </div>
+
+        <div class="action-card">
+            <h3>Documents</h3>
+
+            <p>
+                Browse controlled documents and view their details.
+            </p>
+
+            <a asp-page="/Documents/Index" class="action-btn">
+                Show Documents
             </a>
         </div>
 
