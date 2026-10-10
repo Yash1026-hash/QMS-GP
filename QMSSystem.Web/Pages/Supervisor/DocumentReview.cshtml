@@ -83,7 +83,7 @@
                                     <td>@document.Title</td>
                                     <td>@document.Department</td>
                                     <td>Rev. @document.DocumentVersion</td>
-                                    <td>User #@document.CreatedBy</td>
+                                    <td>@(User.Identity?.Name ?? "Not available")</td>
                                     <td>@document.CreationOn.ToString("yyyy-MM-dd")</td>
                                     <td><span class="badge text-bg-warning">@document.Status</span></td>
                                     <td class="text-end">
@@ -100,7 +100,7 @@
                                                 data-file-name="@document.FileName"
                                                 data-preview-url="@Url.Page("/Supervisor/DocumentReview", "Preview", new { id = document.Id })"
                                                 data-content-type="@document.ContentType"
-                                                data-created-by="@document.CreatedBy"
+                                                data-created-by-username="@(User.Identity?.Name ?? "Not available")"
                                                 data-created-on="@document.CreationOn.ToString("yyyy-MM-dd HH:mm")"
                                                 data-comment="@document.Comment">
                                             View details
@@ -227,7 +227,7 @@
                         <div class="fw-semibold" id="reviewDocumentVersion"></div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <div class="small text-body-secondary">Requested by</div>
+                        <div class="small text-body-secondary">Created by</div>
                         <div class="fw-semibold" id="reviewDocumentCreatedBy"></div>
                     </div>
                     <div class="col-6 col-md-3">
@@ -369,7 +369,7 @@
                 $('#previewDocumentFile')
                     .attr('href', data.previewUrl || '#')
                     .toggleClass('d-none', !data.fileName || !data.previewUrl);
-                $('#reviewDocumentCreatedBy').text(data.createdBy || 'Not available');
+                $('#reviewDocumentCreatedBy').text(data.createdByUsername || 'Not available');
                 $('#reviewDocumentCreatedOn').text(data.createdOn || 'Not available');
                 $('#reviewDocumentComment').text(data.comment || 'None');
             });
