@@ -27,6 +27,8 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
 
     public DbSet<DocumentHistory> DocumentHistories => Set<DocumentHistory>();
 
+    public DbSet<DocumentEvent> DocumentEvents => Set<DocumentEvent>();
+
 
     // =========================================================
     // CHANGE REQUESTS
@@ -49,7 +51,60 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // =====================================================
-        // USERS (dbo.KS_RecallUsers)
+        // OPERATOR CHANGE REQUEST
+        // =====================================================
+
+        modelBuilder.Entity<OperatorChangeRequest>(entity =>
+        {
+            entity.ToTable("OperatorChangeRequests", "dbo");
+
+            entity.HasKey(changeRequest => changeRequest.Id);
+
+            entity.Property(changeRequest => changeRequest.Title)
+                .HasMaxLength(200)
+                .IsRequired();
+
+            entity.Property(changeRequest => changeRequest.ChangeType)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.Property(changeRequest => changeRequest.Description)
+                .IsRequired();
+
+            entity.Property(changeRequest => changeRequest.Decision)
+                .HasMaxLength(20);
+
+            entity.Property(changeRequest => changeRequest.DecisionComment)
+                .HasMaxLength(1000);
+
+            entity.Property(changeRequest => changeRequest.Status)
+                .HasMaxLength(20)
+                .IsRequired();
+        });
+
+
+        // =====================================================
+        // OPERATOR CHANGE REQUEST DEVIATION
+        // =====================================================
+
+        modelBuilder.Entity<OperatorChangeRequestDeviation>(entity =>
+        {
+            entity.ToTable(
+                "OperatorChangeRequestDeviations",
+                "dbo");
+
+            entity.HasKey(deviation => deviation.Id);
+
+            entity.Property(deviation => deviation.ChangeRequestId)
+                .IsRequired();
+
+            entity.Property(deviation => deviation.DeviationId)
+                .IsRequired();
+        });
+
+
+        // =====================================================
+        // USERS
         // =====================================================
 
         modelBuilder.Entity<UserAccount>(entity =>
@@ -266,6 +321,31 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
                 .IsRequired();
 
             entity.HasIndex(h => h.DocumentId);
+        });
+
+        modelBuilder.Entity<DocumentEvent>(entity =>
+        {
+            entity.ToTable("DocumentEvents", "dbo");
+
+            entity.HasKey(documentEvent => documentEvent.Id);
+
+            entity.Property(documentEvent => documentEvent.EventType)
+                .HasMaxLength(20)
+                .IsRequired();
+
+            entity.Property(documentEvent => documentEvent.ActorUserId)
+                .IsRequired();
+
+            entity.Property(documentEvent => documentEvent.EventOn)
+                .IsRequired();
+
+            entity.Property(documentEvent => documentEvent.Comment)
+                .HasMaxLength(2000);
+
+            entity.HasOne<DocumentCreation>()
+                .WithMany()
+                .HasForeignKey(documentEvent => documentEvent.DocumentId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
 

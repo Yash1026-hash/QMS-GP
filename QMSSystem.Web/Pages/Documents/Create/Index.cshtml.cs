@@ -8,10 +8,17 @@ namespace QMSSystem.Web.Pages.Documents.Create;
 public class IndexModel : PageModel
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger<IndexModel> _logger;
+    private readonly IWebHostEnvironment _environment;
 
-    public IndexModel(IHttpClientFactory httpClientFactory)
+    public IndexModel(
+        IHttpClientFactory httpClientFactory,
+        ILogger<IndexModel> logger,
+        IWebHostEnvironment environment)
     {
         _httpClientFactory = httpClientFactory;
+        _logger = logger;
+        _environment = environment;
     }
 
     [BindProperty]
@@ -61,7 +68,6 @@ public class IndexModel : PageModel
         Document.ContentType = DocumentFile.ContentType;
         Document.DocumentVersion = 0;
         Document.Status = "Pending";
-        Document.CreatedBy = 1;
         Document.CreationOn = DateTime.UtcNow;
 
         var client = _httpClientFactory.CreateClient("QMSApi");
@@ -83,15 +89,39 @@ public class IndexModel : PageModel
                 ModelState.AddModelError(string.Empty, $"Failed to create document. {message}");
                 return Page();
             }
+
+            var createdDocument = await response.Content
+                .ReadFromJsonAsync<DocumentCreation>(cancellationToken);
+
+            if (createdDocument is null || createdDocument.Id <= 0)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "The API saved the document but did not return a valid document ID.");
+                return Page();
+            }
+
+            return RedirectToPage(
+                "/Documents/Details/Index",
+                new { id = createdDocument.Id });
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException exception)
         {
+            _logger.LogError(
+                exception,
+                "Could not connect to the QMS API at {ApiBaseAddress}.",
+                client.BaseAddress);
+
+            var message = "Could not connect to the API server. Make sure QMSSystem.Api is running.";
+            if (_environment.IsDevelopment())
+            {
+                message += $" Address: {client.BaseAddress}. Details: {exception.Message}";
+            }
+
             ModelState.AddModelError(
                 string.Empty,
-                "Could not connect to the API server. Check that the API is running and try again.");
+                message);
             return Page();
         }
-
-        return RedirectToPage("/Index");
     }
 }

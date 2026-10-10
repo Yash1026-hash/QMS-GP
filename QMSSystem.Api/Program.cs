@@ -49,6 +49,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
     options.AddPolicy("OperatorOnly", policy => policy.RequireRole("Operator"));
     options.AddPolicy("SupervisorOnly", policy => policy.RequireRole("Supervisor"));
+    options.AddPolicy("DocumentReviewer", policy => policy.RequireRole("Admin", "Supervisor"));
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();

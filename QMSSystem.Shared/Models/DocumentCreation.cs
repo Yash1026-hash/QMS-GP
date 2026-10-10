@@ -20,6 +20,9 @@ public class DocumentCreation
     public int CreatedBy { get; set; }
     public DateTime CreationOn { get; set; }
 
+    [NotMapped]
+    public string? CreatedByName { get; set; }
+
     public string? Comment { get; set; }
 
     [Column("decisionBy", TypeName = "varchar")]

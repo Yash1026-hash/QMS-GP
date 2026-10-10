@@ -1,151 +1,220 @@
 @page "{id:int}"
-@model QMSSystem.Web.Pages.Documents.DetailsModel
+@model QMSSystem.Web.Pages.Documents.Details.IndexModel
 @{
     ViewData["Title"] = "Document details";
-    var document = Model.Document!;
+    var document = Model.Document;
 }
 
 <div class="container mt-4">
     <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
         <div>
             <p class="text-muted mb-1">Controlled documents</p>
-            <h1 class="h2 mb-1">@document.DocumentNumber</h1>
-            <p class="text-muted mb-0">@document.Title</p>
+            <h1 class="h2 mb-1">Document details</h1>
+            @if (document is not null)
+            {
+                <p class="text-muted mb-0">@document.DocumentNumber — @document.Title</p>
+            }
         </div>
         <a asp-page="/Documents/Index" class="btn btn-outline-secondary">Back to documents</a>
     </div>
 
-    <div class="card mb-4">
-        <div class="card-header bg-light fw-semibold">Document information</div>
-        <div class="card-body">
-            <dl class="row mb-0">
-                <dt class="col-sm-3">Document number</dt>
-                <dd class="col-sm-9">@document.DocumentNumber</dd>
+    @if (Model.DocumentLoadError is not null)
+    {
+        <div class="alert alert-danger" role="alert">@Model.DocumentLoadError</div>
+    }
+    else if (document is not null)
+    {
+        <div class="card mb-4">
+            <div class="card-header bg-light fw-semibold">Document information</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Document number</dt>
+                    <dd class="col-sm-9">@document.DocumentNumber</dd>
 
-                <dt class="col-sm-3">Title</dt>
-                <dd class="col-sm-9">@document.Title</dd>
+                    <dt class="col-sm-3">Title</dt>
+                    <dd class="col-sm-9">@document.Title</dd>
 
-                <dt class="col-sm-3">Department</dt>
-                <dd class="col-sm-9">@document.Department</dd>
+                    <dt class="col-sm-3">Department</dt>
+                    <dd class="col-sm-9">@document.Department</dd>
 
-                <dt class="col-sm-3">Version</dt>
-                <dd class="col-sm-9">@document.DocumentVersion</dd>
+                    <dt class="col-sm-3">Version</dt>
+                    <dd class="col-sm-9">@document.DocumentVersion</dd>
 
-                <dt class="col-sm-3">Status</dt>
-                <dd class="col-sm-9">
-                    <span class="badge @(document.Status.Equals("Approved", StringComparison.OrdinalIgnoreCase) ? "bg-success" : document.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) ? "bg-warning text-dark" : "bg-secondary")">
-                        @document.Status
-                    </span>
-                </dd>
+                    <dt class="col-sm-3">Status</dt>
+                    <dd class="col-sm-9">
+                        @{
+                            var statusClass = document.Status.Equals("Active", StringComparison.OrdinalIgnoreCase)
+                                ? "text-bg-success"
+                                : document.Status.Equals("Rejected", StringComparison.OrdinalIgnoreCase)
+                                    ? "text-bg-danger"
+                                    : document.Status.Equals("Returned", StringComparison.OrdinalIgnoreCase)
+                                        ? "text-bg-info"
+                                        : document.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase)
+                                            ? "text-bg-warning"
+                                            : "text-bg-secondary";
+                        }
+                        <span class="badge @statusClass">@document.Status</span>
+                    </dd>
 
-                <dt class="col-sm-3">Current file</dt>
-                <dd class="col-sm-9">
-                    @if (!string.IsNullOrWhiteSpace(document.FileName))
+                    <dt class="col-sm-3">Current file</dt>
+                    <dd class="col-sm-9">
+                        @(string.IsNullOrWhiteSpace(document.FileName) ? "No file attached" : document.FileName)
+                    </dd>
+
+                    @if (!string.IsNullOrWhiteSpace(document.Comment))
                     {
-                        <a asp-page="/Documents/UploadRevision/Index"
-                           asp-page-handler="CurrentFile"
-                           asp-route-id="@document.Id">
-                            @document.FileName
-                        </a>
+                        <dt class="col-sm-3">Comment</dt>
+                        <dd class="col-sm-9">@document.Comment</dd>
                     }
-                    else
-                    {
-                        <span class="text-muted">No file attached</span>
-                    }
-                </dd>
 
-                @if (!string.IsNullOrWhiteSpace(document.Comment))
+                    <dt class="col-sm-3">Created by</dt>
+                    <dd class="col-sm-9">
+                        @(string.IsNullOrWhiteSpace(document.CreatedByName)
+                            ? $"User #{document.CreatedBy}"
+                            : document.CreatedByName)
+                    </dd>
+
+                    <dt class="col-sm-3">Created on</dt>
+                    <dd class="col-sm-9">@document.CreationOn.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</dd>
+
+                    <dt class="col-sm-3">Decision</dt>
+                    <dd class="col-sm-9">
+                        @switch (document.DecisionStatus)
+                        {
+                            case 1:
+                                <span class="badge text-bg-success">Approved</span>
+                                break;
+                            case 2:
+                                <span class="badge text-bg-danger">Rejected</span>
+                                break;
+                            case null:
+                                <span class="text-muted">-</span>
+                                break;
+                            default:
+                                @document.DecisionStatus
+                                break;
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3">Decision by</dt>
+                    <dd class="col-sm-9">
+                        @(string.IsNullOrWhiteSpace(document.DecisionBy) ? "-" : document.DecisionBy)
+                    </dd>
+
+                    <dt class="col-sm-3">Decision date</dt>
+                    <dd class="col-sm-9">
+                        @(document.DecisionDate?.ToLocalTime().ToString("dd-MM-yyyy HH:mm") ?? "-")
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-light fw-semibold">Event log</div>
+            <div class="card-body p-0">
+                @if (Model.EventLogError is not null)
                 {
-                    <dt class="col-sm-3">Change description</dt>
-                    <dd class="col-sm-9">@document.Comment</dd>
+                    <div class="alert alert-warning m-3" role="alert">@Model.EventLogError</div>
                 }
-            </dl>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header bg-light fw-semibold">Event information</div>
-        <div class="card-body">
-            <dl class="row mb-0">
-                <dt class="col-sm-3">Created by</dt>
-                <dd class="col-sm-9">
-                    @(string.IsNullOrWhiteSpace(document.CreatedByName)
-                        ? $"User #{document.CreatedBy}"
-                        : document.CreatedByName)
-                </dd>
-
-                <dt class="col-sm-3">Created on</dt>
-                <dd class="col-sm-9">@document.CreationOn.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</dd>
-
-                <dt class="col-sm-3">Decision</dt>
-                <dd class="col-sm-9">
-                    @switch (document.Decision)
+                else if (Model.Events.Count == 0)
+                {
+                    <div class="border-bottom p-3">
+                        <div class="d-flex flex-wrap justify-content-between gap-3">
+                            <div>
+                                <div class="fw-semibold">Document created</div>
+                                <div class="text-muted small">
+                                    Created by @(string.IsNullOrWhiteSpace(document.CreatedByName)
+                                        ? $"User #{document.CreatedBy}"
+                                        : document.CreatedByName)
+                                </div>
+                            </div>
+                            <time class="text-muted small" datetime="@document.CreationOn.ToString("O")">
+                                @document.CreationOn.ToLocalTime().ToString("dd-MM-yyyy HH:mm")
+                            </time>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    @foreach (var documentEvent in Model.Events)
                     {
-                        case 1:
-                            <span class="badge bg-success">Approved</span>
-                            break;
-                        case 2:
-                            <span class="badge bg-danger">Rejected</span>
-                            break;
-                        case null:
-                            <span class="text-muted">-</span>
-                            break;
-                        default:
-                            @document.Decision
-                            break;
+                        var eventLabel = documentEvent.EventType switch
+                        {
+                            "Created" => "Document created",
+                            "Approved" => "Document approved",
+                            "Returned" => "Document returned for changes",
+                            "Rejected" => "Document rejected",
+                            _ => documentEvent.EventType
+                        };
+
+                        <div class="border-bottom p-3">
+                            <div class="d-flex flex-wrap justify-content-between gap-3">
+                                <div>
+                                    <div class="fw-semibold">@eventLabel</div>
+                                    <div class="text-muted small">
+                                        By @(string.IsNullOrWhiteSpace(documentEvent.ActorName)
+                                            ? $"User #{documentEvent.ActorUserId}"
+                                            : documentEvent.ActorName)
+                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(documentEvent.Comment))
+                                    {
+                                        <div class="mt-2">
+                                            <span class="fw-semibold">Comment:</span> @documentEvent.Comment
+                                        </div>
+                                    }
+                                </div>
+                                <time class="text-muted small" datetime="@documentEvent.EventOn.ToString("O")">
+                                    @documentEvent.EventOn.ToLocalTime().ToString("dd-MM-yyyy HH:mm")
+                                </time>
+                            </div>
+                        </div>
                     }
-                </dd>
-
-                <dt class="col-sm-3">Decision by</dt>
-                <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(document.DecisionBy) ? "-" : document.DecisionBy)</dd>
-
-                <dt class="col-sm-3">Decision date</dt>
-                <dd class="col-sm-9">@(document.DecisionDate?.ToLocalTime().ToString("dd-MM-yyyy HH:mm") ?? "-")</dd>
-            </dl>
+                }
+            </div>
         </div>
-    </div>
 
-    <div class="card mt-4">
-        <div class="card-header bg-light fw-semibold">Version history</div>
-        <div class="card-body">
-            @if (Model.HistoryLoadFailed)
-            {
-                <div class="alert alert-warning mb-0" role="alert">
-                    Version history could not be loaded. Please try again later.
-                </div>
-            }
-            else if (Model.History.Count == 0)
-            {
-                <p class="text-muted mb-0">No previous versions have been archived.</p>
-            }
-            else
-            {
-                <div class="table-responsive">
-                    <table class="table table-striped align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th scope="col">Version</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">File</th>
-                                <th scope="col">Archived on</th>
-                                <th scope="col">Change description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var version in Model.History)
-                            {
+        <div class="card">
+            <div class="card-header bg-light fw-semibold">Version history</div>
+            <div class="card-body">
+                @if (Model.HistoryLoadFailed)
+                {
+                    <div class="alert alert-warning mb-0" role="alert">
+                        Version history could not be loaded. Please try again later.
+                    </div>
+                }
+                else if (Model.History.Count == 0)
+                {
+                    <p class="text-muted mb-0">No previous versions have been archived.</p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle mb-0">
+                            <thead>
                                 <tr>
-                                    <td>@version.DocumentVersion</td>
-                                    <td>@version.Status</td>
-                                    <td>@version.FileName</td>
-                                    <td>@version.ArchivedOn.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</td>
-                                    <td>@(string.IsNullOrWhiteSpace(version.Comment) ? "-" : version.Comment)</td>
+                                    <th scope="col">Version</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">File</th>
+                                    <th scope="col">Archived on</th>
+                                    <th scope="col">Change description</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
+                            </thead>
+                            <tbody>
+                                @foreach (var version in Model.History)
+                                {
+                                    <tr>
+                                        <td>@version.DocumentVersion</td>
+                                        <td>@version.Status</td>
+                                        <td>@version.FileName</td>
+                                        <td>@version.ArchivedOn.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</td>
+                                        <td>@(string.IsNullOrWhiteSpace(version.Comment) ? "-" : version.Comment)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
         </div>
-    </div>
+    }
 </div>

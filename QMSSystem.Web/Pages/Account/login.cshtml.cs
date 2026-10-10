@@ -67,6 +67,7 @@ public class LoginModel : PageModel
 
             var claims = new List<Claim>
             {
+                new(ClaimTypes.NameIdentifier, login.UserId.ToString()),
                 new(ClaimTypes.Name, string.IsNullOrWhiteSpace(login.FullName) ? login.Username : login.FullName)
             };
             var roles = (login.Roles.Count > 0 ? login.Roles : [login.Role])
