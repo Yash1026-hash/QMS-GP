@@ -1,4 +1,3 @@
-
 @page
 @model QMSSystem.Web.Pages.Supervisor.DeviationReviewReportModel
 
@@ -6,309 +5,317 @@
     ViewData["Title"] = "Deviation Review Report";
 }
 
-<link rel="stylesheet"
-      href="~/css/supervisor.css"
-      asp-append-version="true" />
-
-<div class="operation-page">
-    <div class="operation-container">
-
-        <!-- Page heading -->
-        <div class="supervisor-heading mb-4">
-            <div class="small-title">QMS</div>
-            <h1>
-                @(Model.ReportId > 0 ? "Deviation Report Details" : "Submitted Deviation Reports")
-            </h1>
-            <p>
-                @(Model.ReportId > 0
-                    ? "Review the submitted report and record your decision."
-                    : "View and review deviation reports submitted by operators.")
-            </p>
+<!-- PAGE HEADER -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pt-2">
+    <div>
+        <h2 class="h4 mb-1">@(Model.ReportId > 0 ? "Deviation Report Details" : "Deviation Review Reports")</h2>
+        <p class="text-muted mb-0">
+            @(Model.ReportId > 0
+                ? "Review the submitted report and record your decision."
+                : "View and review deviation reports submitted by operators.")
+        </p>
+    </div>
+        <div class="d-flex gap-2">
+            @if (Model.ReportId > 0)
+            {
+                <a asp-page="/Supervisor/DeviationReviewReport" class="btn btn-outline-secondary">
+                    &larr; Back to Reports List
+                </a>
+            }
+            <a asp-page="/Supervisor/Index" class="btn btn-outline-secondary">
+                Supervisor Home
+            </a>
         </div>
+    </div>
 
-        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-        {
-            <div class="alert alert-danger" role="alert">
-                @Model.ErrorMessage
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @Model.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (Model.ReportId <= 0)
+    {
+        <!-- SUBMITTED REPORTS LIST -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Submitted Deviation Reports</span>
+                <span class="badge bg-secondary">Total: @Model.Reports.Count</span>
             </div>
-        }
 
-        @if (Model.ReportId <= 0)
-        {
-            <div class="review-card">
-                <div class="card-heading">
-                    <h4 class="section-title">Submitted Reports</h4>
-                    <div class="section-description">
-                        Reports are listed with the most recently submitted first.
-                    </div>
-                </div>
-
-                @if (Model.Reports.Count > 0)
-                {
-                    <div class="table-responsive">
-                        <table class="table table-hover reports-table mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Report ID</th>
-                                    <th>Deviation ID</th>
-                                    <th>Document ID</th>
-                                    <th>Submitted By</th>
-                                    <th>Submitted Date</th>
-                                    <th>Status</th>
-                                    <th class="text-end">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var report in Model.Reports)
-                                {
-                                    <tr>
-                                        <td>@report.Id</td>
-                                        <td>@report.DeviationId</td>
-                                        <td>@report.DocumentId</td>
-                                        <td>@(string.IsNullOrWhiteSpace(report.CreatedBy) ? "Unknown" : report.CreatedBy)</td>
-                                        <td>@report.CreatedDate.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</td>
-                                        <td>
-                                            @if (report.Status == 1)
-                                            {
-                                                <span class="status-badge status-approved">Approved</span>
-                                            }
-                                            else if (report.Status == 2)
-                                            {
-                                                <span class="status-badge status-rejected">Rejected</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="status-badge status-pending">Pending Review</span>
-                                            }
-                                        </td>
-                                        <td class="text-end">
-                                            <a asp-page="/Supervisor/DeviationReviewReport"
-                                               asp-route-ReportId="@report.Id"
-                                               class="btn btn-sm btn-outline-primary">
-                                                View
-                                            </a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-                else if (string.IsNullOrWhiteSpace(Model.ErrorMessage))
-                {
-                    <div class="card-body text-center text-muted">
-                        No deviation reports have been submitted yet.
-                    </div>
-                }
-            </div>
-        }
-        else if (Model.Report.Id > 0)
-        {
-            <div class="review-card">
-
-                <div class="card-heading">
-                    <div class="report-detail-heading">
-                        <div>
-                            <h2 class="section-title">Deviation Report Details</h2>
-                            <p class="section-description">
-                                Report information submitted by the operator.
-                            </p>
-                        </div>
-                        <a asp-page="/Supervisor/DeviationReviewReport"
-                           class="btn btn-outline-secondary btn-sm report-back-button">
-                            Back to Reports
-                        </a>
-                    </div>
-                </div>
-
-                <div class="card-body">
-
-                    <section class="report-info-box report-primary-box">
-                        <h5 class="report-box-title">Report details</h5>
-                        <p class="section-description">The submitted investigation and the related deviation.</p>
-
-                        <div class="report-details-grid">
-                            <div class="report-detail-item">
-                                <label class="field-label">Report ID</label>
-                                <div class="field-value">@Model.Report.Id</div>
-                            </div>
-                            <div class="report-detail-item">
-                                <label class="field-label">Deviation ID</label>
-                                <div class="field-value">@Model.Report.DeviationId</div>
-                            </div>
-                            <div class="report-detail-item">
-                                <label class="field-label">SOP document ID</label>
-                                <div class="field-value">@Model.Report.DocumentId</div>
-                            </div>
-                            <div class="report-detail-item">
-                                <label class="field-label">Attempt number</label>
-                                <div class="field-value">@Model.Report.AttemptNumber</div>
-                            </div>
-                            <div class="report-detail-item report-summary-item">
-                                <label class="field-label">Summary</label>
-                                <div class="field-value">@(string.IsNullOrWhiteSpace(Model.Report.Summary) ? "No summary provided." : Model.Report.Summary)</div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="report-info-box report-meta-box">
-                        <h5 class="report-box-title">Submission and status</h5>
-                        <p class="section-description">Submission information and current review state.</p>
-
-                        <div class="report-details-grid">
-                            <div class="report-detail-item">
-                                <label class="field-label">Submitted by</label>
-                                <div class="field-value">
-                                    @(string.IsNullOrWhiteSpace(Model.Report.CreatedBy)
-                                        ? "Unknown"
-                                        : Model.Report.CreatedBy)
-                                </div>
-                            </div>
-                            <div class="report-detail-item">
-                                <label class="field-label">Submission date</label>
-                                <div class="field-value">@Model.Report.CreatedDate.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</div>
-                            </div>
-                            <div class="report-detail-item">
-                                <label class="field-label">Proof attachment</label>
-                                <div class="field-value">
-                                    @(Model.Report.Proof is { Length: > 0 }
-                                        ? "Proof data is attached."
-                                        : "No proof attached.")
-                                </div>
-                                <div class="proof-note">Attachment presence is shown; this page does not display or download it.</div>
-                            </div>
-                            <div class="report-detail-item">
-                                <label class="field-label">Review status</label>
-                                <div class="field-value">
-                                    @if (Model.Report.Decision == 1)
-                                    {
-                                        <span class="status-badge status-approved">Approved</span>
-                                    }
-                                    else if (Model.Report.Decision == 2)
-                                    {
-                                        <span class="status-badge status-rejected">Rejected</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="status-badge status-pending">Pending review</span>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <h5 class="fw-bold mb-3">Supervisor Decision</h5>
-
-                    @if (Model.Report.Decision == 1 ||
-                         Model.Report.Decision == 2)
-                    {
-                        <div class="alert @(Model.Report.Decision == 1
-                            ? "alert-success"
-                            : "alert-danger")">
-                            <strong>
-                                @(Model.Report.Decision == 1
-                                    ? "Report Approved"
-                                    : "Report Rejected")
-                            </strong>
-
-                            <div class="mt-2">
-                                Decision by:
-                                @(string.IsNullOrWhiteSpace(Model.Report.DecisionBy)
-                                    ? "Unknown"
-                                    : Model.Report.DecisionBy)
-                            </div>
-
-                            @if (Model.Report.DecisionOn.HasValue)
+            @if (Model.Reports.Count > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 100px;">Report ID</th>
+                                <th>Deviation</th>
+                                <th>Document</th>
+                                <th>Submitted By</th>
+                                <th>Submitted Date</th>
+                                <th>Status</th>
+                                <th style="width: 100px;" class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var report in Model.Reports)
                             {
-                                <div>
-                                    Decision date:
-                                    @Model.Report.DecisionOn.Value
-                                        .ToLocalTime()
-                                        .ToString("dd MMM yyyy, hh:mm tt")
-                                </div>
+                                <tr>
+                                    <td>#RPT-@report.Id</td>
+                                    <td>#DEV-@report.DeviationId</td>
+                                    <td>#DOC-@report.DocumentId</td>
+                                    <td>@(string.IsNullOrWhiteSpace(report.CreatedBy) ? "Unknown" : report.CreatedBy)</td>
+                                    <td>@report.CreatedDate.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>
+                                        @if (report.Status == 1)
+                                        {
+                                            <span class="badge bg-success">Approved</span>
+                                        }
+                                        else if (report.Status == 2)
+                                        {
+                                            <span class="badge bg-danger">Rejected</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">Pending Review</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <a asp-page="/Supervisor/DeviationReviewReport"
+                                           asp-route-ReportId="@report.Id"
+                                           class="btn btn-sm btn-outline-primary">
+                                            Review
+                                        </a>
+                                    </td>
+                                </tr>
                             }
-
-                            <div class="mt-2">
-                                Comments:
-                                @(string.IsNullOrWhiteSpace(Model.Report.DecisionComments)
-                                    ? "No comments provided."
-                                    : Model.Report.DecisionComments)
-                            </div>
-                        </div>
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else if (string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div class="card-body text-center text-muted p-4">
+                    No deviation reports have been submitted yet.
+                </div>
+            }
+        </div>
+    }
+    else if (Model.Report.Id > 0)
+    {
+        <!-- REPORT DETAILS & DECISION -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Report #@Model.Report.Id Details</span>
+                <span>
+                    @if (Model.Report.Decision == 1)
+                    {
+                        <span class="badge bg-success">Approved</span>
+                    }
+                    else if (Model.Report.Decision == 2)
+                    {
+                        <span class="badge bg-danger">Rejected</span>
                     }
                     else
                     {
-                        <form method="post">
-                            <input type="hidden" asp-for="Report.Id" />
-                            <input type="hidden" asp-for="Report.DeviationId" />
-                            <input type="hidden" asp-for="ReportId" />
-
-                            <div class="mb-3">
-                                <label asp-for="DecisionComments"
-                                       class="form-label field-label">
-                                    Supervisor Comments
-                                </label>
-
-                                <textarea asp-for="DecisionComments"
-                                          class="form-control"
-                                          rows="4"
-                                          placeholder="Enter review comments"></textarea>
-                            </div>
-
-                            <div asp-validation-summary="All"
-                                 class="text-danger mb-3"></div>
-
-                            <div class="mb-3">
-                                <span class="form-label field-label d-block">Decision</span>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input"
-                                           type="radio"
-                                           asp-for="Decision"
-                                           value="1"
-                                           id="decisionApprove" />
-                                    <label class="form-check-label" for="decisionApprove">
-                                        Approve
-                                    </label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input"
-                                           type="radio"
-                                           asp-for="Decision"
-                                           value="2"
-                                           id="decisionReject" />
-                                    <label class="form-check-label" for="decisionReject">
-                                        Reject
-                                    </label>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary decision-button">
-                                Submit
-                            </button>
-                        </form>
+                        <span class="badge bg-warning text-dark">Pending Review</span>
                     }
+                </span>
+            </div>
 
-                    @if (!string.IsNullOrWhiteSpace(Model.DecisionMessage))
-                    {
-                        <div class="alert alert-success mt-3" role="status">
-                            @Model.DecisionMessage
+            <div class="card-body">
+                <h5 class="fw-semibold text-secondary mb-3">Deviation & Document Information</h5>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6 col-md-3">
+                        <div class="small text-muted">Deviation ID</div>
+                        <div class="fw-semibold">#DEV-@Model.Report.DeviationId</div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="small text-muted">Document ID</div>
+                        <div class="fw-semibold">#DOC-@Model.Report.DocumentId</div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="small text-muted">Report ID</div>
+                        <div class="fw-semibold">#RPT-@Model.Report.Id</div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="small text-muted">Attempt Number</div>
+                        <div class="fw-semibold">@Model.Report.AttemptNumber</div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <h5 class="fw-semibold text-secondary mb-3">Submitted Operator Report</h5>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12">
+                        <div class="small text-muted">Summary</div>
+                        <p class="mb-0 text-break bg-light p-3 rounded border">
+                            @(string.IsNullOrWhiteSpace(Model.Report.Summary) ? "No summary provided." : Model.Report.Summary)
+                        </p>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="small text-muted">Submitted By</div>
+                        <div class="fw-semibold">@(string.IsNullOrWhiteSpace(Model.Report.CreatedBy) ? "Unknown" : Model.Report.CreatedBy)</div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="small text-muted">Submission Date</div>
+                        <div class="fw-semibold">@Model.Report.CreatedDate.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="small text-muted">Proof Attachment</div>
+                        <div>
+                            @if (Model.Report.Proof is { Length: > 0 })
+                            {
+                                <span class="badge bg-success">Proof file attached</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">No proof attached</span>
+                            }
                         </div>
-                    }
+                    </div>
+                </div>
 
-                </div>
+                <hr />
+
+                <h5 class="fw-semibold text-secondary mb-3">Supervisor Decision</h5>
+
+                @if (Model.Report.Decision == 1 || Model.Report.Decision == 2)
+                {
+                    <div class="alert @(Model.Report.Decision == 1 ? "alert-success" : "alert-danger") mb-0">
+                        <div class="fw-semibold">
+                            @(Model.Report.Decision == 1 ? "Report Approved" : "Report Rejected")
+                        </div>
+                        <div class="mt-2 small">
+                            <div><strong>Decision by:</strong> @(string.IsNullOrWhiteSpace(Model.Report.DecisionBy) ? "Supervisor" : Model.Report.DecisionBy)</div>
+                            @if (Model.Report.DecisionOn.HasValue)
+                            {
+                                <div><strong>Decision date:</strong> @Model.Report.DecisionOn.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</div>
+                            }
+                            <div><strong>Comments:</strong> @(string.IsNullOrWhiteSpace(Model.Report.DecisionComments) ? "No comments provided." : Model.Report.DecisionComments)</div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <form method="post" id="deviationReviewReportForm" novalidate>
+                        <input type="hidden" asp-for="Report.Id" />
+                        <input type="hidden" asp-for="Report.DeviationId" />
+                        <input type="hidden" asp-for="ReportId" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold d-block">Decision <span class="text-danger">*</span></label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input"
+                                       type="radio"
+                                       asp-for="Decision"
+                                       value="1"
+                                       id="decisionApprove"
+                                       required />
+                                <label class="form-check-label" for="decisionApprove">
+                                    Approve
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input"
+                                       type="radio"
+                                       asp-for="Decision"
+                                       value="2"
+                                       id="decisionReject" />
+                                <label class="form-check-label" for="decisionReject">
+                                    Reject
+                                </label>
+                            </div>
+                            <span asp-validation-for="Decision" class="text-danger small d-block"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="DecisionComments" class="form-label fw-semibold">
+                                Supervisor Comments <span class="text-danger">*</span>
+                            </label>
+                            <textarea asp-for="DecisionComments"
+                                      class="form-control"
+                                      rows="4"
+                                      maxlength="1000"
+                                      placeholder="Enter supervisor review comments..."></textarea>
+                            <span asp-validation-for="DecisionComments" class="text-danger small d-block"></span>
+                        </div>
+
+                        <button type="submit" id="submitReportDecisionBtn" class="btn btn-primary">
+                            Submit Decision
+                        </button>
+                    </form>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.DecisionMessage))
+                {
+                    <div class="alert alert-success mt-3 mb-0" role="status">
+                        @Model.DecisionMessage
+                    </div>
+                }
             </div>
-        }
-        else
-        {
-            <div class="review-card">
-                <div class="card-body">
-                    <p class="mb-3">The selected report could not be loaded.</p>
-                    <a asp-page="/Supervisor/DeviationReviewReport"
-                       class="btn btn-outline-secondary">
-                        Back to Reports
-                    </a>
-                </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-body p-4 text-center">
+                <p class="text-muted mb-3">The selected report could not be loaded.</p>
+                <a asp-page="/Supervisor/DeviationReviewReport" class="btn btn-outline-secondary">
+                    Back to Reports
+                </a>
             </div>
-        }
-    </div>
-</div>
+        </div>
+    }
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var $reportForm = $("#deviationReviewReportForm");
+            if ($reportForm.length) {
+                $reportForm.validate({
+                    rules: {
+                        DecisionComments: {
+                            required: true,
+                            minlength: 3,
+                            maxlength: 1000
+                        },
+                        Decision: {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        DecisionComments: {
+                            required: "Please provide supervisor review comments.",
+                            minlength: "Comments must be at least 3 characters.",
+                            maxlength: "Comments cannot exceed 1000 characters."
+                        },
+                        Decision: {
+                            required: "Please select a decision (Approve or Reject)."
+                        }
+                    },
+                    errorPlacement: function (error, element) {
+                        if (element.attr("type") === "radio") {
+                            error.insertAfter(element.closest(".mb-3"));
+                        } else {
+                            error.insertAfter(element);
+                        }
+                    },
+                    submitHandler: function (form) {
+                        $("#submitReportDecisionBtn").prop("disabled", true).text("Submitting...");
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
+}

@@ -1,52 +1,52 @@
 @page
 @model QMSSystem.Web.Pages.Operator.ChangeRequest.DocumentsModel
 
-@{
-    ViewData["Title"] = "Active Documents";
-}
+<h2>Active Documents</h2>
 
-<main class="change-request-index-page">
-    <header class="operator-page-heading mb-4">
-        <p class="eyebrow">Operator workspace</p>
-        <h1>Active Documents</h1>
-        <p class="text-body-secondary">Choose a controlled document to start a change request.</p>
-    </header>
+<table class="table table-bordered">
 
-    <section class="card">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th scope="col">Document ID</th>
-                        <th scope="col">Document title</th>
-                        <th scope="col">Department</th>
-                    </tr>
-                </thead>
+    <thead>
+        <tr>
+            <th>Document Id</th>
+            <th>Document Title</th>
+            <th>Department</th>
+            <th>Version</th>
+        </tr>
+    </thead>
 
-                <tbody>
-                    @foreach (var document in Model.Documents)
-                    {
-                        <tr>
-                            <td>@document.Id</td>
-                            <td>
-                                <a asp-page="/Operator/ChangeRequest/Edit"
-                                   asp-route-documentId="@document.Id">
-                                    @document.Title
-                                </a>
-                            </td>
-                            <td>@document.Department</td>
-                        </tr>
-                    }
-                    @if (Model.Documents.Count == 0)
-                    {
-                        <tr>
-                            <td colspan="3" class="py-4 text-center text-body-secondary">
-                                No active documents are available.
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </section>
-</main>
+    <tbody>
+
+        @if (Model.Documents == null || !Model.Documents.Any())
+        {
+            <tr>
+                <td colspan="4" class="text-center text-muted py-4">No active documents found.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var document in Model.Documents)
+            {
+                <tr>
+
+                    <td>@document.Id</td>
+
+                    <td>
+                        <a asp-page="/Operator/ChangeRequest/Edit"
+                           asp-route-documentId="@document.Id">
+                            @document.Title
+                        </a>
+                    </td>
+
+                    <td>@document.Department</td>
+
+                    <td>
+                        <span class="badge bg-light text-dark border">v@(document.DocumentVersion)</span>
+                    </td>
+
+                </tr>
+            }
+        }
+
+    </tbody>
+
+</table>

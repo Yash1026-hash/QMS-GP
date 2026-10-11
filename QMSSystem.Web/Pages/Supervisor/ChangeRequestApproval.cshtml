@@ -5,25 +5,16 @@
     ViewData["Title"] = "Change Request Approval";
 }
 
-<div class="container py-4">
-
-    <!-- PAGE HEADER -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-
-        <div>
-            <h1 class="mb-1">Change Request Approval</h1>
-
-            <p class="text-muted mb-0">
-                Review and approve pending change requests.
-            </p>
-        </div>
-
-        <a asp-page="/Supervisor/Index"
-           class="btn btn-outline-secondary">
-            ← Back to Supervisor Dashboard
-        </a>
-
+<!-- PAGE HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4 pt-2">
+    <div>
+        <h2 class="h4 mb-1">Change Request Approval</h2>
+        <p class="text-muted mb-0">Review and approve pending change requests.</p>
     </div>
+    <a asp-page="/Supervisor/Index" class="btn btn-outline-secondary">
+        &larr; Back to Supervisor Home
+    </a>
+</div>
 
 
     <!-- ERROR MESSAGE -->
@@ -36,10 +27,11 @@
 
 
     <!-- SUCCESS MESSAGE -->
-    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    @if (TempData["SuccessMessage"] is string successMsg || !string.IsNullOrWhiteSpace(Model.SuccessMessage))
     {
-        <div class="alert alert-success">
-            @Model.SuccessMessage
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @(TempData["SuccessMessage"] ?? Model.SuccessMessage)
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
@@ -112,14 +104,12 @@
 
                                     <td>
 
-                                        <!-- VIEW BUTTON -->
+                                        <!-- REVIEW BUTTON -->
                                         <button type="button"
                                                 class="btn btn-primary btn-sm"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#changeRequestModal-@request.Id">
-
-                                            View
-
+                                            Review
                                         </button>
 
                                     </td>
@@ -146,8 +136,67 @@
 
     </div>
 
-</div>
-
+    <!-- CLOSED / HISTORICAL CHANGE REQUESTS TABLE -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">
+                Closed &amp; Historical Requests (@Model.ClosedChangeRequests.Count)
+            </h5>
+            @if (Model.ClosedChangeRequests != null && Model.ClosedChangeRequests.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Title</th>
+                                <th>Document ID</th>
+                                <th>Change Type</th>
+                                <th>Requested By</th>
+                                <th>Decision</th>
+                                <th>Closed Date</th>
+                                <th>Supervisor Comments</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var closed in Model.ClosedChangeRequests)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">#CR-@closed.Id</td>
+                                    <td>
+                                        <div class="fw-medium">@closed.Title</div>
+                                        <div class="small text-muted text-truncate" style="max-width: 280px;">@closed.Description</div>
+                                    </td>
+                                    <td>#DOC-@closed.DocumentId</td>
+                                    <td><span class="badge bg-secondary">@closed.ChangeType</span></td>
+                                    <td>User #@closed.RequestedByUserId</td>
+                                    <td>
+                                        <span class="badge @(closed.Decision switch {
+                                            "Approved" or "Accepted" => "bg-success",
+                                            "Rejected" => "bg-danger",
+                                            _ => "bg-secondary"
+                                        })">
+                                            @(string.IsNullOrWhiteSpace(closed.Decision) ? "Closed" : closed.Decision)
+                                        </span>
+                                    </td>
+                                    <td>@(closed.DecisionDate?.ToString("yyyy-MM-dd HH:mm") ?? closed.RequestedDate.ToString("yyyy-MM-dd"))</td>
+                                    <td class="small text-muted">
+                                        @(string.IsNullOrWhiteSpace(closed.DecisionComment) ? "-" : closed.DecisionComment)
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-muted small py-2">
+                    No closed change requests recorded yet.
+                </div>
+            }
+        </div>
+    </div>
 
 <!-- ========================================================= -->
 <!-- CHANGE REQUEST MODALS                                     -->
@@ -290,7 +339,7 @@
                         </h5>
 
 
-                        <form method="post">
+                        <form method="post" class="change-request-approval-form" novalidate>
 
                             <!-- CHANGE REQUEST ID -->
                             <input type="hidden"
@@ -302,39 +351,28 @@
                             <div class="mb-4">
 
                                 <div class="form-check form-check-inline">
-
                                     <input class="form-check-input"
                                            type="radio"
                                            name="Decision"
-                                           value="accept"
+                                           value="approve"
                                            id="accept-@request.Id"
                                            required />
-
                                     <label class="form-check-label"
                                            for="accept-@request.Id">
-
-                                        Accept
-
+                                        Approve
                                     </label>
-
                                 </div>
 
-
                                 <div class="form-check form-check-inline">
-
                                     <input class="form-check-input"
                                            type="radio"
                                            name="Decision"
                                            value="reject"
                                            id="reject-@request.Id" />
-
                                     <label class="form-check-label"
                                            for="reject-@request.Id">
-
                                         Reject
-
                                     </label>
-
                                 </div>
 
                             </div>
@@ -345,7 +383,7 @@
 
                                 <label class="form-label">
 
-                                    Reviewer Comments
+                                    Reviewer Comments <span class="text-danger">*</span>
 
                                 </label>
 
@@ -373,7 +411,7 @@
 
 
                                 <button type="submit"
-                                        class="btn btn-primary">
+                                        class="btn btn-primary submit-approval-btn">
 
                                     Submit
 
@@ -391,4 +429,46 @@
 
         </div>
     }
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(".change-request-approval-form").each(function () {
+                $(this).validate({
+                    rules: {
+                        Decision: {
+                            required: true
+                        },
+                        DecisionComment: {
+                            required: true,
+                            minlength: 3,
+                            maxlength: 1000
+                        }
+                    },
+                    messages: {
+                        Decision: {
+                            required: "Please select an approval decision (Approve or Reject)."
+                        },
+                        DecisionComment: {
+                            required: "Please enter reviewer comments.",
+                            minlength: "Comments must be at least 3 characters.",
+                            maxlength: "Comments cannot exceed 1000 characters."
+                        }
+                    },
+                    errorPlacement: function (error, element) {
+                        if (element.attr("type") === "radio") {
+                            error.insertAfter(element.closest(".mb-4"));
+                        } else {
+                            error.insertAfter(element);
+                        }
+                    },
+                    submitHandler: function (form) {
+                        $(form).find("button[type='submit']").prop("disabled", true).text("Submitting...");
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
 }

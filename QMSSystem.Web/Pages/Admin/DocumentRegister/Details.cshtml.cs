@@ -20,6 +20,7 @@ public class DetailsModel : PageModel
     public int Id { get; set; }
 
     public Document? Document { get; set; }
+    public List<QMSSystem.Shared.DTOs.DocumentHistoryDto> History { get; set; } = [];
 
     public string? ErrorMessage { get; set; }
 
@@ -34,6 +35,7 @@ public class DetailsModel : PageModel
         {
             var client = _httpClientFactory.CreateClient("QMSApi");
             Document = await client.GetFromJsonAsync<Document>($"api/admin/documents/{Id}");
+            History = await client.GetFromJsonAsync<List<QMSSystem.Shared.DTOs.DocumentHistoryDto>>($"api/documenthistory/document/{Id}") ?? [];
         }
         catch (Exception ex)
         {

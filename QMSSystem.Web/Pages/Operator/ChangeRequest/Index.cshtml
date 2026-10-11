@@ -1,106 +1,86 @@
 @page
 @model QMSSystem.Web.Pages.Operator.ChangeRequestIndex.IndexModel
-
 @{
-    ViewData["Title"] = "My Change Requests";
+    ViewData["Title"] = "Change Requests";
 }
 
-<style>
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-    }
-
-    .page-header h1 {
-        margin: 0;
-    }
-
-    .add-button {
-        display: inline-flex;
-        align-items: center;
-        min-height: 42px;
-        background-color: #0d6efd;
-        color: white;
-        padding: 10px 16px;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: 600;
-    }
-
-    .add-button:hover {
-        background-color: #0b5ed7;
-        color: white;
-    }
-
-    .request-table {
-        width: 100%;
-        border-collapse: collapse;
-        background-color: white;
-    }
-
-    .request-table th,
-    .request-table td {
-        border: 1px solid #ddd;
-        padding: 12px;
-        text-align: left;
-    }
-
-    .request-table th {
-        background-color: #f2f2f2;
-    }
-
-    .empty-message {
-        text-align: center !important;
-        color: #666;
-        padding: 25px !important;
-    }
-
-    .details-frame {
-        width: 100%;
-        height: 70vh;
-        border: none;
-    }
-</style>
-
-<main class="change-request-index-page">
-    <header class="page-header">
-        <div>
-            <p class="eyebrow">Operator workspace</p>
-            <h1>My Change Requests</h1>
-            <p class="text-body-secondary mb-0">Review the change requests you have submitted.</p>
-        </div>
-
-        <a href="/ChangeRequests/Edit" class="add-button">
+<!-- PAGE HEADER -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pt-2">
+    <div>
+        <h2 class="h4 mb-1">Operator Change Requests</h2>
+        <p class="text-muted mb-0">Track and create formal change requests for controlled documents and procedures.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/Operator" class="btn btn-outline-secondary">
+            &larr; Back to Operator
+        </a>
+        <a asp-page="/Operator/ChangeRequest/Edit" class="btn btn-primary">
             + Add Request
         </a>
-    </header>
+    </div>
+</div>
 
-    <section class="card">
-        <div class="table-responsive">
-            <table class="request-table">
-                <thead>
-                    <tr>
-                        <th>Change Request</th>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    @if (Model.ChangeRequests.Count > 0)
-                    {
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-light">
+        <span class="fw-semibold">Submitted Change Requests (@Model.ChangeRequests.Count)</span>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.ChangeRequests.Count == 0)
+        {
+            <div class="p-5 text-center text-muted">
+                <p class="mb-2">No change requests found.</p>
+                <a asp-page="/Operator/ChangeRequest/Edit" class="btn btn-outline-primary btn-sm">
+                    Create Your First Change Request
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 80px;">ID</th>
+                            <th>Title</th>
+                            <th style="width: 120px;">Document</th>
+                            <th style="width: 130px;">Date</th>
+                            <th style="width: 120px;">Type</th>
+                            <th style="width: 120px;">Status</th>
+                            <th style="width: 110px;" class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         @foreach (var request in Model.ChangeRequests)
                         {
                             <tr>
-                                <td>@request.Title</td>
-                                <td>@request.RequestedDate.ToString("dd-MM-yyyy")</td>
-                                <td>@request.ChangeType</td>
+                                <td class="fw-semibold">#CR-@request.Id</td>
                                 <td>
+                                    <div class="fw-medium">@request.Title</div>
+                                    <div class="small text-muted text-truncate" style="max-width: 380px;">@request.Description</div>
+                                </td>
+                                <td>#DOC-@request.DocumentId</td>
+                                <td>@request.RequestedDate.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <span class="badge bg-secondary">@request.ChangeType</span>
+                                </td>
+                                <td>
+                                    <span class="badge @(request.Status switch {
+                                        "Pending" => "bg-warning text-dark",
+                                        "Approved" or "Accepted" => "bg-success",
+                                        "Rejected" => "bg-danger",
+                                        "Closed" when request.Decision == "Approved" || request.Decision == "Accepted" => "bg-success",
+                                        "Closed" when request.Decision == "Rejected" => "bg-danger",
+                                        "Closed" => "bg-secondary",
+                                        _ => "bg-secondary"
+                                    })">
+                                        @(request.Status == "Closed" && !string.IsNullOrWhiteSpace(request.Decision)
+                                            ? $"Closed ({request.Decision})"
+                                            : request.Status)
+                                    </span>
+                                </td>
+                                <td class="text-center">
                                     <button type="button"
-                                            class="btn btn-primary btn-sm"
+                                            class="btn btn-outline-primary btn-sm"
                                             data-bs-toggle="modal"
                                             data-bs-target="#changeRequestModal-@request.Id">
                                         View Details
@@ -108,22 +88,14 @@
                                 </td>
                             </tr>
                         }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="4" class="empty-message">
-                                No change requests found.
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </section>
-</main>
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
 
-@* Details popups - one for each Change Request *@
+@* Details Modals *@
 @if (Model.ChangeRequests.Count > 0)
 {
     @foreach (var request in Model.ChangeRequests)
@@ -134,38 +106,78 @@
              aria-labelledby="changeRequestModalLabel-@request.Id"
              aria-hidden="true">
 
-            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
                 <div class="modal-content">
-
                     <div class="modal-header">
-                        <h5 class="modal-title"
-                            id="changeRequestModalLabel-@request.Id">
-                            Change Request Details
+                        <h5 class="modal-title" id="changeRequestModalLabel-@request.Id">
+                            Change Request #CR-@request.Id
                         </h5>
-
-                        <button type="button"
-                                class="btn-close"
-                                data-bs-dismiss="modal"
-                                aria-label="Close">
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
-                    <div class="modal-body p-0">
-                        <iframe
-                            class="details-frame"
-                            src="/Operator/ChangeRequests/Details/@request.Id"
-                            title="Details for Change Request @request.Id">
-                        </iframe>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="small text-muted">Title</div>
+                                <div class="fw-semibold">@request.Title</div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="small text-muted">Related Document</div>
+                                <div class="fw-semibold">#DOC-@request.DocumentId</div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="small text-muted">Change Type</div>
+                                <div><span class="badge bg-secondary">@request.ChangeType</span></div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="small text-muted">Current Status</div>
+                                <div>
+                                    <span class="badge @(request.Status switch {
+                                        "Pending" => "bg-warning text-dark",
+                                        "Approved" or "Accepted" => "bg-success",
+                                        "Rejected" => "bg-danger",
+                                        "Closed" when request.Decision == "Approved" || request.Decision == "Accepted" => "bg-success",
+                                        "Closed" when request.Decision == "Rejected" => "bg-danger",
+                                        "Closed" => "bg-secondary",
+                                        _ => "bg-secondary"
+                                    })">
+                                        @(request.Status == "Closed" && !string.IsNullOrWhiteSpace(request.Decision)
+                                            ? $"Closed ({request.Decision})"
+                                            : request.Status)
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="small text-muted">Requested Date</div>
+                                <div>@request.RequestedDate.ToString("yyyy-MM-dd HH:mm")</div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="small text-muted">Requested By</div>
+                                <div>User #@request.RequestedByUserId</div>
+                            </div>
+                            <div class="col-12">
+                                <div class="small text-muted">Proposed Changes Description</div>
+                                <div class="p-3 bg-light rounded border mt-1">@request.Description</div>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(request.DecisionComment))
+                            {
+                                <div class="col-12">
+                                    <div class="small text-muted">Supervisor Review Comments</div>
+                                    <div class="p-3 bg-light rounded border mt-1 text-muted">
+                                        <strong>Decision: @request.Decision (@(request.DecisionDate?.ToString("yyyy-MM-dd") ?? "-")):</strong><br />
+                                        @request.DecisionComment
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button"
-                                class="btn btn-secondary"
-                                data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                             Close
                         </button>
                     </div>
-
                 </div>
             </div>
         </div>

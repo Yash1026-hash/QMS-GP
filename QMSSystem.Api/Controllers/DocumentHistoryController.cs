@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QMSSystem.Api.Data;
@@ -8,6 +9,7 @@ namespace QMSSystem.Api.Controllers;
 
 [ApiController]
 [Route("api/documenthistory")]
+[AllowAnonymous]
 public class DocumentHistoryController : ControllerBase
 {
     private readonly UserDbContext _db;
@@ -22,6 +24,7 @@ public class DocumentHistoryController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var rows = await _db.DocumentHistories
+            .Where(h => h.Status != "PendingRevisionBackup")
             .OrderByDescending(h => h.Id)
             .ToListAsync();
 
@@ -33,7 +36,7 @@ public class DocumentHistoryController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var row = await _db.DocumentHistories.FindAsync(id);
-        if (row is null) return NotFound();
+        if (row is null || row.Status == "PendingRevisionBackup") return NotFound();
         return Ok(row);
     }
 
@@ -42,7 +45,7 @@ public class DocumentHistoryController : ControllerBase
     public async Task<IActionResult> GetByDocument(int documentId)
     {
         var rows = await _db.DocumentHistories
-            .Where(h => h.DocumentId == documentId)
+            .Where(h => h.DocumentId == documentId && h.Status != "PendingRevisionBackup")
             .OrderByDescending(h => h.DocumentVersion)
             .Select(h => new DocumentHistoryDto
             {

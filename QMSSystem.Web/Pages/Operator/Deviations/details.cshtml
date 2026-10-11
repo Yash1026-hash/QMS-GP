@@ -1,145 +1,126 @@
 @page "/Deviations/Details"
 @model QMSSystem.Web.Pages.Operator.Deviations.DetailsModel
-
 @{
-    ViewData["Title"] = "Deviation Details";
+    ViewData["Title"] = Model.Deviation != null ? $"Deviation #{Model.Deviation.Id}" : "Deviation Details";
 }
 
-@section Styles {
-    <link rel="stylesheet" href="~/css/deviation-details.css" asp-append-version="true" />
-}
-
-<div class="deviation-details-page">
-    <div class="deviation-details-container">
-        <div class="deviation-details-heading">
-            <div>
-                <p class="deviation-eyebrow">Operator workspace</p>
-                <h1>Deviation Details</h1>
-                <p class="deviation-subtitle">View the submitted deviation and its supervisor review.</p>
-            </div>
-            <a asp-page="/Operator/Deviations/Index" class="deviation-back-button">
-                Back to deviations
-            </a>
-        </div>
-
-        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-        {
-            <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
-        }
-        else if (Model.Deviation is not null)
-        {
-            <section class="deviation-details-card" aria-labelledby="deviation-information-heading">
-                <div class="deviation-card-heading">
-                    <div>
-                        <h2 id="deviation-information-heading">Deviation information</h2>
-                        <p>Primary details submitted by the operator.</p>
-                    </div>
-                    <span class="deviation-id-badge">ID @Model.Deviation.Id</span>
-                </div>
-
-                <div class="deviation-card-body">
-                    <div class="deviation-information-grid">
-                        <div class="deviation-info-item">
-                            <span class="deviation-info-label">Deviation ID</span>
-                            <div class="deviation-info-value">@Model.Deviation.Id</div>
-                        </div>
-                        <div class="deviation-info-item">
-                            <span class="deviation-info-label">Status</span>
-                            <div class="deviation-info-value">
-                                <span class="deviation-status @Model.StatusCssClass">@Model.StatusText</span>
-                            </div>
-                        </div>
-                        <div class="deviation-info-item deviation-info-full">
-                            <span class="deviation-info-label">Deviation title</span>
-                            <div class="deviation-info-value">@Model.DisplayValue(Model.Deviation.Title)</div>
-                        </div>
-                        <div class="deviation-info-item">
-                            <span class="deviation-info-label">Related SOP</span>
-                            <div class="deviation-info-value">@Model.DocumentNumber</div>
-                        </div>
-                        <div class="deviation-info-item">
-                            <span class="deviation-info-label">SOP title</span>
-                            <div class="deviation-info-value">@Model.DocumentTitle</div>
-                        </div>
-                        <div class="deviation-info-item">
-                            <span class="deviation-info-label">Priority</span>
-                            <div class="deviation-info-value">@Model.DisplayValue(Model.Deviation.Priority)</div>
-                        </div>
-                        <div class="deviation-info-item">
-                            <span class="deviation-info-label">Raised by</span>
-                            <div class="deviation-info-value">@Model.DisplayValue(Model.Deviation.CreatedBy)</div>
-                        </div>
-                        <div class="deviation-info-item">
-                            <span class="deviation-info-label">Issued date</span>
-                            <div class="deviation-info-value">@Model.Deviation.CreatedDate.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</div>
-                        </div>
-                        <div class="deviation-info-item deviation-info-full">
-                            <span class="deviation-info-label">About deviation</span>
-                            <div class="deviation-info-value deviation-description">@Model.DisplayValue(Model.Deviation.Description)</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="deviation-details-card" aria-labelledby="deviation-proof-heading">
-                <div class="deviation-card-heading">
-                    <div>
-                        <h2 id="deviation-proof-heading">Proofs</h2>
-                        <p>Attachments submitted with the deviation.</p>
-                    </div>
-                </div>
-                <div class="deviation-card-body">
-                    <div class="deviation-proof-note">
-                        No proof attachment is recorded for this deviation.
-                    </div>
-                </div>
-            </section>
-
-            <section class="deviation-details-card" aria-labelledby="supervisor-review-heading">
-                <div class="deviation-card-heading">
-                    <div>
-                        <h2 id="supervisor-review-heading">Supervisor review</h2>
-                        <p>Decision information recorded by the supervisor.</p>
-                    </div>
-                </div>
-                <div class="deviation-card-body">
-                    @if (Model.Deviation.Decision is 1 or 2)
-                    {
-                        <div class="deviation-review-summary @Model.StatusCssClass">
-                            <strong>@Model.StatusText</strong>
-                            <dl>
-                                <div>
-                                    <dt>Reviewed by</dt>
-                                    <dd>@Model.DisplayValue(Model.Deviation.DecisionBy)</dd>
-                                </div>
-                                <div>
-                                    <dt>Review date</dt>
-                                    <dd>@(Model.Deviation.DecisionOn?.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt") ?? "Not available")</dd>
-                                </div>
-                                <div>
-                                    <dt>Comments</dt>
-                                    <dd>@Model.DisplayValue(Model.Deviation.DecisionComments)</dd>
-                                </div>
-                            </dl>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="deviation-review-summary pending">
-                            <strong>Pending supervisor review</strong>
-                            <p>This deviation is awaiting a supervisor decision.</p>
-                        </div>
-                    }
-                </div>
-            </section>
-        }
-        else if (Model.Id <= 0)
-        {
-            <div class="alert alert-warning" role="alert">A valid deviation ID was not provided.</div>
-        }
-
-        <a asp-page="/Operator/Deviations/Index" class="deviation-back-button deviation-bottom-back">
-            Back to deviations
+<!-- PAGE HEADER -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pt-2">
+    <div>
+        <h2 class="h4 mb-1">Deviation Details</h2>
+        <p class="text-muted mb-0">Complete record, priority, and review status for this deviation.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/Deviations/Index" class="btn btn-outline-secondary">
+            &larr; Back to Deviations
         </a>
+        @if (Model.Deviation != null && Model.Deviation.Decision == 1)
+        {
+            <a href="/Deviations/Report?SelectedDeviationId=@Model.Deviation.Id" class="btn btn-primary">
+                Submit Report &rarr;
+            </a>
+        }
     </div>
 </div>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (Model.Deviation != null)
+{
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <span class="fw-semibold">Deviation Information (#DEV-@Model.Deviation.Id)</span>
+            <span class="badge @(Model.Deviation.Status == 0 ? "bg-warning text-dark" : Model.Deviation.Status == 1 ? "bg-success" : "bg-danger")">
+                @(Model.Deviation.Status == 0 ? "Pending Review" : Model.Deviation.Status == 1 ? "Active / Approved" : "Inactive / Rejected")
+            </span>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-sm-6 col-md-3">
+                    <div class="small text-muted">Deviation ID</div>
+                    <div class="fw-semibold">#DEV-@Model.Deviation.Id</div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="small text-muted">Related SOP / Document</div>
+                    <div class="fw-semibold">
+                        <a href="/Documents/Details?id=@Model.Deviation.DocumentId" class="text-decoration-none">
+                            #DOC-@Model.Deviation.DocumentId
+                        </a>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="small text-muted">Priority Level</div>
+                    <div>
+                        <span class="badge @(Model.Deviation.Priority switch {
+                            "Critical" or "High" => "bg-danger",
+                            "Major" or "Medium" => "bg-warning text-dark",
+                            "Minor" or "Low" => "bg-info text-dark",
+                            _ => "bg-secondary"
+                        })">@Model.Deviation.Priority</span>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="small text-muted">Created By</div>
+                    <div class="fw-semibold">@Model.Deviation.CreatedBy</div>
+                </div>
+
+                <div class="col-sm-6 col-md-6">
+                    <div class="small text-muted">Created Date</div>
+                    <div class="fw-semibold">@Model.Deviation.CreatedDate.ToString("yyyy-MM-dd HH:mm")</div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                    <div class="small text-muted">Supervisor Review Status</div>
+                    <div>
+                        @if (Model.Deviation.Decision == 1)
+                        {
+                            <span class="badge bg-success">Approved</span>
+                        }
+                        else if (Model.Deviation.Decision == 2)
+                        {
+                            <span class="badge bg-danger">Rejected</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">Awaiting Supervisor Review</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="small text-muted">Title</div>
+                    <div class="fw-semibold fs-5">@Model.Deviation.Title</div>
+                </div>
+
+                <div class="col-12">
+                    <div class="small text-muted">Description &amp; Observed Variance</div>
+                    <div class="p-3 bg-light rounded border mt-1">
+                        @Model.Deviation.Description
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Deviation.DecisionComments))
+                {
+                    <div class="col-12">
+                        <div class="small text-muted">Supervisor Decision Comments</div>
+                        <div class="p-3 bg-light rounded border mt-1 text-muted">
+                            <strong>Reviewed by @(Model.Deviation.DecisionBy ?? "Supervisor") on @(Model.Deviation.DecisionOn?.ToString("yyyy-MM-dd HH:mm") ?? "-"):</strong><br />
+                            @Model.Deviation.DecisionComments
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="card-footer bg-light d-flex justify-content-between align-items-center">
+            <span class="small text-muted">Logged in Quality Management System</span>
+            <a href="/Deviations/Index" class="btn btn-sm btn-outline-secondary">
+                Back to List
+            </a>
+        </div>
+    </div>
+}

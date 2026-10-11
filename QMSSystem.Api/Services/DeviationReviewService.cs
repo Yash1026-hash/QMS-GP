@@ -41,6 +41,30 @@ public class DeviationReviewService
         };
     }
 
+    public async Task<List<DeviationRequestDto>> GetActiveDeviationsAsync()
+    {
+        return await _context.DeviationRequests
+            .AsNoTracking()
+            .Where(x => x.Status == 0)
+            .OrderByDescending(x => x.CreatedDate)
+            .Select(deviation => new DeviationRequestDto
+            {
+                Id = deviation.Id,
+                Title = deviation.Title,
+                Description = deviation.Description,
+                DocumentId = deviation.DocumentId,
+                Priority = deviation.Priority,
+                Status = deviation.Status,
+                CreatedBy = deviation.CreatedBy,
+                CreatedDate = deviation.CreatedDate,
+                Decision = deviation.Decision,
+                DecisionBy = deviation.DecisionBy,
+                DecisionOn = deviation.DecisionOn,
+                DecisionComments = deviation.DecisionComments
+            })
+            .ToListAsync();
+    }
+
     public async Task<bool> SubmitDecisionAsync(
         int deviationId,
         int decision,
