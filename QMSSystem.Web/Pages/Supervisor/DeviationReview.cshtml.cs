@@ -86,6 +86,27 @@ public class DeviationReviewModel : PageModel
     }
 
 
+    public async Task<IActionResult> OnPostAsync()
+    {
+        if (Approval.Decision != 1 && Approval.Decision != 2)
+        {
+            SearchId = Approval.DeviationRequestId;
+            Message = "Please select an approval decision (Approve or Reject).";
+            await LoadDeviationAsync();
+            return Page();
+        }
+
+        if (Approval.Decision == 2 && string.IsNullOrWhiteSpace(Approval.DecisionComments))
+        {
+            SearchId = Approval.DeviationRequestId;
+            Message = "Comments are required when rejecting a deviation.";
+            await LoadDeviationAsync();
+            return Page();
+        }
+
+        return await SubmitDecisionAsync();
+    }
+
     public async Task<IActionResult> OnPostApproveAsync()
     {
         Approval.Decision = 1;

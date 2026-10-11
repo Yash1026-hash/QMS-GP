@@ -5,165 +5,168 @@
     ViewData["Title"] = "Deviation Review";
 }
 
-<link rel="stylesheet" href="~/css/supervisor.css" />
+<div class="container py-4">
 
-<div class="operation-page">
+    <!-- PAGE HEADER -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <p class="eyebrow mb-1">QMS / SUPERVISOR</p>
+            <h1 class="h3 mb-1">Deviation Review</h1>
+            <p class="text-muted mb-0">Review and approve or reject pending deviation requests.</p>
+        </div>
+        <a asp-page="/Supervisor/Index" class="btn btn-outline-secondary">
+            &larr; Back to Supervisor Home
+        </a>
+    </div>
 
-    <div class="operation-container">
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            @Model.Message
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-        <h1>Deviation Review</h1>
-
-        <p class="operation-description">
-            Review and approve or reject pending deviation requests.
-        </p>
-
-        @if (!string.IsNullOrEmpty(Model.Message))
-        {
-            <div class="operation-message">
-                @Model.Message
-            </div>
-        }
-
-        <!-- Search Section -->
-        <div class="review-section">
-
-            <h3>Search Deviation</h3>
-
-            <form method="get" id="deviationReviewSearchForm">
-
-                <label asp-for="SearchId">
-                    Deviation ID
-                </label>
-
-                <input asp-for="SearchId"
-                       type="number"
-                       min="1"
-                       placeholder="Enter deviation ID"
-                       required />
-
-                <button type="submit">
-                    Search
-                </button>
-
+    <!-- SEARCH SECTION -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <span class="fw-semibold">Search Deviation</span>
+        </div>
+        <div class="card-body">
+            <form method="get" id="deviationReviewSearchForm" class="row g-2 align-items-end">
+                <div class="col-md-4 col-sm-6">
+                    <label asp-for="SearchId" class="form-label">Deviation ID <span class="text-danger">*</span></label>
+                    <input asp-for="SearchId"
+                           type="number"
+                           min="1"
+                           class="form-control"
+                           placeholder="Enter deviation ID (e.g. 1)"
+                           required />
+                    <span asp-validation-for="SearchId" class="text-danger small"></span>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">
+                        Search
+                    </button>
+                </div>
             </form>
+        </div>
+    </div>
 
+    <!-- DEVIATION DETAILS -->
+    @if (Model.Deviation != null)
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Deviation Details</span>
+                <span class="badge @(Model.Deviation.Status == 0 ? "bg-warning text-dark" : Model.Deviation.Status == 1 ? "bg-success" : "bg-danger")">
+                    @(Model.Deviation.Status == 0 ? "Pending Review" : Model.Deviation.Status == 1 ? "Approved" : "Rejected")
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-sm-6 col-md-3">
+                        <div class="small text-muted">Deviation ID</div>
+                        <div class="fw-semibold">#DEV-@Model.Deviation.Id</div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="small text-muted">Document ID</div>
+                        <div class="fw-semibold">#DOC-@Model.Deviation.DocumentId</div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="small text-muted">Priority</div>
+                        <div class="fw-semibold">
+                            <span class="badge @(Model.Deviation.Priority switch {
+                                "Critical" => "bg-danger",
+                                "Major" => "bg-warning text-dark",
+                                "Minor" => "bg-info text-dark",
+                                _ => "bg-secondary"
+                            })">@Model.Deviation.Priority</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="small text-muted">Created By</div>
+                        <div class="fw-semibold">@Model.Deviation.CreatedBy</div>
+                    </div>
+                    <div class="col-sm-6 col-md-6">
+                        <div class="small text-muted">Created Date</div>
+                        <div class="fw-semibold">@Model.Deviation.CreatedDate.ToString("yyyy-MM-dd HH:mm")</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="small text-muted">Title</div>
+                        <div class="fw-semibold fs-6">@Model.Deviation.Title</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="small text-muted">Description</div>
+                        <p class="mb-0 text-break bg-light p-3 rounded border">@Model.Deviation.Description</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-
-        <!-- Deviation Details -->
-        @if (Model.Deviation != null)
+        <!-- APPROVAL SECTION WITH RADIO BUTTONS -->
+        @if (Model.Deviation.Status == 0)
         {
-            <div class="review-section">
-
-                <h3>Deviation Details</h3>
-
-                <div class="deviation-details">
-
-                    <p>
-                        <strong>ID:</strong>
-                        @Model.Deviation.Id
-                    </p>
-
-                    <p>
-                        <strong>Title:</strong>
-                        @Model.Deviation.Title
-                    </p>
-
-                    <p>
-                        <strong>Description:</strong>
-                        @Model.Deviation.Description
-                    </p>
-
-                    <p>
-                        <strong>Document ID:</strong>
-                        @Model.Deviation.DocumentId
-                    </p>
-
-                    <p>
-                        <strong>Priority:</strong>
-                        @Model.Deviation.Priority
-                    </p>
-
-                    <p>
-                        <strong>Status:</strong>
-                        @Model.Deviation.Status
-                    </p>
-
-                    <p>
-                        <strong>Created By:</strong>
-                        @Model.Deviation.CreatedBy
-                    </p>
-
-                    <p>
-                        <strong>Created Date:</strong>
-                        @Model.Deviation.CreatedDate
-                    </p>
-
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <span class="fw-semibold">Supervisor Decision</span>
                 </div>
+                <div class="card-body">
+                    <form method="post" id="deviationDecisionForm" novalidate>
+                        <input type="hidden" asp-for="Approval.DeviationRequestId" />
 
-
-                <!-- Approval Section -->
-                @if (Model.Deviation.Status == 0)
-                {
-                    <div class="approval-section">
-
-                        <h3>Supervisor Decision</h3>
-
-                        <form method="post" id="deviationDecisionForm" novalidate>
-
-                            <input type="hidden"
-                                   asp-for="Approval.DeviationRequestId" />
-
-                            <label asp-for="Approval.DecisionComments">
-                                Comments <span class="text-danger">*</span>
-                            </label>
-
-                            <textarea asp-for="Approval.DecisionComments"
-                                      rows="5"
-                                      placeholder="Enter your comments"></textarea>
-                            <span asp-validation-for="Approval.DecisionComments" class="text-danger small d-block mb-2"></span>
-
-                            <div class="approval-buttons">
-
-                                <button type="submit"
-                                        id="approveBtn"
-                                        asp-page-handler="Approve">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold d-block">Decision <span class="text-danger">*</span></label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input"
+                                       type="radio"
+                                       asp-for="Approval.Decision"
+                                       value="1"
+                                       id="decisionApprove"
+                                       required />
+                                <label class="form-check-label" for="decisionApprove">
                                     Approve
-                                </button>
-
-                                <button type="submit"
-                                        id="rejectBtn"
-                                        asp-page-handler="Reject">
-                                    Reject
-                                </button>
-
+                                </label>
                             </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input"
+                                       type="radio"
+                                       asp-for="Approval.Decision"
+                                       value="2"
+                                       id="decisionReject" />
+                                <label class="form-check-label" for="decisionReject">
+                                    Reject
+                                </label>
+                            </div>
+                            <span asp-validation-for="Approval.Decision" class="text-danger small d-block"></span>
+                        </div>
 
-                        </form>
+                        <div class="mb-3">
+                            <label asp-for="Approval.DecisionComments" class="form-label fw-semibold">
+                                Reviewer Comments <span class="text-danger">*</span>
+                            </label>
+                            <textarea asp-for="Approval.DecisionComments"
+                                      class="form-control"
+                                      rows="4"
+                                      maxlength="1000"
+                                      placeholder="Enter supervisor review comments..."></textarea>
+                            <span asp-validation-for="Approval.DecisionComments" class="text-danger small d-block"></span>
+                        </div>
 
-                    </div>
-                }
-                else
-                {
-                    <div class="operation-message">
-
-                        This deviation has already been processed and
-                        cannot be reviewed again.
-
-                    </div>
-                }
-
+                        <button type="submit" id="submitDecisionBtn" class="btn btn-primary">
+                            Submit Decision
+                        </button>
+                    </form>
+                </div>
             </div>
         }
-
-        <a asp-page="/Supervisor/Index"
-           class="back-button">
-
-            ← Back to Supervisor Home
-
-        </a>
-
-    </div>
+        else
+        {
+            <div class="alert alert-secondary">
+                This deviation has already been processed and cannot be reviewed again.
+            </div>
+        }
+    }
 
 </div>
 
@@ -192,6 +195,9 @@
             if ($decisionForm.length) {
                 $decisionForm.validate({
                     rules: {
+                        "Approval.Decision": {
+                            required: true
+                        },
                         "Approval.DecisionComments": {
                             required: true,
                             minlength: 3,
@@ -199,11 +205,25 @@
                         }
                     },
                     messages: {
+                        "Approval.Decision": {
+                            required: "Please select an approval decision (Approve or Reject)."
+                        },
                         "Approval.DecisionComments": {
                             required: "Please provide supervisor review comments before submitting.",
                             minlength: "Comments must be at least 3 characters.",
                             maxlength: "Comments cannot exceed 1000 characters."
                         }
+                    },
+                    errorPlacement: function (error, element) {
+                        if (element.attr("type") === "radio") {
+                            error.insertAfter(element.closest(".mb-3"));
+                        } else {
+                            error.insertAfter(element);
+                        }
+                    },
+                    submitHandler: function (form) {
+                        $("#submitDecisionBtn").prop("disabled", true).text("Submitting...");
+                        form.submit();
                     }
                 });
             }
