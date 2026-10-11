@@ -16,7 +16,7 @@
         <partial name="_AlertMessage" model='new AlertMessageModel(Model.ErrorMessage, "danger")' />
     }
 
-    <form method="post">
+    <form method="post" id="loginForm" novalidate>
     <input asp-for="ReturnUrl" type="hidden" />
 
     <partial name="_ValidationSummary" model="Model" />
@@ -33,9 +33,43 @@
         <span asp-validation-for="Password" class="text-danger small"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary w-100">Sign In</button>
+    <button type="submit" id="loginSubmitBtn" class="btn btn-primary w-100">Sign In</button>
 </form>
 </div>
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            var $loginForm = $("#loginForm");
+            if ($loginForm.length) {
+                $loginForm.validate({
+                    rules: {
+                        Username: {
+                            required: true,
+                            minlength: 3,
+                            maxlength: 50
+                        },
+                        Password: {
+                            required: true,
+                            minlength: 4
+                        }
+                    },
+                    messages: {
+                        Username: {
+                            required: "Please enter your username.",
+                            minlength: "Username must be at least 3 characters.",
+                            maxlength: "Username cannot exceed 50 characters."
+                        },
+                        Password: {
+                            required: "Please enter your password.",
+                            minlength: "Password must be at least 4 characters."
+                        }
+                    },
+                    submitHandler: function (form) {
+                        $("#loginSubmitBtn").prop("disabled", true).text("Signing in...");
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
 }

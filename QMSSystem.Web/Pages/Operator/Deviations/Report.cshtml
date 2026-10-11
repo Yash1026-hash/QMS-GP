@@ -1,150 +1,265 @@
 @page "/Deviations/Report"
+@model QMSSystem.Web.Pages.Operator.Deviations.ReportModel
 @{
     ViewData["Title"] = "Deviation Report";
-    var createdDate = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm");
 }
 
-<style>
-    .report-page {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 40px 20px;
-    }
-
-    .report-header {
-        margin-bottom: 28px;
-    }
-
-    .report-header .eyebrow {
-        margin-bottom: 8px;
-        color: #6c757d;
-        font-size: 14px;
-        font-weight: 600;
-        letter-spacing: 2px;
-    }
-
-    .report-header h1 {
-        margin: 0;
-        font-size: 32px;
-        font-weight: 600;
-    }
-
-    .report-header p {
-        margin-top: 8px;
-        color: #6c757d;
-    }
-
-    .report-card {
-        padding: 28px;
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    .form-section-title {
-        margin: 0 0 18px;
-        font-size: 18px;
-        font-weight: 600;
-    }
-
-    .system-value {
-        min-height: 38px;
-        padding: 8px 12px;
-        color: #495057;
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 6px;
-    }
-
-    @@media (max-width: 600px) {
-        .report-page {
-            padding: 24px 12px;
-        }
-
-        .report-card {
-            padding: 20px;
-        }
-    }
-</style>
-
-<main class="report-page">
-    <header class="report-header">
-        <p class="eyebrow">QMS / DEVIATIONS</p>
-        <h1>Deviation Report</h1>
-        <p>Upload evidence and summarize the corrective work for an accepted deviation.</p>
-    </header>
-
-    <div class="alert alert-info" role="status">
-        Accepted SOP lookup and report submission are not connected yet. Enter the deviation and SOP
-        document IDs below; these can be pre-filled from the accepted-deviation selection flow when it is available.
+<!-- PAGE HEADER -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pt-2">
+    <div>
+        <h2 class="h4 mb-1">Deviation Report Submission</h2>
+        <p class="text-muted mb-0">Record completed corrective actions and submit supporting documentation for review.</p>
     </div>
+    <a href="/Deviations/Index" class="btn btn-outline-secondary">
+        &larr; Back to Deviations
+    </a>
+</div>
 
-    <form method="post" enctype="multipart/form-data">
-        <input type="hidden" name="Id" value="0" />
-        <input type="hidden" name="CreatedDate" value="@createdDate" />
-        <input type="hidden" name="CreatedBy" value="@User.Identity?.Name" />
-        <input type="hidden" name="Status" value="0" />
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @successMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
-        <section class="report-card" aria-labelledby="deviation-details-heading">
-            <h2 id="deviation-details-heading" class="form-section-title">Deviation and SOP</h2>
+<div class="alert alert-info d-flex align-items-center mb-4" role="status">
+    <div>
+        <strong>Process:</strong> Select an approved deviation, describe the completed corrective work, and attach the supporting report or evidence file.
+    </div>
+</div>
 
-            <div class="row g-3 mb-4">
-                <div class="col-md-6">
-                    <label for="DeviationId" class="form-label">Accepted deviation ID <span class="text-danger">*</span></label>
-                    <input id="DeviationId" name="DeviationId" type="number" class="form-control"
-                           min="1" required />
-                </div>
-                <div class="col-md-6">
-                    <label for="DocumentId" class="form-label">SOP document ID <span class="text-danger">*</span></label>
-                    <input id="DocumentId" name="DocumentId" type="number" class="form-control"
-                           min="1" required />
-                </div>
-                <div class="col-md-6">
-                    <label for="AttemptNumber" class="form-label">Attempt number <span class="text-danger">*</span></label>
-                    <input id="AttemptNumber" name="AttemptNumber" type="number" class="form-control"
-                           value="1" min="1" required />
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Report status</label>
-                    <div class="system-value">Pending</div>
-                    <div class="form-text">New reports are submitted with status 0 (Pending).</div>
+<!-- SUBMITTED REPORTS LIST -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">Submitted Deviation Reports (@Model.SubmittedReports.Count)</span>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.SubmittedReports.Count == 0)
+        {
+            <div class="p-4 text-center text-muted">
+                No deviation reports submitted yet. Fill out the form below to submit a corrective action report.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 80px;">ID</th>
+                            <th style="width: 110px;">Deviation</th>
+                            <th style="width: 110px;">SOP / Doc</th>
+                            <th>Summary</th>
+                            <th style="width: 120px;">Submitted</th>
+                            <th style="width: 120px;">Status</th>
+                            <th>Review Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var report in Model.SubmittedReports)
+                        {
+                            <tr>
+                                <td class="fw-semibold">#REP-@report.Id</td>
+                                <td>#DEV-@report.DeviationId</td>
+                                <td>#DOC-@report.DocumentId</td>
+                                <td>@report.Summary</td>
+                                <td>@report.CreatedDate.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <span class="badge @(report.Decision switch {
+                                        1 => "bg-success",
+                                        2 => "bg-danger",
+                                        _ => "bg-warning text-dark"
+                                    })">
+                                        @(report.Decision switch {
+                                            1 => "Approved",
+                                            2 => "Rejected",
+                                            _ => "Pending Review"
+                                        })
+                                    </span>
+                                </td>
+                                <td class="small text-muted">
+                                    @(string.IsNullOrWhiteSpace(report.DecisionComments) ? "-" : report.DecisionComments)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<form method="post" id="deviationReportForm" enctype="multipart/form-data" novalidate>
+    @if (!ModelState.IsValid)
+    {
+        <div asp-validation-summary="All" class="alert alert-danger mb-4" role="alert"></div>
+    }
+
+        <!-- SECTION 1: DEVIATION & SOP -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <span class="fw-semibold">1. Deviation &amp; SOP Selection</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="SelectedDeviationId" class="form-label fw-semibold">
+                            Select Approved Deviation <span class="text-danger">*</span>
+                        </label>
+                        <input id="deviation-search" type="search" class="form-control mb-2"
+                               placeholder="Type to filter deviations..."
+                               aria-label="Filter approved deviations" />
+                        <select asp-for="SelectedDeviationId" class="form-select" required>
+                            <option value="">-- Choose an Approved Deviation --</option>
+                            @foreach (var deviation in Model.ApprovedDeviations)
+                            {
+                                <option value="@deviation.Id"
+                                        data-document-id="@deviation.DocumentId"
+                                        data-search="@($"{deviation.Id} {deviation.Title} {deviation.Description} {deviation.DocumentId}")">
+                                    #DEV-@deviation.Id - @deviation.Title (SOP #@deviation.DocumentId)
+                                </option>
+                            }
+                        </select>
+                        <span asp-validation-for="SelectedDeviationId" class="text-danger small d-block"></span>
+                        @if (Model.ApprovedDeviations.Count == 0)
+                        {
+                            <div class="form-text text-warning">There are currently no approved deviations awaiting reports.</div>
+                        }
+                    </div>
+
+                    <div class="col-md-3 col-sm-6">
+                        <label asp-for="DeviationId" class="form-label fw-semibold">Deviation ID</label>
+                        <input asp-for="DeviationId" type="number" class="form-control" readonly />
+                    </div>
+
+                    <div class="col-md-3 col-sm-6">
+                        <label asp-for="DocumentId" class="form-label fw-semibold">SOP Document ID</label>
+                        <input asp-for="DocumentId" type="number" class="form-control" readonly />
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <h2 class="form-section-title">Report and proof</h2>
-
-            <div class="mb-3">
-                <label for="Summary" class="form-label">Summary <span class="text-danger">*</span></label>
-                <textarea id="Summary" name="Summary" class="form-control" rows="5"
-                          maxlength="4000" required
-                          placeholder="Describe the corrective work completed and how it addresses the deviation."></textarea>
+        <!-- SECTION 2: REPORT & PROOF -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <span class="fw-semibold">2. Corrective Action Summary &amp; Proof</span>
             </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label asp-for="Summary" class="form-label fw-semibold">
+                            Corrective Action Summary <span class="text-danger">*</span>
+                        </label>
+                        <textarea asp-for="Summary"
+                                  class="form-control"
+                                  rows="5"
+                                  maxlength="4000"
+                                  placeholder="Describe the corrective actions completed, the observed results, and how the deviation was resolved..."
+                                  required></textarea>
+                        <span asp-validation-for="Summary" class="text-danger small d-block"></span>
+                    </div>
 
-            <div class="mb-4">
-                <label for="Proof" class="form-label">Proof / supporting report <span class="text-danger">*</span></label>
-                <input id="Proof" name="Proof" type="file" class="form-control" required />
-                <div class="form-text">Attach the evidence file for this deviation report.</div>
-            </div>
-
-            <div class="row g-3 mb-4">
-                <div class="col-md-6">
-                    <label class="form-label">Created by</label>
-                    <div class="system-value">@(User.Identity?.Name ?? "Signed-in user")</div>
+                    <div class="col-12">
+                        <label asp-for="Proof" class="form-label fw-semibold">
+                            Proof / Supporting Report Attachment <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="Proof" type="file" class="form-control" required />
+                        <span asp-validation-for="Proof" class="text-danger small d-block"></span>
+                        <div class="form-text">Attach calibration logs, lab reports, test evidence, or photos.</div>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">Created date (UTC)</label>
-                    <div class="system-value">@createdDate.Replace("T", " ")</div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <a href="/Deviations/Index" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" id="submitReportBtn" class="btn btn-primary">
+                        Submit Deviation Report
+                    </button>
                 </div>
             </div>
-
-            <div class="d-flex flex-wrap gap-2">
-                <button type="submit" class="btn btn-primary" disabled>Submit report</button>
-                <a href="/Operator" class="btn btn-outline-secondary">Cancel</a>
-            </div>
-            <p class="form-text mt-3 mb-0">
-                Submission will be enabled after the report API is available.
-            </p>
-        </section>
+        </div>
     </form>
-</main>
+
+<script>
+    (() => {
+        const search = document.getElementById("deviation-search");
+        const select = document.getElementById("SelectedDeviationId");
+        const deviationId = document.getElementById("DeviationId");
+        const documentId = document.getElementById("DocumentId");
+
+        if (!search || !select || !deviationId || !documentId) {
+            return;
+        }
+
+        const options = Array.from(select.options).slice(1);
+        const updateIds = () => {
+            const selectedOption = select.selectedOptions[0];
+            deviationId.value = selectedOption?.value ?? "";
+            documentId.value = selectedOption?.dataset.documentId ?? "";
+        };
+
+        select.addEventListener("change", updateIds);
+        updateIds();
+
+        search.addEventListener("input", () => {
+            const query = search.value.trim().toLocaleLowerCase();
+            let selectedOptionHidden = false;
+
+            for (const option of options) {
+                const matches = option.dataset.search.toLocaleLowerCase().includes(query);
+                option.hidden = !matches;
+                if (option.selected && !matches) {
+                    selectedOptionHidden = true;
+                }
+            }
+
+            if (selectedOptionHidden) {
+                select.value = "";
+                updateIds();
+            }
+        });
+    })();
+</script>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var $reportForm = $("#deviationReportForm");
+            if ($reportForm.length) {
+                $reportForm.validate({
+                    rules: {
+                        SelectedDeviationId: {
+                            required: true
+                        },
+                        Summary: {
+                            required: true,
+                            minlength: 10,
+                            maxlength: 4000
+                        },
+                        Proof: {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        SelectedDeviationId: {
+                            required: "Please select an approved deviation."
+                        },
+                        Summary: {
+                            required: "Please describe the corrective work completed and outcome.",
+                            minlength: "Summary must be at least 10 characters.",
+                            maxlength: "Summary cannot exceed 4000 characters."
+                        },
+                        Proof: {
+                            required: "Please upload a proof or supporting report file."
+                        }
+                    },
+                    submitHandler: function (form) {
+                        $("#submitReportBtn").prop("disabled", true).text("Submitting report...");
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
+}

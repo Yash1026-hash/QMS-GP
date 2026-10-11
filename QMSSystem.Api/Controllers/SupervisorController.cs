@@ -1,0 +1,379 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using QMSSystem.Api.Data;
+using QMSSystem.Shared.Models;
+
+namespace QMSSystem.Api.Controllers;
+
+[ApiController]
+[Route("api/supervisor")]
+[Authorize(Policy = "SupervisorOnly")]
+public class SupervisorController : ControllerBase
+{
+    private readonly UserDbContext _context;
+
+    public SupervisorController(UserDbContext context)
+    {
+        _context = context;
+    }
+
+    // Get pending change request count
+    [HttpGet("change-requests/count")]
+    public async Task<IActionResult> GetPendingChangeRequestCount()
+    {
+        int count = await _context.OperatorChangeRequests
+            .CountAsync(x => x.Status == "Pending");
+
+        return Ok(count);
+    }
+
+    // Get pending deviation count
+    [HttpGet("deviations/count")]
+    public async Task<IActionResult> GetPendingDeviationCount()
+    {
+        int count = await _context.DeviationRequests
+            .CountAsync(x => x.Status == 0);
+
+        return Ok(count);
+    }
+
+    // Get pending deviation report count
+    [HttpGet("deviation-reports/count")]
+    public async Task<IActionResult> GetPendingDeviationReportCount()
+    {
+        int count = await _context.DeviationReportRequests
+            .CountAsync(x => x.Status == 0);
+
+        return Ok(count);
+    }
+
+    // Get pending document count
+    [HttpGet("documents/count")]
+    public async Task<IActionResult> GetPendingDocumentCount()
+    {
+        int count = await _context.DocumentCreations
+            .CountAsync(x => x.Status == "Pending");
+
+        return Ok(count);
+    }
+
+    // Get pending documents with pagination and optional document-number search
+    [HttpGet("documents/pending")]
+    public async Task<IActionResult> GetPendingDocuments(
+        CancellationToken cancellationToken,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? documentNumber = null)
+    {
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var reviewerIds = await GetReviewerIdsAsync(cancellationToken);
+        var reviewerId = reviewerIds.Count == 1
+            ? reviewerIds[0]
+            : (int?)null;
+
+        var pendingDocuments = _context.DocumentCreations
+            .Where(document => document.Status == "Pending");
+
+        if (!string.IsNullOrWhiteSpace(documentNumber))
+        {
+            var searchTerm = documentNumber.Trim();
+
+            pendingDocuments = pendingDocuments.Where(document =>
+                document.DocumentNumber.Contains(searchTerm));
+        }
+
+        var totalCount = await pendingDocuments
+            .CountAsync(cancellationToken);
+
+        var totalPages = (int)Math.Ceiling(
+            totalCount / (double)pageSize);
+
+        page = Math.Min(page, Math.Max(totalPages, 1));
+
+        var pendingPage = await pendingDocuments
+            .OrderByDescending(document => document.CreationOn)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        var pendingDecisionDate = DateTime.UtcNow;
+
+        if (reviewerId.HasValue)
+        {
+            foreach (var pendingDocument in pendingPage)
+            {
+                pendingDocument.DecisionBy ??= reviewerId.Value.ToString();
+                pendingDocument.DecisionDate ??= pendingDecisionDate;
+                pendingDocument.DecisionStatus = 0;
+            }
+
+            if (pendingPage.Count > 0)
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+        }
+
+        var documents = pendingPage
+            .Select(document => new Document
+            {
+                Id = document.Id,
+                DocumentNumber = document.DocumentNumber,
+                Title = document.Title,
+                Department = document.Department,
+                DocumentVersion = document.DocumentVersion,
+                Status = document.Status,
+                FileName = document.FileName,
+                ContentType = document.ContentType,
+                CreatedBy = document.CreatedBy,
+                CreationOn = document.CreationOn,
+                Comment = document.Comment,
+                DecisionBy = reviewerId?.ToString(),
+                DecisionDate = pendingDecisionDate,
+                Decision = document.DecisionStatus,
+            })
+            .ToList();
+
+        return Ok(new
+        {
+            Documents = documents,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        });
+    }
+
+    // Save supervisor decision for a document
+    [HttpPost("documents/decision")]
+    public async Task<IActionResult> SaveDocumentDecision(
+        [FromBody] Document? decisionRequest,
+        CancellationToken cancellationToken)
+    {
+        if (decisionRequest is null || decisionRequest.Id <= 0)
+        {
+            return BadRequest("A valid document ID is required.");
+        }
+
+        var decision = decisionRequest.DecisionText?
+            .Trim()
+            .ToLowerInvariant() switch
+        {
+            "approve" => "Approved",
+
+            // Return the document to its creator for corrections.
+            "revision" => "Returned for revision",
+
+            "reject" => "Rejected",
+
+            _ => null
+        };
+
+        if (decision is null)
+        {
+            return BadRequest(
+                "Decision must be approve, revision, or reject.");
+        }
+
+        string documentStatus;
+        int decisionStatus;
+
+        switch (decision)
+        {
+            case "Approved":
+                documentStatus = "Active";
+                decisionStatus = 1;
+                break;
+            case "Returned for revision":
+                documentStatus = "Revision Required";
+                decisionStatus = 3;
+                break;
+            case "Rejected":
+                documentStatus = "Rejected";
+                decisionStatus = 2;
+                break;
+            default:
+                documentStatus = "Inactive";
+                decisionStatus = 0;
+                break;
+        }
+
+        if (string.IsNullOrWhiteSpace(decisionRequest.Comment) ||
+            decisionRequest.Comment.Trim().Length > 1000)
+        {
+            return BadRequest(
+                "Reviewer comments are required and must not exceed 1000 characters.");
+        }
+
+        var document = await _context.DocumentCreations
+            .FirstOrDefaultAsync(
+                item => item.Id == decisionRequest.Id,
+                cancellationToken);
+
+        if (document is null)
+        {
+            return NotFound("Document not found.");
+        }
+
+        if (document.Status != "Pending")
+        {
+            return Conflict(
+                "Only pending documents can receive a decision.");
+        }
+
+        var reviewerIds = await GetReviewerIdsAsync(cancellationToken);
+
+        if (reviewerIds.Count != 1)
+        {
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                "The authenticated supervisor could not be uniquely matched to a user account.");
+        }
+
+        var decisionTime = DateTime.UtcNow;
+        var comments = decisionRequest.Comment.Trim();
+        var reviewerNote = $"Reviewer decision ({decision}): {comments}";
+
+        // Check if this document has a pre-revision backup (uploaded revision pending review)
+        var backup = await _context.DocumentHistories
+            .FirstOrDefaultAsync(
+                h => h.DocumentId == document.Id && h.Status == "PendingRevisionBackup",
+                cancellationToken);
+
+        if (decision == "Approved")
+        {
+            document.Status = "Active";
+            document.DecisionBy = reviewerIds[0].ToString();
+            document.DecisionDate = decisionTime;
+            document.DecisionStatus = 1;
+
+            document.Comment = string.IsNullOrWhiteSpace(document.Comment)
+                ? reviewerNote
+                : $"{document.Comment}{Environment.NewLine}{Environment.NewLine}{reviewerNote}";
+
+            if (backup != null)
+            {
+                // Put the old version in the history table as Inactive
+                backup.Status = "Inactive";
+                backup.ArchivedOn = decisionTime;
+                backup.ArchivedBy = reviewerIds[0];
+                backup.Comment = $"Superseded upon approval of Revision v{document.DocumentVersion}.";
+            }
+        }
+        else if (decision == "Rejected")
+        {
+            if (backup != null)
+            {
+                // KEEP THE OLD DOCUMENT AS ACTIVE IF THE NEW UPLOAD REVISION IS REJECTED
+                var rejectedVersion = document.DocumentVersion;
+
+                document.FileName = backup.FileName;
+                document.ContentType = backup.ContentType;
+                document.FileData = backup.FileData;
+                document.DocumentNumber = backup.DocumentNumber;
+                document.Title = backup.Title;
+                document.Department = backup.Department;
+                document.DocumentVersion = backup.DocumentVersion; // Keep original active version
+                document.CreationOn = backup.CreationOn;
+                document.CreatedBy = backup.CreatedBy;
+                document.Status = "Active"; // Remains Active!
+                document.DecisionStatus = 1; // Approved / Active
+                document.DecisionBy = reviewerIds[0].ToString();
+                document.DecisionDate = decisionTime;
+
+                var rejectionNote = $"Uploaded revision v{rejectedVersion} was rejected by supervisor: {comments}. Document remains Active at v{backup.DocumentVersion}.";
+                document.Comment = string.IsNullOrWhiteSpace(document.Comment)
+                    ? rejectionNote
+                    : $"{document.Comment}{Environment.NewLine}{Environment.NewLine}{rejectionNote}";
+
+                // Remove the temporary backup so the active version is not flagged as inactive
+                _context.DocumentHistories.Remove(backup);
+
+                // Record the rejected revision in history
+                _context.DocumentHistories.Add(new DocumentHistory
+                {
+                    DocumentId = document.Id,
+                    DocumentNumber = document.DocumentNumber,
+                    Title = document.Title,
+                    Department = document.Department,
+                    DocumentVersion = rejectedVersion,
+                    Status = "Rejected",
+                    FileName = backup.FileName,
+                    ContentType = backup.ContentType,
+                    FileData = backup.FileData,
+                    CreatedBy = document.CreatedBy,
+                    CreationOn = decisionTime,
+                    Comment = $"Revision v{rejectedVersion} rejected by supervisor: {comments}. Prior v{backup.DocumentVersion} kept Active.",
+                    ArchivedOn = decisionTime,
+                    ArchivedBy = reviewerIds[0]
+                });
+            }
+            else
+            {
+                document.Status = "Rejected";
+                document.DecisionBy = reviewerIds[0].ToString();
+                document.DecisionDate = decisionTime;
+                document.DecisionStatus = 2;
+                document.Comment = string.IsNullOrWhiteSpace(document.Comment)
+                    ? reviewerNote
+                    : $"{document.Comment}{Environment.NewLine}{Environment.NewLine}{reviewerNote}";
+            }
+        }
+        else // "Returned for revision"
+        {
+            document.Status = "Revision Required";
+            document.DecisionBy = reviewerIds[0].ToString();
+            document.DecisionDate = decisionTime;
+            document.DecisionStatus = 3;
+            document.Comment = string.IsNullOrWhiteSpace(document.Comment)
+                ? reviewerNote
+                : $"{document.Comment}{Environment.NewLine}{Environment.NewLine}{reviewerNote}";
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        // Return the completed decision to the UI.
+        return Ok(new Document
+        {
+            Id = document.Id,
+            Status = document.Status,
+            DecisionText = decision,
+            Decision = document.DecisionStatus,
+            DecisionBy = reviewerIds[0].ToString(),
+            DecisionDate = document.DecisionDate,
+            DecisionStatus = document.DecisionStatus ?? 0
+        });
+    }
+
+    // Identify the authenticated supervisor's user account.
+    private async Task<List<int>> GetReviewerIdsAsync(
+        CancellationToken cancellationToken)
+    {
+        var reviewerName = User.Identity?.Name;
+
+        if (string.IsNullOrWhiteSpace(reviewerName))
+        {
+            return [];
+        }
+
+        var reviewerIds = await _context.Users
+            .AsNoTracking()
+            .Where(user => user.FullName == reviewerName)
+            .Select(user => user.UserId)
+            .Take(2)
+            .ToListAsync(cancellationToken);
+
+        if (reviewerIds.Count == 0)
+        {
+            reviewerIds = await _context.Users
+                .AsNoTracking()
+                .Where(user => user.Username == reviewerName)
+                .Select(user => user.UserId)
+                .Take(2)
+                .ToListAsync(cancellationToken);
+        }
+
+        return reviewerIds;
+    }
+}

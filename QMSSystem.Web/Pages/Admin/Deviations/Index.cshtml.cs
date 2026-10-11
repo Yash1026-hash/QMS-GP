@@ -1,11 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using QMSSystem.Shared.Dtos.Deviations;
+using System.Net.Http.Json;
 
 namespace QMSSystem.Web.Pages.Admin.Deviations;
 
 public class IndexModel : PageModel
 {
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger<IndexModel> _logger;
+
+    public IndexModel(IHttpClientFactory httpClientFactory, ILogger<IndexModel> logger)
+    {
+        _httpClientFactory = httpClientFactory;
+        _logger = logger;
+    }
+
     [BindProperty(SupportsGet = true)]
     public int? StatusFilter { get; set; }
 
@@ -26,53 +36,74 @@ public class IndexModel : PageModel
     public int RejectedCount { get; set; }
 
     public List<DeviationRequestDto> Deviations { get; set; } = [];
+    public string? ErrorMessage { get; set; }
 
-    public void OnGet()
+    public async Task OnGetAsync()
     {
-        // Ready for database/API repository integration
-        var allDeviations = Deviations;
-
-        TotalCount = allDeviations.Count;
-        PendingCount = allDeviations.Count(d => d.Status == 0);
-        ActiveCount = allDeviations.Count(d => d.Status == 1);
-        InactiveCount = allDeviations.Count(d => d.Status == 2);
-        ApprovedCount = allDeviations.Count(d => d.Decision == 1);
-        RejectedCount = allDeviations.Count(d => d.Decision == 2);
-
-        var query = allDeviations.AsEnumerable();
-
-        if (StatusFilter.HasValue)
+        try
         {
-            query = query.Where(d => d.Status == StatusFilter.Value);
-        }
+            var client = _httpClientFactory.CreateClient("QMSApi");
+            List<DeviationRequestDto>? allDeviations = null;
 
-        if (!string.IsNullOrWhiteSpace(PriorityFilter))
-        {
-            query = query.Where(d => d.Priority.Equals(PriorityFilter, StringComparison.OrdinalIgnoreCase));
-        }
-
-        if (DecisionFilter.HasValue)
-        {
-            if (DecisionFilter.Value == -1)
+            try
             {
-                query = query.Where(d => !d.Decision.HasValue);
+                allDeviations = await client.GetFromJsonAsync<List<DeviationRequestDto>>("api/admin/deviations");
             }
-            else
+            catch (Exception ex)
             {
-                query = query.Where(d => d.Decision == DecisionFilter.Value);
+                _logger.LogWarning(ex, "api/admin/deviations failed, trying api/Deviation fallback");
+                allDeviations = await client.GetFromJsonAsync<List<DeviationRequestDto>>("api/Deviation");
             }
-        }
 
-        if (!string.IsNullOrWhiteSpace(SearchQuery))
+            allDeviations ??= [];
+
+            TotalCount = allDeviations.Count;
+            PendingCount = allDeviations.Count(d => d.Status == 0);
+            ActiveCount = allDeviations.Count(d => d.Status == 1);
+            InactiveCount = allDeviations.Count(d => d.Status == 2);
+            ApprovedCount = allDeviations.Count(d => d.Decision == 1);
+            RejectedCount = allDeviations.Count(d => d.Decision == 2);
+
+            var query = allDeviations.AsEnumerable();
+
+            if (StatusFilter.HasValue)
+            {
+                query = query.Where(d => d.Status == StatusFilter.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(PriorityFilter))
+            {
+                query = query.Where(d => d.Priority.Equals(PriorityFilter, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (DecisionFilter.HasValue)
+            {
+                if (DecisionFilter.Value == -1)
+                {
+                    query = query.Where(d => !d.Decision.HasValue);
+                }
+                else
+                {
+                    query = query.Where(d => d.Decision == DecisionFilter.Value);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(SearchQuery))
+            {
+                var term = SearchQuery.Trim();
+                query = query.Where(d =>
+                    d.Id.ToString().Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    d.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    d.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    d.CreatedBy.Contains(term, StringComparison.OrdinalIgnoreCase));
+            }
+
+            Deviations = query.OrderByDescending(d => d.CreatedDate).ToList();
+        }
+        catch (Exception ex)
         {
-            var term = SearchQuery.Trim();
-            query = query.Where(d =>
-                d.Id.ToString().Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                d.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                d.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                d.CreatedBy.Contains(term, StringComparison.OrdinalIgnoreCase));
+            _logger.LogError(ex, "Failed to load deviations");
+            ErrorMessage = $"Unable to load deviations: {ex.Message}";
         }
-
-        Deviations = query.OrderByDescending(d => d.CreatedDate).ToList();
     }
 }

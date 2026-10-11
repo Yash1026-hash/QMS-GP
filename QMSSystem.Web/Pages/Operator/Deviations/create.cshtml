@@ -1,0 +1,184 @@
+@page "/Deviations/Create"
+@model QMSSystem.Web.Pages.Operator.Deviations.CreateModel
+@{
+    ViewData["Title"] = "Create Deviation";
+}
+
+<!-- PAGE HEADER -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pt-2">
+    <div>
+        <h2 class="h4 mb-1">Create Deviation Request</h2>
+        <p class="text-muted mb-0">Record and submit an operational deviation from standard operating procedure.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/Deviations/SelectSop" class="btn btn-outline-secondary">
+            &larr; Back to SOP Selection
+        </a>
+        <a href="/Deviations/Index" class="btn btn-outline-secondary">
+            Deviations List
+        </a>
+    </div>
+</div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Message))
+    {
+        <div class="alert @(Model.IsFormValid ? "alert-info" : "alert-danger") alert-dismissible fade show" role="alert">
+            @Model.Message
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <form method="post" id="createDeviationForm" novalidate>
+        <input asp-for="Deviation.Id" type="hidden" />
+        @if (Model.Deviation.DocumentId > 0)
+        {
+            <input asp-for="Deviation.DocumentId" type="hidden" />
+        }
+        <input asp-for="Deviation.Status" type="hidden" />
+        <input asp-for="Deviation.CreatedBy" type="hidden" />
+        <input asp-for="Deviation.CreatedDate" type="hidden" />
+        <input asp-for="Deviation.Decision" type="hidden" />
+        <input asp-for="Deviation.DecisionBy" type="hidden" />
+        <input asp-for="Deviation.DecisionOn" type="hidden" />
+        <input asp-for="Deviation.DecisionComments" type="hidden" />
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <span class="fw-semibold">Deviation Information</span>
+            </div>
+
+            <div class="card-body">
+                @if (!ModelState.IsValid)
+                {
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        @if (Model.Deviation.DocumentId > 0)
+                        {
+                            <label class="form-label fw-semibold">Selected SOP</label>
+                            <input type="text" class="form-control" value="Document #@Model.Deviation.DocumentId" readonly />
+                        }
+                        else
+                        {
+                            <label asp-for="Deviation.DocumentId" class="form-label fw-semibold">
+                                SOP Document ID <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Deviation.DocumentId" class="form-control" type="number" min="1" required />
+                        }
+                        <span asp-validation-for="Deviation.DocumentId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Deviation.Priority" class="form-label fw-semibold">
+                            Priority <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="Deviation.Priority" class="form-select" required>
+                            <option value="">Select priority</option>
+                            <option value="Minor">Minor</option>
+                            <option value="Major">Major</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                        <span asp-validation-for="Deviation.Priority" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Deviation.Title" class="form-label fw-semibold">
+                            Title <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="Deviation.Title"
+                               class="form-control"
+                               maxlength="200"
+                               placeholder="Briefly summarize the deviation"
+                               required />
+                        <span asp-validation-for="Deviation.Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Deviation.Description" class="form-label fw-semibold">
+                            Description <span class="text-danger">*</span>
+                        </label>
+                        <textarea asp-for="Deviation.Description"
+                                  class="form-control"
+                                  rows="5"
+                                  maxlength="4000"
+                                  placeholder="Describe what happened and how it differs from the SOP..."
+                                  required></textarea>
+                        <span asp-validation-for="Deviation.Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Created By</label>
+                        <input type="text" class="form-control" value="@(Model.Deviation.CreatedBy is { Length: > 0 } ? Model.Deviation.CreatedBy : "Signed-in operator")" readonly />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Created Date (UTC)</label>
+                        <input type="text" class="form-control" value="@Model.Deviation.CreatedDate.ToString("yyyy-MM-dd HH:mm")" readonly />
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <a href="/Deviations/Index" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" id="submitDeviationBtn" class="btn btn-primary">
+                        Submit Deviation Request
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var $form = $("#createDeviationForm");
+            if ($form.length) {
+                $form.validate({
+                    rules: {
+                        "Deviation.DocumentId": {
+                            required: true,
+                            min: 1
+                        },
+                        "Deviation.Priority": {
+                            required: true
+                        },
+                        "Deviation.Title": {
+                            required: true,
+                            minlength: 3,
+                            maxlength: 200
+                        },
+                        "Deviation.Description": {
+                            required: true,
+                            minlength: 10,
+                            maxlength: 4000
+                        }
+                    },
+                    messages: {
+                        "Deviation.DocumentId": {
+                            required: "Please select or enter an SOP document ID.",
+                            min: "Document ID must be at least 1."
+                        },
+                        "Deviation.Priority": {
+                            required: "Please select a priority level."
+                        },
+                        "Deviation.Title": {
+                            required: "Please enter a title for the deviation.",
+                            minlength: "Title must be at least 3 characters.",
+                            maxlength: "Title cannot exceed 200 characters."
+                        },
+                        "Deviation.Description": {
+                            required: "Please provide a detailed description of what occurred.",
+                            minlength: "Description must be at least 10 characters.",
+                            maxlength: "Description cannot exceed 4000 characters."
+                        }
+                    },
+                    submitHandler: function (form) {
+                        $("#submitDeviationBtn").prop("disabled", true).text("Submitting...");
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
+}

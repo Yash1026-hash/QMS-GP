@@ -20,6 +20,8 @@ public class ChangeRequestForm
      
     [Required]
     public string Description { get; set; } = string.Empty;
+    public int Status {get;set;}
+    public List<int> SelectedDeviationIds { get; set; } = [];
      
     [Required]
     public int RequestedByUserId { get; set; }

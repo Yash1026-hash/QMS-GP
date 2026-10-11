@@ -1,13 +1,21 @@
-using Microsoft.AspNetCore.Authorization;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using QMSSystem.Shared.Dtos.Deviations;
 
 namespace QMSSystem.Web.Pages.Operator.Deviations;
 
-[AllowAnonymous]
 public class IndexModel : PageModel
 {
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger<IndexModel> _logger;
+
+    public IndexModel(IHttpClientFactory httpClientFactory, ILogger<IndexModel> logger)
+    {
+        _httpClientFactory = httpClientFactory;
+        _logger = logger;
+    }
+
     public List<DeviationRequestDto> Deviations { get; private set; } = new();
 
     public int TotalCount => Deviations.Count;
@@ -31,16 +39,50 @@ public class IndexModel : PageModel
     [BindProperty(SupportsGet = true)]
     public int PageNumber { get; set; } = 1;
 
-    public void OnGet()
+    public async Task OnGetAsync()
     {
         if (PageNumber < 1)
         {
             PageNumber = 1;
         }
 
-        // Frontend only for now.
-        // Real deviation data will be loaded after backend integration.
-        Deviations = new List<DeviationRequestDto>();
+        try
+        {
+            var client = _httpClientFactory.CreateClient("QMSApi");
+            var response = await client.GetAsync("api/Deviation");
+            if (response.IsSuccessStatusCode)
+            {
+                var allDeviations = await response.Content.ReadFromJsonAsync<List<DeviationRequestDto>>() ?? [];
+
+                var query = allDeviations.AsEnumerable();
+
+                if (!string.IsNullOrWhiteSpace(Search))
+                {
+                    var term = Search.Trim();
+                    query = query.Where(d =>
+                        d.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        d.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                        d.Id.ToString().Contains(term) ||
+                        d.DocumentId.ToString().Contains(term));
+                }
+
+                if (!string.IsNullOrWhiteSpace(Priority))
+                {
+                    query = query.Where(d => d.Priority.Equals(Priority, StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (Status.HasValue)
+                {
+                    query = query.Where(d => d.Status == Status.Value);
+                }
+
+                Deviations = query.OrderByDescending(d => d.CreatedDate).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load deviations from API.");
+        }
     }
 
     public string GetStatusText(int status)
@@ -51,17 +93,6 @@ public class IndexModel : PageModel
             1 => "Active",
             2 => "Inactive",
             _ => "Unknown"
-        };
-    }
-
-    public string GetStatusClass(int status)
-    {
-        return status switch
-        {
-            0 => "status-pending",
-            1 => "status-active",
-            2 => "status-inactive",
-            _ => "status-inactive"
         };
     }
 
