@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 using QMSSystem.Api.Data;
 using QMSSystem.Api.Services;
 
@@ -49,16 +50,42 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
     options.AddPolicy("OperatorOnly", policy => policy.RequireRole("Operator"));
     options.AddPolicy("SupervisorOnly", policy => policy.RequireRole("Supervisor"));
+    options.AddPolicy("DocumentReviewer", policy => policy.RequireRole("Admin", "Supervisor"));
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
 });
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException(
-        "Configure ConnectionStrings:DefaultConnection through user secrets or an environment variable.");
-builder.Services.AddDbContext<UserDbContext>(options =>
-    options.UseSqlServer(connectionString));
+var databaseProvider = builder.Configuration["Database:Provider"] ?? "SqlServer";
+if (string.Equals(databaseProvider, "Sqlite", StringComparison.OrdinalIgnoreCase))
+{
+    var sqliteFile = builder.Configuration["Database:SqliteFile"] ?? "App_Data/qms.db";
+    var sqlitePath = Path.IsPathRooted(sqliteFile)
+        ? sqliteFile
+        : Path.Combine(builder.Environment.ContentRootPath, sqliteFile);
+    Directory.CreateDirectory(Path.GetDirectoryName(sqlitePath)!);
+
+    var connectionString = new SqliteConnectionStringBuilder
+    {
+        DataSource = sqlitePath
+    }.ToString();
+
+    builder.Services.AddDbContext<UserDbContext>(options =>
+        options.UseSqlite(connectionString));
+}
+else if (string.Equals(databaseProvider, "SqlServer", StringComparison.OrdinalIgnoreCase))
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException(
+            "Configure ConnectionStrings:DefaultConnection through user secrets or an environment variable.");
+    builder.Services.AddDbContext<UserDbContext>(options =>
+        options.UseSqlServer(connectionString));
+}
+else
+{
+    throw new InvalidOperationException(
+        $"Unsupported database provider '{databaseProvider}'. Use 'Sqlite' or 'SqlServer'.");
+}
 
 builder.Services.AddScoped<UserStore>();
 builder.Services.AddScoped<DeviationService>();
@@ -77,6 +104,20 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+if (string.Equals(databaseProvider, "Sqlite", StringComparison.OrdinalIgnoreCase))
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var database = scope.ServiceProvider.GetRequiredService<UserDbContext>();
+    await database.Database.EnsureCreatedAsync();
+
+    if (app.Environment.IsDevelopment())
+    {
+        await SqliteDemoData.InitializeAsync(
+            database,
+            scope.ServiceProvider.GetRequiredService<IPasswordHasher<QMSSystem.Shared.Dtos.UserDto>>());
+    }
+}
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>

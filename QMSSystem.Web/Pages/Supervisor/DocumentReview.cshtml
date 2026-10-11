@@ -13,12 +13,20 @@
             <div>
                 <h2 class="h4 mb-1">Document Review</h2>
                 <p class="text-body-secondary mb-0">
-                    Select a pending document to review its details.
+                    Review pending SOP documents and document revisions.
                 </p>
             </div>
             <a asp-page="/Supervisor/Index"
                class="btn btn-outline-secondary">
                 ← Back to Supervisor Home
+            </a>
+        </div>
+        <div class="operation-message mb-4">
+            <p class="mb-3">
+                Review pending document requests, record approval decisions, and return requests for changes.
+            </p>
+            <a asp-page="/Documents/DocumentApproval" class="btn btn-primary">
+                Open Document Review Queue
             </a>
         </div>
 
@@ -84,7 +92,7 @@
                                     <td>@document.Title</td>
                                     <td>@document.Department</td>
                                     <td>Rev. @document.DocumentVersion</td>
-                                    <td>User #@document.CreatedBy</td>
+                                    <td>@(User.Identity?.Name ?? "Not available")</td>
                                     <td>@document.CreationOn.ToString("yyyy-MM-dd")</td>
                                     <td><span class="badge text-bg-warning">@document.Status</span></td>
                                     <td class="text-end">
@@ -101,7 +109,7 @@
                                                 data-file-name="@document.FileName"
                                                 data-preview-url="@Url.Page("/Supervisor/DocumentReview", "Preview", new { id = document.Id })"
                                                 data-content-type="@document.ContentType"
-                                                data-created-by="@document.CreatedBy"
+                                                data-created-by-username="@(User.Identity?.Name ?? "Not available")"
                                                 data-created-on="@document.CreationOn.ToString("yyyy-MM-dd HH:mm")"
                                                 data-comment="@document.Comment">
                                             View details
@@ -228,7 +236,7 @@
                         <div class="fw-semibold" id="reviewDocumentVersion"></div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <div class="small text-body-secondary">Requested by</div>
+                        <div class="small text-body-secondary">Created by</div>
                         <div class="fw-semibold" id="reviewDocumentCreatedBy"></div>
                     </div>
                     <div class="col-6 col-md-3">
@@ -370,7 +378,7 @@
                 $('#previewDocumentFile')
                     .attr('href', data.previewUrl || '#')
                     .toggleClass('d-none', !data.fileName || !data.previewUrl);
-                $('#reviewDocumentCreatedBy').text(data.createdBy || 'Not available');
+                $('#reviewDocumentCreatedBy').text(data.createdByUsername || 'Not available');
                 $('#reviewDocumentCreatedOn').text(data.createdOn || 'Not available');
                 $('#reviewDocumentComment').text(data.comment || 'None');
             });

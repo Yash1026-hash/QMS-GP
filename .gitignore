@@ -16,6 +16,7 @@ Desktop.ini
 *.log
 
 # SQLite databases
+/QMSSystem.Api/App_Data/
 *.db
 *.db-shm
 *.db-wal
