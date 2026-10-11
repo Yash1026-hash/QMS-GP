@@ -25,14 +25,14 @@
 <!-- Filters -->
 <div class="card mb-3">
     <div class="card-body">
-        <form method="get" class="row g-2 align-items-end">
+        <form method="get" id="auditTrailFilterForm" class="row g-2 align-items-end" novalidate>
             <div class="col-md-6">
                 <label class="form-label small">Search</label>
-                <input type="text" name="SearchQuery" value="@Model.SearchQuery" class="form-control" placeholder="Search document number, title, comment..." />
+                <input type="text" name="SearchQuery" id="auditSearchInput" value="@Model.SearchQuery" class="form-control" placeholder="Search document number, title, comment..." maxlength="100" />
             </div>
             <div class="col-md-4">
                 <label class="form-label small">Department</label>
-                <input type="text" name="DepartmentFilter" value="@Model.DepartmentFilter" class="form-control" placeholder="Filter by department..." />
+                <input type="text" name="DepartmentFilter" id="auditDeptInput" value="@Model.DepartmentFilter" class="form-control" placeholder="Filter by department..." maxlength="100" />
             </div>
             <div class="col-md-2 d-flex gap-2">
                 <button type="submit" class="btn btn-primary flex-grow-1">Filter</button>
@@ -94,4 +94,38 @@
         }
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            $("#auditTrailFilterForm").validate({
+                errorElement: "span",
+                errorClass: "invalid-feedback d-block",
+                highlight: function (element) {
+                    $(element).addClass("is-invalid").removeClass("is-valid");
+                },
+                unhighlight: function (element) {
+                    $(element).removeClass("is-invalid").addClass("is-valid");
+                },
+                rules: {
+                    SearchQuery: {
+                        maxlength: 100
+                    },
+                    DepartmentFilter: {
+                        maxlength: 100
+                    }
+                },
+                messages: {
+                    SearchQuery: {
+                        maxlength: "Search query cannot exceed 100 characters."
+                    },
+                    DepartmentFilter: {
+                        maxlength: "Department filter cannot exceed 100 characters."
+                    }
+                }
+            });
+        });
+    </script>
+}
 

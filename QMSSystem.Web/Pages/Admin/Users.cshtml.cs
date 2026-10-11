@@ -113,11 +113,13 @@ public class UsersModel : PageModel
 
     public async Task<IActionResult> OnPostCreateUserAsync()
     {
-        if (string.IsNullOrWhiteSpace(NewUser.Username) ||
-            string.IsNullOrWhiteSpace(NewUser.Password) ||
-            string.IsNullOrWhiteSpace(NewUser.Role))
+        if (!ModelState.IsValid)
         {
-            ErrorMessage = "Username, password, and role are required.";
+            var firstError = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .FirstOrDefault();
+            ErrorMessage = firstError ?? "Please provide all required user details correctly.";
             return RedirectToPage();
         }
 

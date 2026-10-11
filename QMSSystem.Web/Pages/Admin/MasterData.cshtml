@@ -188,3 +188,17 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            // Validate and sanitize any text inputs on Master Data
+            $("input[type='text']").on("input", function () {
+                if ($(this).val().length > 100) {
+                    $(this).val($(this).val().substring(0, 100));
+                }
+            });
+        });
+    </script>
+}
