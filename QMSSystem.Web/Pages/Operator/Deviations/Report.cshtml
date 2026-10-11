@@ -341,7 +341,7 @@
         <div class="alert alert-success" role="status">@successMessage</div>
     }
 
-    <form method="post" enctype="multipart/form-data" class="report-form">
+    <form method="post" id="deviationReportForm" enctype="multipart/form-data" class="report-form" novalidate>
         <div asp-validation-summary="All" class="alert alert-danger m-3" role="alert"></div>
         <section class="form-section" aria-labelledby="deviation-details-heading">
             <div class="section-heading">
@@ -374,6 +374,7 @@
                             </option>
                         }
                     </select>
+                    <span asp-validation-for="SelectedDeviationId" class="text-danger small"></span>
                     @if (Model.ApprovedDeviations.Count == 0)
                     {
                         <div class="field-hint">There are no approved deviations available to report.</div>
@@ -410,12 +411,14 @@
                 <label asp-for="Summary" class="form-label">Summary <span class="required-mark">*</span></label>
                 <textarea asp-for="Summary" class="form-control" rows="5" maxlength="4000" required
                           placeholder="Describe the corrective work completed, the outcome, and how it addresses the deviation."></textarea>
+                <span asp-validation-for="Summary" class="text-danger small"></span>
                 <div class="field-hint">Include enough detail for a reviewer to understand the work and its outcome.</div>
             </div>
 
             <div class="proof-upload mb-4">
                 <label asp-for="Proof" class="form-label">Proof / supporting report <span class="required-mark">*</span></label>
                 <input asp-for="Proof" type="file" class="form-control" required />
+                <span asp-validation-for="Proof" class="text-danger small"></span>
                 <div class="form-text">Choose a report or evidence file to support the corrective work.</div>
             </div>
 
@@ -425,7 +428,7 @@
             <p class="footer-note">Your report and evidence will be submitted for review.</p>
             <div class="report-actions">
                 <a href="/" class="btn btn-outline-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">Submit report</button>
+                <button type="submit" id="submitReportBtn" class="btn btn-primary">Submit report</button>
             </div>
         </footer>
     </form>
@@ -471,3 +474,45 @@
         });
     })();
 </script>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var $reportForm = $("#deviationReportForm");
+            if ($reportForm.length) {
+                $reportForm.validate({
+                    rules: {
+                        SelectedDeviationId: {
+                            required: true
+                        },
+                        Summary: {
+                            required: true,
+                            minlength: 10,
+                            maxlength: 4000
+                        },
+                        Proof: {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        SelectedDeviationId: {
+                            required: "Please select an approved deviation."
+                        },
+                        Summary: {
+                            required: "Please describe the corrective work completed and outcome.",
+                            minlength: "Summary must be at least 10 characters.",
+                            maxlength: "Summary cannot exceed 4000 characters."
+                        },
+                        Proof: {
+                            required: "Please upload a proof or supporting report file."
+                        }
+                    },
+                    submitHandler: function (form) {
+                        $("#submitReportBtn").prop("disabled", true).text("Submitting report...");
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
+}

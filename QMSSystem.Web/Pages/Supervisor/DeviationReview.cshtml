@@ -29,7 +29,7 @@
 
             <h3>Search Deviation</h3>
 
-            <form method="get">
+            <form method="get" id="deviationReviewSearchForm">
 
                 <label asp-for="SearchId">
                     Deviation ID
@@ -38,7 +38,8 @@
                 <input asp-for="SearchId"
                        type="number"
                        min="1"
-                       placeholder="Enter deviation ID" />
+                       placeholder="Enter deviation ID"
+                       required />
 
                 <button type="submit">
                     Search
@@ -108,27 +109,30 @@
 
                         <h3>Supervisor Decision</h3>
 
-                        <form method="post">
+                        <form method="post" id="deviationDecisionForm" novalidate>
 
                             <input type="hidden"
                                    asp-for="Approval.DeviationRequestId" />
 
                             <label asp-for="Approval.DecisionComments">
-                                Comments
+                                Comments <span class="text-danger">*</span>
                             </label>
 
                             <textarea asp-for="Approval.DecisionComments"
                                       rows="5"
                                       placeholder="Enter your comments"></textarea>
+                            <span asp-validation-for="Approval.DecisionComments" class="text-danger small d-block mb-2"></span>
 
                             <div class="approval-buttons">
 
                                 <button type="submit"
+                                        id="approveBtn"
                                         asp-page-handler="Approve">
                                     Approve
                                 </button>
 
                                 <button type="submit"
+                                        id="rejectBtn"
                                         asp-page-handler="Reject">
                                     Reject
                                 </button>
@@ -162,3 +166,47 @@
     </div>
 
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var $searchForm = $("#deviationReviewSearchForm");
+            if ($searchForm.length) {
+                $searchForm.validate({
+                    rules: {
+                        SearchId: {
+                            required: true,
+                            min: 1
+                        }
+                    },
+                    messages: {
+                        SearchId: {
+                            required: "Please enter a deviation ID to search.",
+                            min: "Deviation ID must be greater than 0."
+                        }
+                    }
+                });
+            }
+
+            var $decisionForm = $("#deviationDecisionForm");
+            if ($decisionForm.length) {
+                $decisionForm.validate({
+                    rules: {
+                        "Approval.DecisionComments": {
+                            required: true,
+                            minlength: 3,
+                            maxlength: 1000
+                        }
+                    },
+                    messages: {
+                        "Approval.DecisionComments": {
+                            required: "Please provide supervisor review comments before submitting.",
+                            minlength: "Comments must be at least 3 characters.",
+                            maxlength: "Comments cannot exceed 1000 characters."
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

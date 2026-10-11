@@ -18,11 +18,13 @@
         </a>
     </div>
 
-    <form method="get" class="row g-2 align-items-end mb-4">
+    <form method="get" id="documentsFilterForm" class="row g-2 align-items-end mb-4">
         <div class="col-md-5 col-lg-4">
             <label asp-for="SearchQuery" class="form-label">Search documents</label>
             <input asp-for="SearchQuery"
+                   id="documentsSearchQuery"
                    class="form-control"
+                   maxlength="100"
                    placeholder="Document number, title, department, or status" />
         </div>
         <div class="col-md-3 col-lg-2">
@@ -117,3 +119,16 @@
     }
 
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#documentsFilterForm").on("submit", function () {
+                var $q = $("#documentsSearchQuery");
+                if ($q.val().length > 100) {
+                    $q.val($q.val().substring(0, 100));
+                }
+            });
+        });
+    </script>
+}

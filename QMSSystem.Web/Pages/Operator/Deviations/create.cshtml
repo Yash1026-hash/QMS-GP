@@ -123,7 +123,7 @@
 }
 
 <div asp-validation-summary="All" class="text-danger mb-3"></div>
-    <form method="post">
+    <form method="post" id="createDeviationForm" novalidate>
         <input asp-for="Deviation.Id" type="hidden" />
         @if (Model.Deviation.DocumentId > 0)
         {
@@ -203,7 +203,7 @@
             </div>
 
            <div class="form-actions">
-    <button type="submit" class="deviation-submit-button">
+    <button type="submit" id="submitDeviationBtn" class="deviation-submit-button">
         Submit Deviation Request
     </button>
     <a href="/Deviations/Index" class="btn btn-link">Cancel</a>
@@ -212,3 +212,57 @@
         </section>
     </form>
 </main>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var $form = $("#createDeviationForm");
+            if ($form.length) {
+                $form.validate({
+                    rules: {
+                        "Deviation.DocumentId": {
+                            required: true,
+                            min: 1
+                        },
+                        "Deviation.Priority": {
+                            required: true
+                        },
+                        "Deviation.Title": {
+                            required: true,
+                            minlength: 3,
+                            maxlength: 200
+                        },
+                        "Deviation.Description": {
+                            required: true,
+                            minlength: 10,
+                            maxlength: 4000
+                        }
+                    },
+                    messages: {
+                        "Deviation.DocumentId": {
+                            required: "Please select or enter an SOP document ID.",
+                            min: "Document ID must be at least 1."
+                        },
+                        "Deviation.Priority": {
+                            required: "Please select a priority level."
+                        },
+                        "Deviation.Title": {
+                            required: "Please enter a title for the deviation.",
+                            minlength: "Title must be at least 3 characters.",
+                            maxlength: "Title cannot exceed 200 characters."
+                        },
+                        "Deviation.Description": {
+                            required: "Please provide a detailed description of what occurred.",
+                            minlength: "Description must be at least 10 characters.",
+                            maxlength: "Description cannot exceed 4000 characters."
+                        }
+                    },
+                    submitHandler: function (form) {
+                        $("#submitDeviationBtn").prop("disabled", true).text("Submitting...");
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
+}

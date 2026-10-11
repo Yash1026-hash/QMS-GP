@@ -396,7 +396,7 @@
                     }
                     else
                     {
-                        <form method="post">
+                        <form method="post" id="deviationReviewReportForm" novalidate>
                             <input type="hidden" asp-for="Report.Id" />
                             <input type="hidden" asp-for="Report.DeviationId" />
                             <input type="hidden" asp-for="ReportId" />
@@ -404,20 +404,21 @@
                             <div class="mb-3">
                                 <label asp-for="DecisionComments"
                                        class="form-label field-label">
-                                    Supervisor Comments
+                                    Supervisor Comments <span class="text-danger">*</span>
                                 </label>
 
                                 <textarea asp-for="DecisionComments"
                                           class="form-control"
                                           rows="4"
                                           placeholder="Enter review comments"></textarea>
+                                <span asp-validation-for="DecisionComments" class="text-danger small d-block"></span>
                             </div>
 
                             <div asp-validation-summary="All"
                                  class="text-danger mb-3"></div>
 
                             <div class="mb-3">
-                                <span class="form-label field-label d-block">Decision</span>
+                                <span class="form-label field-label d-block">Decision <span class="text-danger">*</span></span>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input"
                                            type="radio"
@@ -438,9 +439,10 @@
                                         Reject
                                     </label>
                                 </div>
+                                <span asp-validation-for="Decision" class="text-danger small d-block"></span>
                             </div>
 
-                            <button type="submit" class="btn btn-primary decision-button">
+                            <button type="submit" id="submitReportDecisionBtn" class="btn btn-primary decision-button">
                                 Submit
                             </button>
                         </form>
@@ -470,3 +472,46 @@
         }
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var $reportForm = $("#deviationReviewReportForm");
+            if ($reportForm.length) {
+                $reportForm.validate({
+                    rules: {
+                        DecisionComments: {
+                            required: true,
+                            minlength: 3,
+                            maxlength: 1000
+                        },
+                        Decision: {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        DecisionComments: {
+                            required: "Please provide supervisor review comments.",
+                            minlength: "Comments must be at least 3 characters.",
+                            maxlength: "Comments cannot exceed 1000 characters."
+                        },
+                        Decision: {
+                            required: "Please select a decision (Approve or Reject)."
+                        }
+                    },
+                    errorPlacement: function (error, element) {
+                        if (element.attr("type") === "radio") {
+                            error.insertAfter(element.closest(".mb-3"));
+                        } else {
+                            error.insertAfter(element);
+                        }
+                    },
+                    submitHandler: function (form) {
+                        $("#submitReportDecisionBtn").prop("disabled", true).text("Submitting...");
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
+}

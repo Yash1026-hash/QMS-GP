@@ -60,7 +60,7 @@
 
     <h1>New Change Request</h1>
 
-    <form method="post">
+    <form method="post" id="changeRequestForm" novalidate>
 
         <input type="hidden" asp-for="DocumentId" />
 
@@ -86,14 +86,15 @@
         </div>
 
         <div class="form-group">
-            <label>Title</label>
+            <label>Title <span class="text-danger">*</span></label>
 
             <input asp-for="Title"
                    placeholder="Enter change request title" />
+            <span asp-validation-for="Title" class="invalid-feedback d-block"></span>
         </div>
 
         <div class="form-group">
-            <label>Change Type</label>
+            <label>Change Type <span class="text-danger">*</span></label>
 
             <select asp-for="ChangeType">
                 <option value="">-- Select Change Type --</option>
@@ -101,15 +102,17 @@
                 <option value="Software">Software</option>
                 <option value="Process">Process</option>
             </select>
+            <span asp-validation-for="ChangeType" class="invalid-feedback d-block"></span>
         </div>
 
         <div class="form-group">
 
-            <label>Description of Proposed Changes</label>
+            <label>Description of Proposed Changes <span class="text-danger">*</span></label>
 
             <textarea asp-for="Description"
-                      rows="6">
-            </textarea>
+                      rows="6"
+                      placeholder="Describe the proposed changes in detail..."></textarea>
+            <span asp-validation-for="Description" class="invalid-feedback d-block"></span>
 
         </div>
 
@@ -135,6 +138,7 @@
         <div class="submit-section">
 
             <button type="submit"
+                    id="submitChangeRequestBtn"
                     class="submit-button">
 
                 Submit
@@ -146,3 +150,49 @@
     </form>
 
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var $form = $("#changeRequestForm");
+            if ($form.length) {
+                $form.validate({
+                    rules: {
+                        Title: {
+                            required: true,
+                            minlength: 3,
+                            maxlength: 200
+                        },
+                        ChangeType: {
+                            required: true
+                        },
+                        Description: {
+                            required: true,
+                            minlength: 10,
+                            maxlength: 2000
+                        }
+                    },
+                    messages: {
+                        Title: {
+                            required: "Please provide a title for the change request.",
+                            minlength: "Title must be at least 3 characters.",
+                            maxlength: "Title cannot exceed 200 characters."
+                        },
+                        ChangeType: {
+                            required: "Please select a change type."
+                        },
+                        Description: {
+                            required: "Please enter a detailed description of the proposed changes.",
+                            minlength: "Description must be at least 10 characters.",
+                            maxlength: "Description cannot exceed 2000 characters."
+                        }
+                    },
+                    submitHandler: function (form) {
+                        $("#submitChangeRequestBtn").prop("disabled", true).text("Submitting...");
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
+}

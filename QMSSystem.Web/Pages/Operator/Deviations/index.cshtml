@@ -543,7 +543,7 @@
 
         <div class="filter-card">
 
-            <form method="get">
+            <form method="get" id="operatorDeviationsFilterForm">
 
                 <div class="filter-row">
 
@@ -556,6 +556,7 @@
                         <input type="text"
                                id="Search"
                                name="Search"
+                               maxlength="100"
                                value="@Model.Search"
                                placeholder="Search deviations..." />
 
@@ -790,3 +791,16 @@
     </main>
 
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#operatorDeviationsFilterForm").on("submit", function () {
+                var $s = $("#Search");
+                if ($s.val().length > 100) {
+                    $s.val($s.val().substring(0, 100));
+                }
+            });
+        });
+    </script>
+}

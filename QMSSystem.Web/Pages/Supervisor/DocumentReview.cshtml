@@ -26,7 +26,7 @@
             @* <div class="card-header bg-body py-3">
                 <h2 class="h5 mb-0">Documents awaiting approval</h2>
             </div> *@
-            <form method="get" class="card-body border-bottom">
+            <form method="get" id="documentReviewSearchForm" class="card-body border-bottom">
                 <div class="row g-3 align-items-end">
                     <div class="col-12 col-md-6">
                         <label class="form-label" for="documentNumber">Search by document number</label>
@@ -34,6 +34,7 @@
                                type="search"
                                id="documentNumber"
                                name="documentNumber"
+                               maxlength="100"
                                value="@Model.DocumentNumber"
                                placeholder="Enter document number" />
                     </div>
@@ -410,6 +411,13 @@
 
                 $approvalValidationMessage.removeClass('d-none');
                 $('#submitApproval').prop('disabled', true);
+            });
+
+            $('#documentReviewSearchForm').on('submit', function () {
+                var $docNum = $('#documentNumber');
+                if ($docNum.val().length > 100) {
+                    $docNum.val($docNum.val().substring(0, 100));
+                }
             });
 
         });

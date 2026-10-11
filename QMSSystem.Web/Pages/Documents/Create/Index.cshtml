@@ -14,7 +14,7 @@
         <a asp-page="/Index" class="btn btn-outline-secondary">Cancel</a>
     </div>
 
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" id="createDocumentForm" enctype="multipart/form-data" novalidate>
         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
         <div class="card mb-4">
@@ -66,8 +66,70 @@
         </div>
 
         <div class="d-flex flex-wrap gap-2">
-            <button type="submit" class="btn btn-primary">Submit Document Request</button>
+            <button type="submit" id="createDocSubmitBtn" class="btn btn-primary">Submit Document Request</button>
             <a asp-page="/Index" class="btn btn-outline-secondary">Cancel</a>
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var $createForm = $("#createDocumentForm");
+            if ($createForm.length) {
+                $createForm.validate({
+                    rules: {
+                        "Document.DocumentNumber": {
+                            required: true,
+                            minlength: 3,
+                            maxlength: 50
+                        },
+                        "Document.Department": {
+                            required: true,
+                            minlength: 2,
+                            maxlength: 100
+                        },
+                        "Document.Title": {
+                            required: true,
+                            minlength: 3,
+                            maxlength: 200
+                        },
+                        "Document.Comment": {
+                            maxlength: 1000
+                        },
+                        "DocumentFile": {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        "Document.DocumentNumber": {
+                            required: "Please enter a document number (e.g. SOP-QA-001).",
+                            minlength: "Document number must be at least 3 characters.",
+                            maxlength: "Document number cannot exceed 50 characters."
+                        },
+                        "Document.Department": {
+                            required: "Please enter a department name.",
+                            minlength: "Department must be at least 2 characters.",
+                            maxlength: "Department cannot exceed 100 characters."
+                        },
+                        "Document.Title": {
+                            required: "Please enter the document title.",
+                            minlength: "Title must be at least 3 characters.",
+                            maxlength: "Title cannot exceed 200 characters."
+                        },
+                        "Document.Comment": {
+                            maxlength: "Comment cannot exceed 1000 characters."
+                        },
+                        "DocumentFile": {
+                            required: "Please select a file to upload."
+                        }
+                    },
+                    submitHandler: function (form) {
+                        $("#createDocSubmitBtn").prop("disabled", true).text("Submitting...");
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
+}

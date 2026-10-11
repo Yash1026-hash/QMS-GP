@@ -290,7 +290,7 @@
                         </h5>
 
 
-                        <form method="post">
+                        <form method="post" class="change-request-approval-form" novalidate>
 
                             <!-- CHANGE REQUEST ID -->
                             <input type="hidden"
@@ -345,7 +345,7 @@
 
                                 <label class="form-label">
 
-                                    Reviewer Comments
+                                    Reviewer Comments <span class="text-danger">*</span>
 
                                 </label>
 
@@ -373,7 +373,7 @@
 
 
                                 <button type="submit"
-                                        class="btn btn-primary">
+                                        class="btn btn-primary submit-approval-btn">
 
                                     Submit
 
@@ -391,4 +391,46 @@
 
         </div>
     }
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(".change-request-approval-form").each(function () {
+                $(this).validate({
+                    rules: {
+                        Decision: {
+                            required: true
+                        },
+                        DecisionComment: {
+                            required: true,
+                            minlength: 3,
+                            maxlength: 1000
+                        }
+                    },
+                    messages: {
+                        Decision: {
+                            required: "Please select an approval decision (Accept or Reject)."
+                        },
+                        DecisionComment: {
+                            required: "Please enter reviewer comments.",
+                            minlength: "Comments must be at least 3 characters.",
+                            maxlength: "Comments cannot exceed 1000 characters."
+                        }
+                    },
+                    errorPlacement: function (error, element) {
+                        if (element.attr("type") === "radio") {
+                            error.insertAfter(element.closest(".mb-4"));
+                        } else {
+                            error.insertAfter(element);
+                        }
+                    },
+                    submitHandler: function (form) {
+                        $(form).find("button[type='submit']").prop("disabled", true).text("Submitting...");
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
 }

@@ -39,7 +39,7 @@
         </div>
     </div>
 
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" id="uploadRevisionForm" enctype="multipart/form-data" novalidate>
         @if (!ViewData.ModelState.IsValid)
         {
             <div class="alert alert-danger">
@@ -84,11 +84,69 @@
         <div class="d-flex justify-content-end gap-2">
             <a asp-page="./Details" asp-route-id="@Model.Document.Id"
                class="btn btn-outline-secondary">Cancel</a>
-            <button type="submit" class="btn btn-primary">Upload Revision</button>
+            <button type="submit" id="uploadRevisionSubmitBtn" class="btn btn-primary">Upload Revision</button>
         </div>
     </form>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            var $revisionForm = $("#uploadRevisionForm");
+            if ($revisionForm.length) {
+                $revisionForm.validate({
+                    rules: {
+                        DocumentNumber: {
+                            required: true,
+                            minlength: 3,
+                            maxlength: 50
+                        },
+                        Title: {
+                            required: true,
+                            minlength: 3,
+                            maxlength: 200
+                        },
+                        Department: {
+                            required: true,
+                            minlength: 2,
+                            maxlength: 100
+                        },
+                        UploadFile: {
+                            required: true
+                        },
+                        Comment: {
+                            maxlength: 1000
+                        }
+                    },
+                    messages: {
+                        DocumentNumber: {
+                            required: "Please enter the document number.",
+                            minlength: "Document number must be at least 3 characters.",
+                            maxlength: "Document number cannot exceed 50 characters."
+                        },
+                        Title: {
+                            required: "Please enter the document title.",
+                            minlength: "Title must be at least 3 characters.",
+                            maxlength: "Title cannot exceed 200 characters."
+                        },
+                        Department: {
+                            required: "Please enter the department.",
+                            minlength: "Department must be at least 2 characters.",
+                            maxlength: "Department cannot exceed 100 characters."
+                        },
+                        UploadFile: {
+                            required: "Please select a replacement file to upload."
+                        },
+                        Comment: {
+                            maxlength: "Change description cannot exceed 1000 characters."
+                        }
+                    },
+                    submitHandler: function (form) {
+                        $("#uploadRevisionSubmitBtn").prop("disabled", true).text("Uploading...");
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
 }

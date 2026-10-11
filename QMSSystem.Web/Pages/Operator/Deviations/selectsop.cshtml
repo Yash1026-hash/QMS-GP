@@ -221,10 +221,10 @@
         <p>Choose the controlled SOP that the deviation relates to.</p>
     </header>
 
-    <form method="get" action="/Deviations/SelectSop" class="sop-search">
+    <form method="get" action="/Deviations/SelectSop" id="sopSearchForm" class="sop-search">
         <div class="sop-search-field">
             <label for="Search">Search active SOPs</label>
-            <input id="Search" name="Search" value="@Model.Search"
+            <input id="Search" name="Search" maxlength="100" value="@Model.Search"
                    placeholder="Search by document number, title, or department" />
         </div>
         <button type="submit" class="sop-button">Search</button>
@@ -247,7 +247,7 @@
         }
         else
         {
-            <form method="get" action="/Deviations/Create">
+            <form method="get" action="/Deviations/Create" id="selectSopForm" novalidate>
                 <div class="sop-table-wrap">
                     <table class="sop-table">
                         <thead>
@@ -294,3 +294,35 @@
         }
     </section>
 </main>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#sopSearchForm").on("submit", function () {
+                var $s = $("#Search");
+                if ($s.val().length > 100) {
+                    $s.val($s.val().substring(0, 100));
+                }
+            });
+
+            var $selectForm = $("#selectSopForm");
+            if ($selectForm.length) {
+                $selectForm.validate({
+                    rules: {
+                        DocumentId: {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        DocumentId: {
+                            required: "Please select an active SOP before proceeding."
+                        }
+                    },
+                    errorPlacement: function (error, element) {
+                        error.insertAfter(".sop-table-wrap");
+                    }
+                });
+            }
+        });
+    </script>
+}
