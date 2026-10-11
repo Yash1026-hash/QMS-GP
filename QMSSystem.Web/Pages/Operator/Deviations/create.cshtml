@@ -4,24 +4,21 @@
     ViewData["Title"] = "Create Deviation";
 }
 
-<div class="container py-4">
-
-    <!-- PAGE HEADER -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-        <div>
-            <p class="eyebrow mb-1">QMS / OPERATOR</p>
-            <h1 class="h3 mb-1">Create Deviation Request</h1>
-            <p class="text-muted mb-0">Record and submit an operational deviation from standard operating procedure.</p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="/Deviations/SelectSop" class="btn btn-outline-secondary">
-                &larr; Back to SOP Selection
-            </a>
-            <a href="/Deviations/Index" class="btn btn-outline-secondary">
-                Deviations List
-            </a>
-        </div>
+<!-- PAGE HEADER -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pt-2">
+    <div>
+        <h2 class="h4 mb-1">Create Deviation Request</h2>
+        <p class="text-muted mb-0">Record and submit an operational deviation from standard operating procedure.</p>
     </div>
+    <div class="d-flex gap-2">
+        <a href="/Deviations/SelectSop" class="btn btn-outline-secondary">
+            &larr; Back to SOP Selection
+        </a>
+        <a href="/Deviations/Index" class="btn btn-outline-secondary">
+            Deviations List
+        </a>
+    </div>
+</div>
 
     @if (!string.IsNullOrWhiteSpace(Model.Message))
     {
@@ -51,7 +48,10 @@
             </div>
 
             <div class="card-body">
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+                @if (!ModelState.IsValid)
+                {
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+                }
 
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -128,8 +128,6 @@
             </div>
         </div>
     </form>
-
-</div>
 
 @section Scripts {
     <script>

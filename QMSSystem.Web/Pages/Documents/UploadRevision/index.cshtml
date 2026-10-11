@@ -11,7 +11,7 @@
             <h1 class="h3 mb-1">Upload New Revision</h1>
             <p class="text-muted mb-0">
                 <code>@Model.Document.DocumentNumber</code> &bull; @Model.Document.Title &bull;
-                @Model.Document.Department &bull; current v@Model.Document.DocumentVersion
+                @Model.Document.Department &bull; current v@(Model.Document.DocumentVersion)
             </p>
         </div>
         <a asp-page="/Documents/Index" class="btn btn-outline-secondary">&larr; Back to Documents</a>
@@ -19,10 +19,10 @@
 
     <div class="alert alert-info mb-4">
         Document number, title, and department are editable. Version and status are managed by QMS.
-        Uploading a new file will:
+        Uploading a new revision submits it for Supervisor review:
         <ul class="mb-0 mt-1">
-            <li>Archive the current version (v@Model.Document.DocumentVersion) in document history</li>
-            <li>Replace the active file and increase the version to v@(Model.Document.DocumentVersion + 1)</li>
+            <li><strong>If approved:</strong> the new revision details and file become active, and the previous version is archived in document history.</li>
+            <li><strong>If rejected:</strong> the current active document remains active with its original file and version preserved.</li>
         </ul>
     </div>
 
@@ -37,7 +37,7 @@
                 <a asp-page-handler="CurrentFile"
                    asp-route-id="@Model.Document.Id"
                    class="btn btn-sm btn-outline-primary">
-                    Download Current File (v@Model.Document.DocumentVersion)
+                    Download Current File (v@(Model.Document.DocumentVersion))
                 </a>
             }
             else

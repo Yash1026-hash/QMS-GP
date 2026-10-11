@@ -78,9 +78,8 @@ body {
   text-transform: uppercase;
 }
 
-.login-container,
-.landing-container {
-  width: min(100%, 500px);
+.login-container {
+  width: min(100%, 430px);
   margin: 3rem auto;
   padding: 2rem;
   border: 1px solid #dce6eb;
@@ -89,8 +88,31 @@ body {
   box-shadow: 0 .7rem 1.6rem rgba(24, 34, 48, .08);
 }
 
-.login-container {
-  max-width: 430px;
+.landing-hero {
+  background: #ffffff;
+  border: 1px solid #dce6eb;
+  border-radius: .75rem;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 .4rem 1.2rem rgba(24, 34, 48, .04);
+}
+
+.landing-card {
+  background: #ffffff;
+  border: 1px solid #dce6eb;
+  border-radius: .65rem;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.landing-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 .5rem 1rem rgba(24, 34, 48, .06);
+}
+
+.module-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .footer {
@@ -113,4 +135,26 @@ body {
 
 .skip-link:focus {
   transform: translateY(0);
+}
+
+/* Disable green checkmark icons and green borders for valid form controls */
+.was-validated .form-control:valid,
+.form-control.is-valid,
+.was-validated .form-select:valid,
+.form-select.is-valid {
+  border-color: #dee2e6 !important;
+  background-image: none !important;
+  padding-right: .75rem !important;
+}
+
+.was-validated .form-control:valid:focus,
+.form-control.is-valid:focus,
+.was-validated .form-select:valid:focus,
+.form-select.is-valid:focus {
+  border-color: #86b7fe !important;
+  box-shadow: 0 0 0 0.1rem #fff, 0 0 0 0.25rem #258cfb !important;
+}
+
+.valid-feedback {
+  display: none !important;
 }

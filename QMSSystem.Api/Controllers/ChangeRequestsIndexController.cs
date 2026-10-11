@@ -1,11 +1,14 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QMSSystem.Api.Data;
+using QMSSystem.Shared.DTOs;
 
 namespace QMSSystem.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [AllowAnonymous]
     public class ChangeRequestsIndexController : ControllerBase
     {
         private readonly UserDbContext _context;
@@ -16,16 +19,10 @@ namespace QMSSystem.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetChangeRequests()
+        public async Task<ActionResult<IEnumerable<OperatorChangeRequest>>> GetChangeRequests()
         {
             var changeRequests = await _context.OperatorChangeRequests
-                .Select(x => new
-                {
-                    x.Id,
-                    x.Title,
-                    x.ChangeType,
-                    x.RequestedDate
-                })
+                .OrderByDescending(x => x.RequestedDate)
                 .ToListAsync();
 
             return Ok(changeRequests);

@@ -50,9 +50,19 @@
                     </select>
                 </div>
 
+                <div class="col-md-2 col-sm-6">
+                    <label for="Status" class="form-label">Status</label>
+                    <select id="Status" name="Status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="0" selected="@(Model.Status == 0)">Pending</option>
+                        <option value="1" selected="@(Model.Status == 1)">Active</option>
+                        <option value="2" selected="@(Model.Status == 2)">Inactive</option>
+                    </select>
+                </div>
+
                 <div class="col-auto">
                     <button type="submit" class="btn btn-primary">Search</button>
-                    @if (!string.IsNullOrWhiteSpace(Model.Search) || !string.IsNullOrWhiteSpace(Model.Priority))
+                    @if (!string.IsNullOrWhiteSpace(Model.Search) || !string.IsNullOrWhiteSpace(Model.Priority) || Model.Status.HasValue)
                     {
                         <a href="/Deviations/Index" class="btn btn-outline-secondary">Clear</a>
                     }
@@ -79,8 +89,9 @@
                                 <th>Title &amp; Description</th>
                                 <th style="width: 140px;">SOP / Document</th>
                                 <th style="width: 110px;">Priority</th>
-                                <th style="width: 140px;">Raised By</th>
-                                <th style="width: 120px;">Created</th>
+                                <th style="width: 120px;">Status</th>
+                                <th style="width: 130px;">Raised By</th>
+                                <th style="width: 110px;">Created</th>
                                 <th style="width: 90px;" class="text-center">Action</th>
                             </tr>
                         </thead>
@@ -106,6 +117,21 @@
                                             "Minor" => "bg-info text-dark",
                                             _ => "bg-secondary"
                                         })">@Model.GetPriorityText(deviation.Priority)</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge @(deviation.Status switch {
+                                            1 => "bg-success",
+                                            0 => "bg-warning text-dark",
+                                            2 => "bg-danger",
+                                            _ => "bg-secondary"
+                                        })">
+                                            @(deviation.Status switch {
+                                                1 => "Active",
+                                                0 => "Pending",
+                                                2 => "Inactive",
+                                                _ => "Unknown"
+                                            })
+                                        </span>
                                     </td>
                                     <td>@deviation.CreatedBy</td>
                                     <td>@deviation.CreatedDate.ToString("yyyy-MM-dd")</td>

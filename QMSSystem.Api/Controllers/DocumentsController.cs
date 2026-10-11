@@ -16,11 +16,54 @@ public class DocumentsController : ControllerBase
         _context = context;
     }
 
+    [HttpGet("check-number")]
+    public async Task<IActionResult> CheckDocumentNumber(
+        [FromQuery] string? documentNumber,
+        [FromQuery] int? excludeId = null)
+    {
+        if (string.IsNullOrWhiteSpace(documentNumber))
+        {
+            return Ok(new { exists = false });
+        }
+
+        var normalized = documentNumber.Trim().ToLower();
+        var exists = await _context.DocumentCreations
+            .AnyAsync(d => d.DocumentNumber.ToLower() == normalized && (!excludeId.HasValue || d.Id != excludeId.Value));
+
+        return Ok(new { exists, documentNumber = documentNumber.Trim() });
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateDocument(
         [FromBody] DocumentCreation document)
     {
-        document.DocumentVersion = 0;
+        if (string.IsNullOrWhiteSpace(document.DocumentNumber))
+        {
+            return BadRequest(new { message = "Document number is required." });
+        }
+
+        document.DocumentNumber = document.DocumentNumber.Trim();
+        var normalized = document.DocumentNumber.ToLower();
+
+        var exists = await _context.DocumentCreations
+            .AnyAsync(d => d.DocumentNumber.ToLower() == normalized);
+
+        if (exists)
+        {
+            return BadRequest(new { message = $"Document number '{document.DocumentNumber}' already exists. Document number must be unique." });
+        }
+
+        if (string.IsNullOrWhiteSpace(document.Title))
+        {
+            return BadRequest(new { message = "Title is required." });
+        }
+
+        if (string.IsNullOrWhiteSpace(document.Department))
+        {
+            return BadRequest(new { message = "Department is required." });
+        }
+
+        document.DocumentVersion = 1;
         document.Status = "Pending";
         document.CreationOn = DateTime.UtcNow;
 
@@ -87,7 +130,7 @@ public async Task<IActionResult> GetDocument(int id)
 }
 
 [HttpGet("{id}/current-file")]
-public async Task<IActionResult> DownloadCurrentFile(int id)
+public async Task<IActionResult> DownloadCurrentFile(int id, [FromQuery] bool inline = false)
 {
     var document = await _context.DocumentCreations
         .AsNoTracking()
@@ -105,10 +148,19 @@ public async Task<IActionResult> DownloadCurrentFile(int id)
         return NotFound(new { message = "The current document file was not found." });
     }
 
+    var contentType = string.IsNullOrWhiteSpace(document.ContentType) ? "application/octet-stream" : document.ContentType;
+    var fileName = Path.GetFileName(document.FileName);
+
+    if (inline)
+    {
+        Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
+        return File(document.FileData, contentType);
+    }
+
     return File(
         document.FileData,
-        string.IsNullOrWhiteSpace(document.ContentType) ? "application/octet-stream" : document.ContentType,
-        Path.GetFileName(document.FileName));
+        contentType,
+        fileName);
 }
 
 [HttpPost("{id}/upload-revision")]
@@ -130,46 +182,66 @@ public async Task<IActionResult> UploadRevision(
         return BadRequest(new { message = "Document number, title, and department are required." });
     }
 
-    // 1. Snapshot the CURRENT version into history
-     _context.DocumentHistories.Add(new DocumentHistory
+    var trimmedDocNumber = documentNumber.Trim();
+    var normalizedDocNumber = trimmedDocNumber.ToLower();
+    var duplicateExists = await _context.DocumentCreations
+        .AnyAsync(d => d.Id != id && d.DocumentNumber.ToLower() == normalizedDocNumber);
+    if (duplicateExists)
     {
-        DocumentId      = doc.Id,
-        DocumentNumber  = doc.DocumentNumber,
-        Title           = doc.Title,
-        Department      = doc.Department,
-        DocumentVersion = doc.DocumentVersion,
-        Status          = "Inactive",
-        FileName        = doc.FileName,
-        ContentType     = doc.ContentType,
-        FileData        = doc.FileData,
-        CreatedBy       = doc.CreatedBy,
-        CreationOn      = doc.CreationOn,
-        Comment         = doc.Comment,
-        ArchivedOn      = DateTime.UtcNow,
-        ArchivedBy      = 1
-    });
+        return BadRequest(new { message = $"Document number '{trimmedDocNumber}' is already in use by another document. Document number must be unique." });
+    }
+
+    // 1. Snapshot the CURRENT active version into history as PendingRevisionBackup if not already saved
+    var existingBackup = await _context.DocumentHistories
+        .FirstOrDefaultAsync(h => h.DocumentId == doc.Id && h.Status == "PendingRevisionBackup");
+
+    int baseVersion = doc.DocumentVersion;
+    if (existingBackup == null)
+    {
+        _context.DocumentHistories.Add(new DocumentHistory
+        {
+            DocumentId      = doc.Id,
+            DocumentNumber  = doc.DocumentNumber,
+            Title           = doc.Title,
+            Department      = doc.Department,
+            DocumentVersion = doc.DocumentVersion,
+            Status          = "PendingRevisionBackup",
+            FileName        = doc.FileName,
+            ContentType     = doc.ContentType,
+            FileData        = doc.FileData,
+            CreatedBy       = doc.CreatedBy,
+            CreationOn      = doc.CreationOn,
+            Comment         = doc.Comment,
+            ArchivedOn      = DateTime.UtcNow,
+            ArchivedBy      = 1
+        });
+    }
+    else
+    {
+        baseVersion = existingBackup.DocumentVersion;
+    }
 
     // 2. Read uploaded file
     using var ms = new MemoryStream();
     await file.CopyToAsync(ms);
 
-    // 3. Update the live row + bump version
+    // 3. Stage the live row for supervisor review + bump version
     doc.FileName        = file.FileName;
     doc.ContentType     = file.ContentType;
     doc.FileData        = ms.ToArray();
-    doc.DocumentNumber = documentNumber.Trim();
+    doc.DocumentNumber  = trimmedDocNumber;
     doc.Title           = title.Trim();
-    doc.Department     = department.Trim();
-    doc.DocumentVersion = doc.DocumentVersion + 1;
+    doc.Department      = department.Trim();
+    doc.DocumentVersion = baseVersion + 1;
     doc.Comment         = comment;
     doc.Status          = "Pending";
     doc.DecisionStatus  = null;
     doc.DecisionBy      = null;
     doc.DecisionDate    = null;
 
-    // EF Core saves the archive insert and active-document update in one transaction.
+    // EF Core saves the backup insert (if any) and live document staging in one transaction
     await _context.SaveChangesAsync();
 
-    return Ok(new { message = "Revision uploaded.", documentId = doc.Id, version = doc.DocumentVersion });
+    return Ok(new { message = "Revision uploaded successfully. Awaiting supervisor review.", documentId = doc.Id, version = doc.DocumentVersion });
 }
-}
+}

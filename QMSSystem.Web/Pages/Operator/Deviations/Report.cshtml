@@ -4,36 +4,97 @@
     ViewData["Title"] = "Deviation Report";
 }
 
-<div class="container py-4">
-
-    <!-- PAGE HEADER -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-        <div>
-            <p class="eyebrow mb-1">QMS / OPERATOR</p>
-            <h1 class="h3 mb-1">Deviation Report Submission</h1>
-            <p class="text-muted mb-0">Record completed corrective actions and submit supporting documentation for review.</p>
-        </div>
-        <a href="/Deviations/Index" class="btn btn-outline-secondary">
-            &larr; Back to Deviations
-        </a>
+<!-- PAGE HEADER -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pt-2">
+    <div>
+        <h2 class="h4 mb-1">Deviation Report Submission</h2>
+        <p class="text-muted mb-0">Record completed corrective actions and submit supporting documentation for review.</p>
     </div>
+    <a href="/Deviations/Index" class="btn btn-outline-secondary">
+        &larr; Back to Deviations
+    </a>
+</div>
 
-    @if (TempData["SuccessMessage"] is string successMessage)
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @successMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="alert alert-info d-flex align-items-center mb-4" role="status">
+    <div>
+        <strong>Process:</strong> Select an approved deviation, describe the completed corrective work, and attach the supporting report or evidence file.
+    </div>
+</div>
+
+<!-- SUBMITTED REPORTS LIST -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">Submitted Deviation Reports (@Model.SubmittedReports.Count)</span>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.SubmittedReports.Count == 0)
+        {
+            <div class="p-4 text-center text-muted">
+                No deviation reports submitted yet. Fill out the form below to submit a corrective action report.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 80px;">ID</th>
+                            <th style="width: 110px;">Deviation</th>
+                            <th style="width: 110px;">SOP / Doc</th>
+                            <th>Summary</th>
+                            <th style="width: 120px;">Submitted</th>
+                            <th style="width: 120px;">Status</th>
+                            <th>Review Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var report in Model.SubmittedReports)
+                        {
+                            <tr>
+                                <td class="fw-semibold">#REP-@report.Id</td>
+                                <td>#DEV-@report.DeviationId</td>
+                                <td>#DOC-@report.DocumentId</td>
+                                <td>@report.Summary</td>
+                                <td>@report.CreatedDate.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <span class="badge @(report.Decision switch {
+                                        1 => "bg-success",
+                                        2 => "bg-danger",
+                                        _ => "bg-warning text-dark"
+                                    })">
+                                        @(report.Decision switch {
+                                            1 => "Approved",
+                                            2 => "Rejected",
+                                            _ => "Pending Review"
+                                        })
+                                    </span>
+                                </td>
+                                <td class="small text-muted">
+                                    @(string.IsNullOrWhiteSpace(report.DecisionComments) ? "-" : report.DecisionComments)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<form method="post" id="deviationReportForm" enctype="multipart/form-data" novalidate>
+    @if (!ModelState.IsValid)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @successMessage
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    <div class="alert alert-info d-flex align-items-center mb-4" role="status">
-        <div>
-            <strong>Process:</strong> Select an approved deviation, describe the completed corrective work, and attach the supporting report or evidence file.
-        </div>
-    </div>
-
-    <form method="post" id="deviationReportForm" enctype="multipart/form-data" novalidate>
         <div asp-validation-summary="All" class="alert alert-danger mb-4" role="alert"></div>
+    }
 
         <!-- SECTION 1: DEVIATION & SOP -->
         <div class="card shadow-sm mb-4">
@@ -119,8 +180,6 @@
             </div>
         </div>
     </form>
-
-</div>
 
 <script>
     (() => {

@@ -114,7 +114,7 @@ public class DocumentReviewModel(
         try
         {
             using var response = await client.GetAsync(
-                $"api/Documents/{id}",
+                $"api/Documents/{id}/current-file?inline=true",
                 cancellationToken);
 
             if (!response.IsSuccessStatusCode)
@@ -128,11 +128,8 @@ public class DocumentReviewModel(
                     : StatusCode(StatusCodes.Status502BadGateway);
             }
 
-            var document = await response.Content
-                .ReadFromJsonAsync<DocumentCreation>(
-                    cancellationToken: cancellationToken);
-
-            if (document is null || document.FileData.Length == 0)
+            var fileBytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+            if (fileBytes.Length == 0)
             {
                 logger.LogWarning(
                     "DocumentId {DocumentId} has no file data to preview.",
@@ -140,19 +137,13 @@ public class DocumentReviewModel(
                 return NotFound();
             }
 
-            if (string.IsNullOrWhiteSpace(document.ContentType))
-            {
-                logger.LogWarning(
-                    "DocumentId {DocumentId} has no content type for preview.",
-                    id);
-                return BadRequest("This document cannot be previewed.");
-            }
+            var contentType = response.Content.Headers.ContentType?.ToString() ?? "application/pdf";
+            var fileName = response.Content.Headers.ContentDisposition?.FileName?.Trim('"') ?? "document";
 
-            Response.Headers["Content-Disposition"] = "inline";
-            Response.Headers["Content-Security-Policy"] = "sandbox";
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
             Response.Headers["X-Content-Type-Options"] = "nosniff";
 
-            return File(document.FileData, document.ContentType);
+            return File(fileBytes, contentType);
         }
         catch (HttpRequestException exception)
         {

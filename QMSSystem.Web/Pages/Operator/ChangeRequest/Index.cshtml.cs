@@ -6,32 +6,32 @@ namespace QMSSystem.Web.Pages.Operator.ChangeRequestIndex
 {
     public class IndexModel : PageModel
     {
-        public List<OperatorChangeRequest> ChangeRequests { get; set; } =
-            new List<OperatorChangeRequest>();
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public List<OperatorChangeRequest> ChangeRequests { get; set; } = new();
+
+        public IndexModel(IHttpClientFactory httpClientFactory)
+        {
+            _httpClientFactory = httpClientFactory;
+        }
 
         public async Task OnGetAsync()
         {
-            using var client = new HttpClient();
-
-            var authCookie = Request.Cookies["QMS.Auth"];
-
-            if (!string.IsNullOrEmpty(authCookie))
+            try
             {
-                client.DefaultRequestHeaders.Add(
-                    "Cookie",
-                    $"QMS.Auth={authCookie}"
-                );
+                var client = _httpClientFactory.CreateClient("QMSApi");
+                var response = await client.GetAsync("api/ChangeRequestsIndex");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    ChangeRequests = await response.Content
+                        .ReadFromJsonAsync<List<OperatorChangeRequest>>()
+                        ?? new List<OperatorChangeRequest>();
+                }
             }
-
-            var response = await client.GetAsync(
-                "http://localhost:5070/api/ChangeRequestsIndex"
-            );
-
-            if (response.IsSuccessStatusCode)
+            catch
             {
-                ChangeRequests = await response.Content
-                    .ReadFromJsonAsync<List<OperatorChangeRequest>>()
-                    ?? new List<OperatorChangeRequest>();
+                ChangeRequests = new List<OperatorChangeRequest>();
             }
         }
     }

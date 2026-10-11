@@ -14,7 +14,7 @@
             <p class="text-muted mb-0">View and manage controlled documents across departments.</p>
         </div>
 
-        <a asp-page="/Documents/Create" class="btn btn-primary">
+        <a href="/Documents/Create" class="btn btn-primary">
             + Create Document
         </a>
     </div>
@@ -35,6 +35,8 @@
                     <select asp-for="StatusFilter" class="form-select">
                         <option value="">All statuses</option>
                         <option value="Active">Active</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Revision Required">Revision Required</option>
                         <option value="Inactive">Inactive</option>
                     </select>
                 </div>
@@ -87,10 +89,16 @@
                                     <td class="fw-semibold">@document.DocumentNumber</td>
                                     <td>@document.Title</td>
                                     <td>@document.Department</td>
-                                    <td>v@document.DocumentVersion</td>
+                                    <td>v@(document.DocumentVersion)</td>
                                     <td>
-                                        <span class="badge @(document.Status == "Active" ? "bg-success" : "bg-secondary")">
-                                            @document.Status
+                                        <span class="badge @(document.Status switch {
+                                            "Active" or "Approved" => "bg-success",
+                                            "Pending" => "bg-warning text-dark",
+                                            "Revision Required" or "Returned for revision" => "bg-warning text-dark",
+                                            "Rejected" => "bg-danger",
+                                            _ => "bg-secondary"
+                                        })">
+                                            @(document.Status == "Active" ? "Approved" : document.Status)
                                         </span>
                                     </td>
                                     <td>@document.CreationOn.ToString("yyyy-MM-dd")</td>
@@ -101,12 +109,12 @@
                                                class="btn btn-sm btn-outline-primary">
                                                 View
                                             </a>
-                                            @if (document.Status == "Active")
+                                            @if (document.Status == "Revision Required" || document.Status == "Returned for revision" || document.Decision == 3)
                                             {
                                                 <a asp-page="/Documents/UploadRevision/Index"
                                                    asp-route-id="@document.Id"
                                                    class="btn btn-sm btn-outline-secondary">
-                                                    Edit Revision
+                                                    Upload Revision
                                                 </a>
                                             }
                                         </div>

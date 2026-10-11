@@ -4,19 +4,16 @@
     ViewData["Title"] = "Select an Active SOP";
 }
 
-<div class="container py-4">
-
-    <!-- PAGE HEADER -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-        <div>
-            <p class="eyebrow mb-1">QMS / DEVIATIONS</p>
-            <h1 class="h3 mb-1">Select an Active SOP</h1>
-            <p class="text-muted mb-0">Choose the controlled SOP that the deviation relates to.</p>
-        </div>
-        <a href="/Deviations/Index" class="btn btn-outline-secondary">
-            &larr; Back to Deviations
-        </a>
+<!-- PAGE HEADER -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pt-2">
+    <div>
+        <h2 class="h4 mb-1">Select an Active SOP</h2>
+        <p class="text-muted mb-0">Choose the controlled SOP that the deviation relates to.</p>
     </div>
+    <a href="/Deviations/Index" class="btn btn-outline-secondary">
+        &larr; Back to Deviations
+    </a>
+</div>
 
     <!-- SEARCH ACTIVE SOPS -->
     <div class="card shadow-sm mb-4">
@@ -95,7 +92,7 @@
                                         <div class="small text-muted">@sop.DocumentNumber</div>
                                     </td>
                                     <td>@sop.Department</td>
-                                    <td>v@sop.DocumentVersion</td>
+                                    <td>v@(sop.DocumentVersion)</td>
                                     <td><span class="badge bg-success">@sop.Status</span></td>
                                 </tr>
                             }
@@ -112,8 +109,6 @@
             </form>
         }
     </div>
-
-</div>
 
 @section Scripts {
     <script>

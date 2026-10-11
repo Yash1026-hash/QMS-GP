@@ -1,94 +1,98 @@
 @page
 @model QMSSystem.Web.Pages.Supervisor.IndexModel
-
 @{
     ViewData["Title"] = "Supervisor Dashboard";
 }
 
-<div class="container py-4">
+<div class="d-flex justify-content-between align-items-center mb-4 pt-2">
+    <div>
+        <h2 class="h4 mb-1">Supervisor Dashboard</h2>
+        <p class="text-muted mb-0">Review and approve controlled documents, deviations, reports, and change requests.</p>
+    </div>
+</div>
 
-    <!-- PAGE HEADING -->
-    <div class="mb-4">
-        <p class="eyebrow mb-1">QMS / SUPERVISOR</p>
-        <h1 class="h3 mb-1">Supervisor Dashboard</h1>
-        <p class="text-muted mb-0">Review and approve pending quality management activities.</p>
+<div class="row g-4 mb-4">
+    <!-- DOCUMENT REVIEW -->
+    <div class="col-sm-6 col-lg-3">
+        <div class="card h-100 shadow-sm border">
+            <div class="card-body d-flex flex-column p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title mb-0">Document Review</h5>
+                    @if (Model.PendingDocuments > 0)
+                    {
+                        <span class="badge bg-warning text-dark">@Model.PendingDocuments</span>
+                    }
+                </div>
+                <p class="card-text text-muted small flex-grow-1">
+                    Review and approve new controlled document and SOP uploads submitted by operators.
+                </p>
+                <a asp-page="/Supervisor/DocumentReview" class="btn btn-primary w-100 mt-3">
+                    Document Review &rarr;
+                </a>
+            </div>
+        </div>
     </div>
 
-    <!-- OPERATIONS GRID -->
-    <div class="row g-4">
-
-        <!-- DEVIATION REVIEW -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card h-100 shadow-sm border">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h2 class="h5 card-title mb-0">Deviation Review</h2>
-                        <span class="badge bg-primary fs-6">@Model.PendingDeviations</span>
-                    </div>
-                    <p class="card-text text-muted small flex-grow-1">
-                        Review and approve or reject pending deviation requests.
-                    </p>
-                    <a asp-page="/Supervisor/DeviationReview" class="btn btn-outline-primary w-100 mt-2">
-                        Open Review &rarr;
-                    </a>
+    <!-- DEVIATION REVIEW -->
+    <div class="col-sm-6 col-lg-3">
+        <div class="card h-100 shadow-sm border">
+            <div class="card-body d-flex flex-column p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title mb-0">Deviation Review</h5>
+                    @if (Model.PendingDeviations > 0)
+                    {
+                        <span class="badge bg-warning text-dark">@Model.PendingDeviations</span>
+                    }
                 </div>
+                <p class="card-text text-muted small flex-grow-1">
+                    Review and approve or reject active deviation requests submitted by operators.
+                </p>
+                <a asp-page="/Supervisor/DeviationReview" class="btn btn-primary w-100 mt-3">
+                    Deviation Review &rarr;
+                </a>
             </div>
         </div>
-
-        <!-- CHANGE REQUEST APPROVAL -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card h-100 shadow-sm border">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h2 class="h5 card-title mb-0">Change Requests</h2>
-                        <span class="badge bg-primary fs-6">@Model.PendingChangeRequests</span>
-                    </div>
-                    <p class="card-text text-muted small flex-grow-1">
-                        Review and approve or reject pending change requests.
-                    </p>
-                    <a asp-page="/Supervisor/ChangeRequestApproval" class="btn btn-outline-primary w-100 mt-2">
-                        Open Approval &rarr;
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- DEVIATION REVIEW REPORT -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card h-100 shadow-sm border">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h2 class="h5 card-title mb-0">Deviation Reports</h2>
-                        <span class="badge bg-primary fs-6">@Model.PendingReports</span>
-                    </div>
-                    <p class="card-text text-muted small flex-grow-1">
-                        Review submitted deviation reports and supporting proof.
-                    </p>
-                    <a asp-page="/Supervisor/DeviationReviewReport" class="btn btn-outline-primary w-100 mt-2">
-                        Open Reports &rarr;
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- DOCUMENT REVIEW -->
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card h-100 shadow-sm border">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h2 class="h5 card-title mb-0">Document Review</h2>
-                        <span class="badge bg-primary fs-6">@Model.PendingDocuments</span>
-                    </div>
-                    <p class="card-text text-muted small flex-grow-1">
-                        Review pending SOP documents and document revisions.
-                    </p>
-                    <a asp-page="/Supervisor/DocumentReview" class="btn btn-outline-primary w-100 mt-2">
-                        Open Documents &rarr;
-                    </a>
-                </div>
-            </div>
-        </div>
-
     </div>
 
+    <!-- DEVIATION REPORT -->
+    <div class="col-sm-6 col-lg-3">
+        <div class="card h-100 shadow-sm border">
+            <div class="card-body d-flex flex-column p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title mb-0">Deviation Report</h5>
+                    @if (Model.PendingReports > 0)
+                    {
+                        <span class="badge bg-warning text-dark">@Model.PendingReports</span>
+                    }
+                </div>
+                <p class="card-text text-muted small flex-grow-1">
+                    Review completed corrective action reports and supporting evidence files.
+                </p>
+                <a asp-page="/Supervisor/DeviationReviewReport" class="btn btn-primary w-100 mt-3">
+                    Deviation Report &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHANGE REQUEST -->
+    <div class="col-sm-6 col-lg-3">
+        <div class="card h-100 shadow-sm border">
+            <div class="card-body d-flex flex-column p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title mb-0">Change Request</h5>
+                    @if (Model.PendingChangeRequests > 0)
+                    {
+                        <span class="badge bg-warning text-dark">@Model.PendingChangeRequests</span>
+                    }
+                </div>
+                <p class="card-text text-muted small flex-grow-1">
+                    Review and authorize operator change requests for documents, software, or equipment.
+                </p>
+                <a asp-page="/Supervisor/ChangeRequestApproval" class="btn btn-primary w-100 mt-3">
+                    Change Request &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
 </div>

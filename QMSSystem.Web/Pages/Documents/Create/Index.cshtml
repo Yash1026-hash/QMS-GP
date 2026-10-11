@@ -27,9 +27,12 @@
                         <label asp-for="Document.DocumentNumber" class="form-label fw-semibold">
                             Document Number <span class="text-danger">*</span>
                         </label>
-                        <input asp-for="Document.DocumentNumber" class="form-control" required
-                               placeholder="e.g. SOP-QA-001" />
+                        <input asp-for="Document.DocumentNumber" id="documentNumberInput" class="form-control" required
+                               placeholder="e.g. SOP-QA-001" autocomplete="off" />
                         <span asp-validation-for="Document.DocumentNumber" class="text-danger small"></span>
+                        <div id="docNumberDuplicateMsg" class="text-danger small mt-1 d-none fw-semibold">
+                            &times; Document number already exists. Document number must be unique.
+                        </div>
                     </div>
 
                     <div class="col-md-6">
@@ -84,6 +87,55 @@
     <script>
         $(document).ready(function () {
             var $createForm = $("#createDocumentForm");
+            var $docNumInput = $("#documentNumberInput");
+            var $dupMsg = $("#docNumberDuplicateMsg");
+            var $submitBtn = $("#createDocSubmitBtn");
+            var isDuplicateDocNumber = false;
+            var checkTimeout = null;
+
+            function checkDocNumberUnique() {
+                var val = $.trim($docNumInput.val());
+                if (val.length < 3) {
+                    $dupMsg.addClass("d-none");
+                    $docNumInput.removeClass("is-invalid");
+                    isDuplicateDocNumber = false;
+                    return;
+                }
+
+                $.ajax({
+                    url: "/documents/create?handler=CheckNumber",
+                    type: "GET",
+                    data: { documentNumber: val },
+                    success: function (res) {
+                        if (res && res.exists) {
+                            isDuplicateDocNumber = true;
+                            $dupMsg.removeClass("d-none");
+                            $docNumInput.addClass("is-invalid");
+                            $submitBtn.prop("disabled", true);
+                        } else {
+                            isDuplicateDocNumber = false;
+                            $dupMsg.addClass("d-none");
+                            $docNumInput.removeClass("is-invalid");
+                            $submitBtn.prop("disabled", false);
+                        }
+                    },
+                    error: function () {
+                        isDuplicateDocNumber = false;
+                        $dupMsg.addClass("d-none");
+                    }
+                });
+            }
+
+            $docNumInput.on("input", function () {
+                clearTimeout(checkTimeout);
+                checkTimeout = setTimeout(checkDocNumberUnique, 400);
+            });
+
+            $docNumInput.on("blur", function () {
+                clearTimeout(checkTimeout);
+                checkDocNumberUnique();
+            });
+
             if ($createForm.length) {
                 $createForm.validate({
                     rules: {
@@ -133,7 +185,12 @@
                         }
                     },
                     submitHandler: function (form) {
-                        $("#createDocSubmitBtn").prop("disabled", true).text("Submitting...");
+                        if (isDuplicateDocNumber) {
+                            $docNumInput.focus();
+                            $dupMsg.removeClass("d-none");
+                            return false;
+                        }
+                        $submitBtn.prop("disabled", true).text("Submitting...");
                         form.submit();
                     }
                 });
