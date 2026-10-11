@@ -342,7 +342,18 @@
     }
 
     <form method="post" enctype="multipart/form-data" class="report-form">
-        <div asp-validation-summary="All" class="alert alert-danger m-3" role="alert"></div>
+        @if (ViewData.ModelState.TryGetValue(string.Empty, out var globalErrors) &&
+             globalErrors.Errors.Count > 0)
+        {
+            <div class="alert alert-danger m-3" role="alert">
+                <ul class="mb-0">
+                    @foreach (var error in globalErrors.Errors)
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                </ul>
+            </div>
+        }
         <section class="form-section" aria-labelledby="deviation-details-heading">
             <div class="section-heading">
                 <span class="section-icon" aria-hidden="true">
@@ -374,6 +385,7 @@
                             </option>
                         }
                     </select>
+                    <span asp-validation-for="SelectedDeviationId" class="text-danger"></span>
                     @if (Model.ApprovedDeviations.Count == 0)
                     {
                         <div class="field-hint">There are no approved deviations available to report.</div>
@@ -410,12 +422,14 @@
                 <label asp-for="Summary" class="form-label">Summary <span class="required-mark">*</span></label>
                 <textarea asp-for="Summary" class="form-control" rows="5" maxlength="4000" required
                           placeholder="Describe the corrective work completed, the outcome, and how it addresses the deviation."></textarea>
+                <span asp-validation-for="Summary" class="text-danger"></span>
                 <div class="field-hint">Include enough detail for a reviewer to understand the work and its outcome.</div>
             </div>
 
             <div class="proof-upload mb-4">
                 <label asp-for="Proof" class="form-label">Proof / supporting report <span class="required-mark">*</span></label>
                 <input asp-for="Proof" type="file" class="form-control" required />
+                <span asp-validation-for="Proof" class="text-danger"></span>
                 <div class="form-text">Choose a report or evidence file to support the corrective work.</div>
             </div>
 
