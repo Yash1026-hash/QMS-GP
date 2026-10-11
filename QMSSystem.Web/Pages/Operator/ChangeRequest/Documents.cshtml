@@ -1,38 +1,52 @@
 @page
 @model QMSSystem.Web.Pages.Operator.ChangeRequest.DocumentsModel
 
-<h2>Active Documents</h2>
+@{
+    ViewData["Title"] = "Active Documents";
+}
 
-<table class="table table-bordered">
+<main class="change-request-index-page">
+    <header class="operator-page-heading mb-4">
+        <p class="eyebrow">Operator workspace</p>
+        <h1>Active Documents</h1>
+        <p class="text-body-secondary">Choose a controlled document to start a change request.</p>
+    </header>
 
-    <thead>
-        <tr>
-            <th>Document Id</th>
-            <th>Document Title</th>
-            <th>Department</th>
-        </tr>
-    </thead>
+    <section class="card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Document ID</th>
+                        <th scope="col">Document title</th>
+                        <th scope="col">Department</th>
+                    </tr>
+                </thead>
 
-    <tbody>
-
-        @foreach (var document in Model.Documents)
-        {
-            <tr>
-
-                <td>@document.Id</td>
-
-                <td>
-                    <a asp-page="/Operator/ChangeRequest/Edit"
-                       asp-route-documentId="@document.Id">
-                        @document.Title
-                    </a>
-                </td>
-
-                <td>@document.Department</td>
-
-            </tr>
-        }
-
-    </tbody>
-
-</table>
+                <tbody>
+                    @foreach (var document in Model.Documents)
+                    {
+                        <tr>
+                            <td>@document.Id</td>
+                            <td>
+                                <a asp-page="/Operator/ChangeRequest/Edit"
+                                   asp-route-documentId="@document.Id">
+                                    @document.Title
+                                </a>
+                            </td>
+                            <td>@document.Department</td>
+                        </tr>
+                    }
+                    @if (Model.Documents.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="3" class="py-4 text-center text-body-secondary">
+                                No active documents are available.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>

@@ -1,4 +1,3 @@
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
@@ -11,8 +10,6 @@ namespace QMSSystem.Web.Pages.Supervisor;
 public class DeviationReviewModel : PageModel
 {
     private readonly IHttpClientFactory _httpClientFactory;
-
-    private const string ApiBaseUrl = "http://localhost:5070";
 
     public DeviationReviewModel(IHttpClientFactory httpClientFactory)
     {
@@ -40,7 +37,7 @@ public class DeviationReviewModel : PageModel
         var client = CreateApiClient();
 
         var response = await client.GetAsync(
-            $"{ApiBaseUrl}/api/deviation-review/{SearchId.Value}");
+            $"/api/deviation-review/{SearchId.Value}");
 
         if (response.IsSuccessStatusCode)
         {
@@ -86,27 +83,22 @@ public class DeviationReviewModel : PageModel
     }
 
 
-    public async Task<IActionResult> OnPostApproveAsync()
+    public async Task<IActionResult> OnPostAsync()
     {
-        Approval.Decision = 1;
+        SearchId = Approval.DeviationRequestId;
 
-        return await SubmitDecisionAsync();
-    }
-
-
-    public async Task<IActionResult> OnPostRejectAsync()
-    {
-        Approval.Decision = 2;
-
-        if (string.IsNullOrWhiteSpace(
-            Approval.DecisionComments))
+        if (Approval.Decision != 1 && Approval.Decision != 2)
         {
-            SearchId = Approval.DeviationRequestId;
-
-            Message = "Comments are required when rejecting a deviation.";
-
+            Message = "Select Approve or Reject.";
             await LoadDeviationAsync();
+            return Page();
+        }
 
+        if (Approval.Decision == 2 &&
+            string.IsNullOrWhiteSpace(Approval.DecisionComments))
+        {
+            Message = "Comments are required when rejecting a deviation.";
+            await LoadDeviationAsync();
             return Page();
         }
 
@@ -141,7 +133,7 @@ public class DeviationReviewModel : PageModel
             "application/json");
 
         var response = await client.PostAsync(
-            $"{ApiBaseUrl}/api/deviation-review/{deviationId}",
+            $"/api/deviation-review/{deviationId}",
             content);
 
         if (response.IsSuccessStatusCode)
@@ -213,7 +205,7 @@ public class DeviationReviewModel : PageModel
         var client = CreateApiClient();
 
         var response = await client.GetAsync(
-            $"{ApiBaseUrl}/api/deviation-review/{SearchId.Value}");
+            $"/api/deviation-review/{SearchId.Value}");
 
         if (!response.IsSuccessStatusCode)
         {
@@ -238,21 +230,6 @@ public class DeviationReviewModel : PageModel
 
     private HttpClient CreateApiClient()
     {
-        var client = _httpClientFactory.CreateClient();
-
-        client.DefaultRequestHeaders.Accept.Add(
-            new MediaTypeWithQualityHeaderValue(
-                "application/json"));
-
-        if (Request.Headers.TryGetValue(
-                "Cookie",
-                out var cookie))
-        {
-            client.DefaultRequestHeaders.Add(
-                "Cookie",
-                cookie.ToString());
-        }
-
-        return client;
+        return _httpClientFactory.CreateClient("ApiClient");
     }
 }

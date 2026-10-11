@@ -1,0 +1,343 @@
+:root {
+    --qms-ink: #183b56;
+    --qms-accent: #0d7184;
+    --qms-accent-hover: #095b6a;
+    --qms-muted: #64748b;
+    --qms-border: #dce6eb;
+    --qms-surface: #fff;
+    --qms-surface-muted: #f6f8fb;
+    --qms-shadow: 0 3px 12px rgba(24, 59, 86, .06);
+}
+
+.role-supervisor #main-content,
+.role-operator #main-content {
+    color: #243447;
+}
+
+.role-supervisor #main-content h1,
+.role-operator #main-content h1 {
+    color: var(--qms-ink);
+    font-size: clamp(1.55rem, 2.2vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -.025em;
+    line-height: 1.25;
+}
+
+.role-supervisor #main-content h2,
+.role-operator #main-content h2 {
+    color: var(--qms-ink);
+    font-weight: 650;
+    letter-spacing: -.01em;
+}
+
+.role-supervisor #main-content p,
+.role-operator #main-content p {
+    line-height: 1.55;
+}
+
+.role-supervisor #main-content .supervisor-dashboard,
+.role-supervisor #main-content .operation-page,
+.role-supervisor #main-content > .container,
+.role-operator #main-content .operator-page,
+.role-operator #main-content .main-container,
+.role-operator #main-content .deviation-form-page,
+.role-operator #main-content .sop-page,
+.role-operator #main-content .report-page,
+.role-operator #main-content .deviation-details-container,
+.role-operator #main-content .change-request-form,
+.role-operator #main-content .change-request-index-page {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 1180px;
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: clamp(16px, 3vw, 36px);
+    padding-left: clamp(16px, 3vw, 36px);
+}
+
+.role-supervisor #main-content .supervisor-dashboard,
+.role-supervisor #main-content .operation-page,
+.role-operator #main-content .operator-page,
+.role-operator #main-content .main-container,
+.role-operator #main-content .deviation-form-page,
+.role-operator #main-content .sop-page,
+.role-operator #main-content .report-page,
+.role-operator #main-content .deviation-details-container,
+.role-operator #main-content .change-request-form,
+.role-operator #main-content .change-request-index-page {
+    padding-top: 30px;
+    padding-bottom: 42px;
+}
+
+.role-supervisor #main-content .operation-container,
+.role-supervisor #main-content .review-card,
+.role-supervisor #main-content .supervisor-card,
+.role-supervisor #main-content .card,
+.role-operator #main-content .action-card,
+.role-operator #main-content .deviation-form-card,
+.role-operator #main-content .sop-card,
+.role-operator #main-content .report-form,
+.role-operator #main-content .deviation-details-card,
+.role-operator #main-content .card,
+.role-operator #main-content .filter-card,
+.role-operator #main-content .list-card {
+    border: 1px solid var(--qms-border);
+    border-radius: 10px;
+    background-color: var(--qms-surface);
+    box-shadow: var(--qms-shadow);
+}
+
+.role-supervisor #main-content .supervisor-card,
+.role-operator #main-content .action-card {
+    min-height: 190px;
+    padding: 22px;
+}
+
+.role-supervisor #main-content .operation-container {
+    padding: 26px;
+}
+
+.role-supervisor #main-content .review-card,
+.role-operator #main-content .deviation-details-card {
+    overflow: hidden;
+}
+
+.role-supervisor #main-content .review-card .card-heading,
+.role-operator #main-content .deviation-card-heading {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--qms-border);
+    background: var(--qms-surface);
+}
+
+.role-supervisor #main-content .review-card .card-body,
+.role-operator #main-content .deviation-card-body {
+    padding: 22px;
+}
+
+.role-supervisor #main-content .supervisor-heading,
+.role-operator #main-content .operator-header,
+.role-operator #main-content .page-title-section,
+.role-operator #main-content .deviation-form-header,
+.role-operator #main-content .sop-header,
+.role-operator #main-content .report-header,
+.role-operator #main-content .deviation-details-heading,
+.role-operator #main-content .operator-page-heading {
+    margin-bottom: 26px;
+}
+
+.role-supervisor #main-content .supervisor-heading .small-title,
+.role-operator #main-content .operator-header .eyebrow,
+.role-operator #main-content .deviation-form-header .eyebrow,
+.role-operator #main-content .sop-eyebrow,
+.role-operator #main-content .report-header .eyebrow,
+.role-operator #main-content .deviation-eyebrow,
+.role-operator #main-content .change-request-index-page .eyebrow,
+.role-operator #main-content .operator-page-heading .eyebrow {
+    color: var(--qms-accent);
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.role-supervisor #main-content .supervisor-heading p,
+.role-operator #main-content .operator-header > p:last-child,
+.role-operator #main-content .deviation-form-header p,
+.role-operator #main-content .sop-header p,
+.role-operator #main-content .report-header > p:last-child,
+.role-operator #main-content .deviation-subtitle {
+    color: var(--qms-muted);
+}
+
+.role-supervisor #main-content .supervisor-card h3,
+.role-operator #main-content .action-card h3 {
+    color: var(--qms-ink);
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.role-supervisor #main-content .supervisor-card p,
+.role-operator #main-content .action-card p {
+    color: var(--qms-muted);
+    opacity: 1;
+}
+
+.role-supervisor #main-content .operation-count,
+.role-supervisor #main-content .deviation-id,
+.role-operator #main-content .deviation-id-badge {
+    border-color: #d4e9ed;
+    background-color: #edf7f8;
+    color: var(--qms-accent);
+}
+
+.role-supervisor #main-content .btn-primary,
+.role-supervisor #main-content .supervisor-button,
+.role-supervisor #main-content .back-button,
+.role-operator #main-content .btn-primary,
+.role-operator #main-content .action-btn,
+.role-operator #main-content .add-button,
+.role-operator #main-content .deviation-submit-button,
+.role-operator #main-content .sop-button:not(.sop-button-secondary),
+.role-operator #main-content .btn-create,
+.role-operator #main-content .btn-search,
+.role-operator #main-content .report-actions .btn-primary,
+.role-operator #main-content .submit-button {
+    border-color: var(--qms-accent);
+    background-color: var(--qms-accent);
+    color: #fff;
+    font-weight: 650;
+}
+
+.role-supervisor #main-content .btn-primary:hover,
+.role-supervisor #main-content .supervisor-button:hover,
+.role-supervisor #main-content .back-button:hover,
+.role-operator #main-content .btn-primary:hover,
+.role-operator #main-content .action-btn:hover,
+.role-operator #main-content .add-button:hover,
+.role-operator #main-content .deviation-submit-button:hover,
+.role-operator #main-content .sop-button:not(.sop-button-secondary):hover,
+.role-operator #main-content .btn-create:hover,
+.role-operator #main-content .btn-search:hover,
+.role-operator #main-content .report-actions .btn-primary:hover,
+.role-operator #main-content .submit-button:hover {
+    border-color: var(--qms-accent-hover);
+    background-color: var(--qms-accent-hover);
+    color: #fff;
+}
+
+.role-supervisor #main-content .btn-outline-secondary,
+.role-operator #main-content .btn-outline-secondary,
+.role-operator #main-content .btn-report,
+.role-operator #main-content .sop-button-secondary,
+.role-operator #main-content .btn-clear,
+.role-operator #main-content .deviation-back-button,
+.role-operator #main-content .back-btn {
+    border-color: #cbd8e0;
+    background-color: #fff;
+    color: var(--qms-ink);
+}
+
+.role-supervisor #main-content .btn-outline-secondary:hover,
+.role-operator #main-content .btn-outline-secondary:hover,
+.role-operator #main-content .btn-report:hover,
+.role-operator #main-content .sop-button-secondary:hover,
+.role-operator #main-content .btn-clear:hover,
+.role-operator #main-content .deviation-back-button:hover,
+.role-operator #main-content .back-btn:hover {
+    border-color: #a8bdc8;
+    background-color: #f1f7f9;
+    color: var(--qms-ink);
+}
+
+.role-supervisor #main-content .form-control,
+.role-supervisor #main-content .form-select,
+.role-operator #main-content .form-control,
+.role-operator #main-content .form-select,
+.role-operator #main-content input:not([type="radio"]):not([type="checkbox"]):not([type="file"]),
+.role-operator #main-content select,
+.role-operator #main-content textarea {
+    border-color: #cbd8e0;
+    border-radius: 7px;
+}
+
+.role-supervisor #main-content .form-control:focus,
+.role-supervisor #main-content .form-select:focus,
+.role-operator #main-content .form-control:focus,
+.role-operator #main-content .form-select:focus,
+.role-operator #main-content input:focus,
+.role-operator #main-content select:focus,
+.role-operator #main-content textarea:focus {
+    border-color: var(--qms-accent);
+    box-shadow: 0 0 0 .2rem rgba(13, 113, 132, .15);
+}
+
+.role-supervisor #main-content input[type="radio"],
+.role-operator #main-content input[type="radio"] {
+    accent-color: var(--qms-accent);
+}
+
+.role-supervisor #main-content .table,
+.role-operator #main-content .table,
+.role-operator #main-content .request-table,
+.role-operator #main-content .sop-table,
+.role-operator #main-content .deviation-table {
+    --bs-table-color: #334155;
+    --bs-table-bg: #fff;
+    margin-bottom: 0;
+}
+
+.role-supervisor #main-content .table thead th,
+.role-operator #main-content .table thead th,
+.role-operator #main-content .request-table th,
+.role-operator #main-content .sop-table th,
+.role-operator #main-content .deviation-table th {
+    background-color: #f2f7f9;
+    color: #42576a;
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.role-supervisor #main-content .table th,
+.role-supervisor #main-content .table td,
+.role-operator #main-content .table th,
+.role-operator #main-content .table td,
+.role-operator #main-content .request-table th,
+.role-operator #main-content .request-table td,
+.role-operator #main-content .sop-table th,
+.role-operator #main-content .sop-table td,
+.role-operator #main-content .deviation-table th,
+.role-operator #main-content .deviation-table td {
+    vertical-align: middle;
+}
+
+.role-supervisor #main-content .card-header,
+.role-supervisor #main-content .card-footer,
+.role-operator #main-content .card-header,
+.role-operator #main-content .card-footer {
+    border-color: var(--qms-border);
+    background-color: #f7fafb;
+}
+
+.role-supervisor #main-content .alert,
+.role-operator #main-content .alert {
+    border-radius: 8px;
+}
+
+.role-supervisor #main-content .status-pending,
+.role-operator #main-content .status-pending {
+    background: #fff4d6;
+    color: #805b00;
+}
+
+.role-supervisor #main-content .status-approved,
+.role-operator #main-content .status-approved {
+    background: #e3f4eb;
+    color: #176b45;
+}
+
+.role-supervisor #main-content .status-rejected,
+.role-operator #main-content .status-rejected {
+    background: #fce9e9;
+    color: #a83232;
+}
+
+@media (max-width: 700px) {
+    .role-supervisor #main-content .operation-container {
+        padding: 18px;
+    }
+
+    .role-supervisor #main-content .review-card .card-heading,
+    .role-supervisor #main-content .review-card .card-body,
+    .role-operator #main-content .deviation-card-heading,
+    .role-operator #main-content .deviation-card-body {
+        padding: 16px;
+    }
+
+    .role-supervisor #main-content .d-flex.justify-content-between.align-items-center {
+        align-items: flex-start !important;
+        flex-direction: column;
+        gap: 14px;
+    }
+}
