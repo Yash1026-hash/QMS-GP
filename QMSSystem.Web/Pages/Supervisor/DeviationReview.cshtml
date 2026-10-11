@@ -5,160 +5,157 @@
     ViewData["Title"] = "Deviation Review";
 }
 
-<link rel="stylesheet" href="~/css/supervisor.css" />
+<link rel="stylesheet" href="~/css/supervisor.css" asp-append-version="true" />
 
 <div class="operation-page">
-
     <div class="operation-container">
-
-        <h1>Deviation Review</h1>
-
-        <p class="operation-description">
-            Review and approve or reject pending deviation requests.
-        </p>
+        <div class="supervisor-heading">
+            <div class="small-title">QMS</div>
+            <h1>Deviation Review</h1>
+            <p>Review deviation details and record a supervisor decision.</p>
+        </div>
 
         @if (!string.IsNullOrEmpty(Model.Message))
         {
-            <div class="operation-message">
+            <div class="alert alert-info" role="status">
                 @Model.Message
             </div>
         }
 
-        <!-- Search Section -->
-        <div class="review-section">
-
-            <h3>Search Deviation</h3>
-
-            <form method="get">
-
-                <label asp-for="SearchId">
-                    Deviation ID
-                </label>
-
-                <input asp-for="SearchId"
-                       type="number"
-                       min="1"
-                       placeholder="Enter deviation ID" />
-
-                <button type="submit">
-                    Search
-                </button>
-
+        <section class="review-card deviation-search-card">
+            <div class="card-heading">
+                <h2 class="section-title">Find a deviation</h2>
+                <p class="section-description">Enter the deviation ID to load its review.</p>
+            </div>
+            <form method="get" class="card-body deviation-search-form">
+                <div class="deviation-search-field">
+                    <label asp-for="SearchId" class="field-label">Deviation ID</label>
+                    <input asp-for="SearchId"
+                           class="form-control"
+                           type="number"
+                           min="1"
+                           placeholder="e.g. 1" />
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
             </form>
+        </section>
 
-        </div>
-
-
-        <!-- Deviation Details -->
         @if (Model.Deviation != null)
         {
-            <div class="review-section">
-
-                <h3>Deviation Details</h3>
-
-                <div class="deviation-details">
-
-                    <p>
-                        <strong>ID:</strong>
-                        @Model.Deviation.Id
-                    </p>
-
-                    <p>
-                        <strong>Title:</strong>
-                        @Model.Deviation.Title
-                    </p>
-
-                    <p>
-                        <strong>Description:</strong>
-                        @Model.Deviation.Description
-                    </p>
-
-                    <p>
-                        <strong>Document ID:</strong>
-                        @Model.Deviation.DocumentId
-                    </p>
-
-                    <p>
-                        <strong>Priority:</strong>
-                        @Model.Deviation.Priority
-                    </p>
-
-                    <p>
-                        <strong>Status:</strong>
-                        @Model.Deviation.Status
-                    </p>
-
-                    <p>
-                        <strong>Created By:</strong>
-                        @Model.Deviation.CreatedBy
-                    </p>
-
-                    <p>
-                        <strong>Created Date:</strong>
-                        @Model.Deviation.CreatedDate
-                    </p>
-
+            <section class="review-card deviation-primary-card">
+                <div class="card-heading">
+                    <div class="deviation-title-row">
+                        <div>
+                            <h2 class="section-title">Deviation details</h2>
+                            <p class="section-description">Core information submitted for review.</p>
+                        </div>
+                        <span class="deviation-id">ID @Model.Deviation.Id</span>
+                    </div>
                 </div>
+                <div class="card-body">
+                    <div class="deviation-primary-grid">
+                        <div class="deviation-primary-field deviation-title-field">
+                            <span class="field-label">Title</span>
+                            <div class="field-value">@Model.Deviation.Title</div>
+                        </div>
+                        <div class="deviation-primary-field">
+                            <span class="field-label">Related document ID</span>
+                            <div class="field-value">@Model.Deviation.DocumentId</div>
+                        </div>
+                        <div class="deviation-primary-field">
+                            <span class="field-label">Priority</span>
+                            <div class="field-value">@Model.Deviation.Priority</div>
+                        </div>
+                        <div class="deviation-primary-field deviation-description-field">
+                            <span class="field-label">Description</span>
+                            <div class="field-value">@Model.Deviation.Description</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
+            <section class="review-card deviation-meta-card">
+                <div class="card-heading">
+                    <h2 class="section-title">Submission and status</h2>
+                    <p class="section-description">Who submitted this deviation and where it stands.</p>
+                </div>
+                <div class="card-body deviation-meta-grid">
+                    <div class="meta-item">
+                        <span class="field-label">Created by</span>
+                        <div class="field-value">@Model.Deviation.CreatedBy</div>
+                    </div>
+                    <div class="meta-item">
+                        <span class="field-label">Created date</span>
+                        <div class="field-value">@Model.Deviation.CreatedDate.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</div>
+                    </div>
+                    <div class="meta-item">
+                        <span class="field-label">Status</span>
+                        <div class="field-value">
+                            @if (Model.Deviation.Status == 0)
+                            {
+                                <span class="status-badge status-pending">Pending review</span>
+                            }
+                            else if (Model.Deviation.Status == 1)
+                            {
+                                <span class="status-badge status-approved">Approved</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-rejected">Rejected</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                <!-- Approval Section -->
-                @if (Model.Deviation.Status == 0)
-                {
-                    <div class="approval-section">
+            @if (Model.Deviation.Status == 0)
+            {
+                <section class="review-card deviation-decision-card">
+                    <div class="card-heading">
+                        <h2 class="section-title">Supervisor decision</h2>
+                        <p class="section-description">Choose an outcome. Comments are required when rejecting.</p>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" class="deviation-decision-form">
+                            <input type="hidden" asp-for="Approval.DeviationRequestId" />
 
-                        <h3>Supervisor Decision</h3>
-
-                        <form method="post">
-
-                            <input type="hidden"
-                                   asp-for="Approval.DeviationRequestId" />
-
-                            <label asp-for="Approval.DecisionComments">
-                                Comments
-                            </label>
-
-                            <textarea asp-for="Approval.DecisionComments"
-                                      rows="5"
-                                      placeholder="Enter your comments"></textarea>
-
-                            <div class="approval-buttons">
-
-                                <button type="submit"
-                                        asp-page-handler="Approve">
-                                    Approve
-                                </button>
-
-                                <button type="submit"
-                                        asp-page-handler="Reject">
-                                    Reject
-                                </button>
-
+                            <div class="decision-choice-group">
+                                <span class="field-label">Decision</span>
+                                <div class="decision-options">
+                                    <label class="decision-option" for="approveDecision">
+                                        <input asp-for="Approval.Decision" type="radio" id="approveDecision" value="1" />
+                                        <span>Approve</span>
+                                    </label>
+                                    <label class="decision-option" for="rejectDecision">
+                                        <input asp-for="Approval.Decision" type="radio" id="rejectDecision" value="2" />
+                                        <span>Reject</span>
+                                    </label>
+                                </div>
                             </div>
 
+                            <div class="decision-comments-field">
+                                <label asp-for="Approval.DecisionComments" class="field-label">Comments</label>
+                                <textarea asp-for="Approval.DecisionComments"
+                                          class="form-control"
+                                          rows="4"
+                                          placeholder="Add comments (required when rejecting)"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Submit decision</button>
                         </form>
-
                     </div>
-                }
-                else
-                {
-                    <div class="operation-message">
-
-                        This deviation has already been processed and
-                        cannot be reviewed again.
-
-                    </div>
-                }
-
-            </div>
+                </section>
+            }
+            else
+            {
+                <div class="alert alert-secondary" role="status">
+                    This deviation has already been processed and cannot be reviewed again.
+                </div>
+            }
         }
 
-        <a asp-page="/Supervisor/Index"
-           class="back-button">
-
-            ← Back to Supervisor Home
-
+        <a asp-page="/Supervisor/Index" class="btn btn-outline-secondary">
+            Back to Supervisor Home
         </a>
-
     </div>
-
 </div>

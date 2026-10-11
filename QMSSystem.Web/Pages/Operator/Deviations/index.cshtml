@@ -10,48 +10,8 @@
         box-sizing: border-box;
     }
 
-    body {
-        margin: 0;
-        background-color: #f8fafc;
-        color: #1e293b;
-        font-family: Arial, Helvetica, sans-serif;
-    }
-
     .deviation-page {
-        min-height: 100vh;
         background: #f8fafc;
-    }
-
-    /* =========================
-       TOP HEADER
-       ========================= */
-
-    .top-header {
-        height: 72px;
-        background: #ffffff;
-        border-bottom: 1px solid #e2e8f0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 48px;
-    }
-
-    .qms-logo {
-        font-size: 24px;
-        font-weight: 700;
-        color: #0f172a;
-        letter-spacing: 0.5px;
-    }
-
-    .sign-in {
-        color: #2563eb;
-        text-decoration: none;
-        font-size: 15px;
-        font-weight: 500;
-    }
-
-    .sign-in:hover {
-        text-decoration: underline;
     }
 
     /* =========================
@@ -144,7 +104,7 @@
 
     .filter-row {
         display: grid;
-        grid-template-columns: 1.9fr 1fr 1fr auto auto;
+        grid-template-columns: 1.7fr 1fr 1fr 1fr auto auto;
         gap: 16px;
         align-items: end;
     }
@@ -428,10 +388,6 @@
 
     @@media (max-width: 1000px) {
 
-        .top-header {
-            padding: 0 24px;
-        }
-
         .main-container {
             padding: 32px 24px 50px;
         }
@@ -452,10 +408,6 @@
     }
 
     @@media (max-width: 650px) {
-
-        .top-header {
-            padding: 0 16px;
-        }
 
         .main-container {
             padding: 24px 16px 40px;
@@ -485,24 +437,6 @@
 </style>
 
 <div class="deviation-page">
-
-    <!-- =========================
-         TOP HEADER
-         ========================= -->
-
-    <header class="top-header">
-
-        <div class="qms-logo">
-            QMS
-        </div>
-
-    </header>
-
-
-    <!-- =========================
-         MAIN CONTENT
-         ========================= -->
-
     <main class="main-container">
 
         <!-- Page Header -->
@@ -522,12 +456,12 @@
 
             <div class="header-actions">
 
-                <a href="/Deviations/SelectSop"
+                <a asp-page="/Operator/Deviations/SelectSop"
                    class="btn btn-create">
                     + Create New Deviation
                 </a>
 
-                <a href="/Deviations/Report"
+                <a asp-page="/Operator/Deviations/Report"
                    class="btn btn-report">
                     Deviation Reports
                 </a>
@@ -575,20 +509,30 @@
                                 All Priorities
                             </option>
 
-                            <option value="Minor">
+                            <option value="Minor" selected="@(Model.Priority == "Minor")">
                                 Minor
                             </option>
 
-                            <option value="Major">
+                            <option value="Major" selected="@(Model.Priority == "Major")">
                                 Major
                             </option>
 
-                            <option value="Critical">
+                            <option value="Critical" selected="@(Model.Priority == "Critical")">
                                 Critical
                             </option>
 
                         </select>
 
+                    </div>
+
+                    <div class="filter-field">
+                        <label for="Status">Status</label>
+                        <select id="Status" name="Status">
+                            <option value="" selected="@(!Model.Status.HasValue)">All Statuses</option>
+                            <option value="0" selected="@(Model.Status == 0)">Pending</option>
+                            <option value="1" selected="@(Model.Status == 1)">Active</option>
+                            <option value="2" selected="@(Model.Status == 2)">Inactive</option>
+                        </select>
                     </div>
 
 
@@ -598,7 +542,7 @@
                     </button>
 
 
-                    <a href="/Deviations/Index"
+                    <a asp-page="/Operator/Deviations/Index"
                        class="btn-clear">
                         Clear
                     </a>
@@ -629,7 +573,11 @@
             </div>
 
 
-            @if (Model.Deviations != null && Model.Deviations.Any())
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger m-4" role="alert">@Model.ErrorMessage</div>
+            }
+            else if (Model.Deviations.Any())
             {
                 <div class="table-wrapper">
 
@@ -701,10 +649,16 @@
                                         @deviation.CreatedDate.ToString("dd MMM yyyy")
                                     </td>
 
-                                   
+                                    <td>
+                                        <span class="status-badge @Model.GetStatusClass(deviation.Status)">
+                                            @Model.GetStatusText(deviation.Status)
+                                        </span>
+                                    </td>
+
                                     <td>
 
-                                        <a href="/Operator/Deviations/Details?id=@deviation.Id"
+                                        <a asp-page="/Operator/Deviations/Details"
+                                           asp-route-id="@deviation.Id"
                                            class="action-btn">
                                             View
                                         </a>
@@ -732,9 +686,9 @@
                         No deviations found
                     </h3>
 
-                    <p>
-                        There are no deviations matching your search or filter criteria.
-                    </p>
+                    <p>@(Model.TotalCount == 0 && string.IsNullOrWhiteSpace(Model.Search) && string.IsNullOrWhiteSpace(Model.Priority) && !Model.Status.HasValue
+                            ? "No deviations have been submitted yet."
+                            : "There are no deviations matching your search or filter criteria.")</p>
 
                 </div>
             }
@@ -751,7 +705,11 @@
                         <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
 
                             <a class="page-link"
-                               href="/Deviations/Index?PageNumber=@(Model.PageNumber - 1)&Search=@Model.Search&Priority=@Model.Priority&Status=@Model.Status">
+                               asp-page="/Operator/Deviations/Index"
+                               asp-route-PageNumber="@(Model.PageNumber - 1)"
+                               asp-route-Search="@Model.Search"
+                               asp-route-Priority="@Model.Priority"
+                               asp-route-Status="@Model.Status">
                                 Previous
                             </a>
 
@@ -763,7 +721,11 @@
                             <li class="page-item @(pageNumber == Model.PageNumber ? "active" : "")">
 
                                 <a class="page-link"
-                                   href="/Deviations/Index?PageNumber=@pageNumber&Search=@Model.Search&Priority=@Model.Priority&Status=@Model.Status">
+                                   asp-page="/Operator/Deviations/Index"
+                                   asp-route-PageNumber="@pageNumber"
+                                   asp-route-Search="@Model.Search"
+                                   asp-route-Priority="@Model.Priority"
+                                   asp-route-Status="@Model.Status">
                                     @pageNumber
                                 </a>
 
@@ -774,7 +736,11 @@
                         <li class="page-item @(Model.PageNumber >= Model.TotalPages ? "disabled" : "")">
 
                             <a class="page-link"
-                               href="/Deviations/Index?PageNumber=@(Model.PageNumber + 1)&Search=@Model.Search&Priority=@Model.Priority&Status=@Model.Status">
+                               asp-page="/Operator/Deviations/Index"
+                               asp-route-PageNumber="@(Model.PageNumber + 1)"
+                               asp-route-Search="@Model.Search"
+                               asp-route-Priority="@Model.Priority"
+                               asp-route-Status="@Model.Status">
                                 Next
                             </a>
 

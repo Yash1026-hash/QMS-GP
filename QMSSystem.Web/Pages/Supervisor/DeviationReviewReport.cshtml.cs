@@ -10,14 +10,15 @@ namespace QMSSystem.Web.Pages.Supervisor;
 
 public class DeviationReviewReportModel : PageModel
 {
-    private const string ApiBaseUrl = "http://localhost:5070";
-
     private readonly ILogger<DeviationReviewReportModel> _logger;
+    private readonly IHttpClientFactory _httpClientFactory;
 
     public DeviationReviewReportModel(
-        ILogger<DeviationReviewReportModel> logger)
+        ILogger<DeviationReviewReportModel> logger,
+        IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
+        _httpClientFactory = httpClientFactory;
     }
 
     [BindProperty]
@@ -80,14 +81,11 @@ public class DeviationReviewReportModel : PageModel
 
         try
         {
-            using var client = new HttpClient
-            {
-                BaseAddress = new Uri(ApiBaseUrl.TrimEnd('/') + "/")
-            };
+            using var client = _httpClientFactory.CreateClient("ApiClient");
 
             using var request = new HttpRequestMessage(
                 HttpMethod.Put,
-                $"api/DeviationReports/{reportId}/decision")
+                $"/api/DeviationReports/{reportId}/decision")
             {
                 Content = JsonContent.Create(new DeviationReportDecisionDto
                 {
@@ -95,12 +93,6 @@ public class DeviationReviewReportModel : PageModel
                     DecisionComments = DecisionComments
                 })
             };
-
-            if (Request.Headers.TryGetValue("Cookie", out var cookie))
-            {
-                request.Headers.TryAddWithoutValidation(
-                    "Cookie", cookie.ToString());
-            }
 
             using var response = await client.SendAsync(request);
             if (!response.IsSuccessStatusCode)
@@ -151,7 +143,7 @@ public class DeviationReviewReportModel : PageModel
 
             await LoadReportByIdAsync(reportId);
             ErrorMessage =
-                $"Could not connect to the API at {ApiBaseUrl}. Check that the API is running.";
+                "Could not connect to the API. Check that the API is running.";
         }
         catch (Exception ex)
         {
@@ -170,20 +162,11 @@ public class DeviationReviewReportModel : PageModel
     {
         try
         {
-            using var client = new HttpClient
-            {
-                BaseAddress = new Uri(ApiBaseUrl.TrimEnd('/') + "/")
-            };
+            using var client = _httpClientFactory.CreateClient("ApiClient");
 
             using var request = new HttpRequestMessage(
                 HttpMethod.Get,
-                "api/DeviationReports");
-
-            if (Request.Headers.TryGetValue("Cookie", out var cookie))
-            {
-                request.Headers.TryAddWithoutValidation(
-                    "Cookie", cookie.ToString());
-            }
+                "/api/DeviationReports");
 
             using var response = await client.SendAsync(request);
             if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -217,7 +200,7 @@ public class DeviationReviewReportModel : PageModel
         {
             _logger.LogError(ex, "Could not load submitted deviation reports");
             ErrorMessage =
-                $"Could not connect to the API at {ApiBaseUrl}. Check that the API is running.";
+                "Could not connect to the API. Check that the API is running.";
         }
         catch (Exception ex)
         {
@@ -230,20 +213,11 @@ public class DeviationReviewReportModel : PageModel
     {
         try
         {
-            using var client = new HttpClient
-            {
-                BaseAddress = new Uri(ApiBaseUrl.TrimEnd('/') + "/")
-            };
+            using var client = _httpClientFactory.CreateClient("ApiClient");
 
             using var request = new HttpRequestMessage(
                 HttpMethod.Get,
-                $"api/DeviationReports/{reportId}");
-
-            if (Request.Headers.TryGetValue("Cookie", out var cookie))
-            {
-                request.Headers.TryAddWithoutValidation(
-                    "Cookie", cookie.ToString());
-            }
+                $"/api/DeviationReports/{reportId}");
 
             using var response = await client.SendAsync(request);
 
@@ -287,7 +261,7 @@ public class DeviationReviewReportModel : PageModel
                 reportId);
 
             ErrorMessage =
-                $"Could not connect to the API at {ApiBaseUrl}. Check that the API is running.";
+                "Could not connect to the API. Check that the API is running.";
         }
         catch (Exception ex)
         {

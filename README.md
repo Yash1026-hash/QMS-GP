@@ -13,20 +13,33 @@ The configured roles are `Admin`, `Operator`, and `Supervisor`. After login, the
 ## Requirements
 
 - .NET 10 SDK
-- SQL Server with the user and role tables expected by the API
+- SQLite for local presentations, or SQL Server for the company environment
 
 ## Configuration
 
-Login is database-backed. The API needs a connection to the user, role, and user-role tables. Configure a connection string with .NET User Secrets in the API project directory when the shared database is unavailable:
+In Development, the API uses a local SQLite database at `QMSSystem.Api/App_Data/qms.db`. It creates the database on first start and seeds local presentation accounts plus sample pending deviation and deviation-report records. The database file is ignored by Git and stays on the machine where the API runs.
+
+Local presentation accounts:
+
+| Username | Password |
+| --- | --- |
+| `admin` | `admin123` |
+| `operator` | `operator123` |
+| `supervisor` | `supervisor123` |
+
+These demo credentials and seeded records are for local presentation only.
+
+To use SQL Server instead, set `Database:Provider` to `SqlServer` and configure its connection string with .NET User Secrets in the API project directory:
 
 ```powershell
 cd QMSSystem.Api
+dotnet user-secrets set "Database:Provider" "SqlServer"
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" "<your SQL Server connection string>"
 ```
 
-The Web app and API share the `QMS.Auth` authentication cookie and Data Protection keys. Locally, both use the current user's local application data directory. In deployments where they run under different identities or machines, configure `DataProtection:KeysPath` to the same protected, shared directory for both apps. Do not expose or commit the key directory.
+The API reads `dbo.KS_RecallUsers`, `dbo.KS_Roles`, and `dbo.KS_UserRoles` from SQL Server. Run the [login schema](database/login-schema.sql) against `TRG_CORE` to create any missing tables and roles. SQL Server accounts must be active, registered, and assigned to roles in the database. SQL Server login requires the database connection to be available.
 
-The API reads `dbo.KS_RecallUsers`, `dbo.KS_Roles`, and `dbo.KS_UserRoles`. Run the [login schema](database/login-schema.sql) against `TRG_CORE` to create any missing tables, roles, and local demo accounts. The demo credentials are `admin` / `admin123`, `operator` / `operator123`, and `supervisor` / `supervisor123`. The script adds accounts only when their usernames are missing; it does not overwrite existing accounts. These credentials are for local development only and must be changed before deployment. On a successful first login, the API replaces the demo plaintext password with a password hash. Accounts must be active, registered, and assigned to roles in the database. There is no local-account fallback, migration, or registration flow, so login requires the database connection to be available.
+The Web app and API share the `QMS.Auth` authentication cookie and Data Protection keys. Locally, both use the current user's local application data directory. In deployments where they run under different identities or machines, configure `DataProtection:KeysPath` to the same protected, shared directory for both apps. Do not expose or commit the key directory.
 
 ## Run locally
 

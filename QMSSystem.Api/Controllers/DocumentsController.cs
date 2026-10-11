@@ -100,6 +100,27 @@ public class DocumentsController : ControllerBase
         return Ok(document);
     }
 
+    [HttpGet("{id}/summary")]
+    public async Task<IActionResult> GetDocumentSummary(int id)
+    {
+        var document = await _context.DocumentCreations
+            .AsNoTracking()
+            .Where(d => d.Id == id)
+            .Select(d => new
+            {
+                d.DocumentNumber,
+                d.Title
+            })
+            .FirstOrDefaultAsync();
+
+        if (document == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(document);
+    }
+
     [HttpGet("{id}/current-file")]
     public async Task<IActionResult> DownloadCurrentFile(int id)
     {

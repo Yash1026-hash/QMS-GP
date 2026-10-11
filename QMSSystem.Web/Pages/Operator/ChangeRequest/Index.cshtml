@@ -1,6 +1,10 @@
 @page
 @model QMSSystem.Web.Pages.Operator.ChangeRequestIndex.IndexModel
 
+@{
+    ViewData["Title"] = "My Change Requests";
+}
+
 <style>
     .page-header {
         display: flex;
@@ -14,15 +18,20 @@
     }
 
     .add-button {
+        display: inline-flex;
+        align-items: center;
+        min-height: 42px;
         background-color: #0d6efd;
         color: white;
         padding: 10px 16px;
         text-decoration: none;
         border-radius: 5px;
+        font-weight: 600;
     }
 
     .add-button:hover {
         background-color: #0b5ed7;
+        color: white;
     }
 
     .request-table {
@@ -55,59 +64,64 @@
     }
 </style>
 
-<div class="page-header">
-    <h1>My Change Requests</h1>
+<main class="change-request-index-page">
+    <header class="page-header">
+        <div>
+            <p class="eyebrow">Operator workspace</p>
+            <h1>My Change Requests</h1>
+            <p class="text-body-secondary mb-0">Review the change requests you have submitted.</p>
+        </div>
 
-    <a href="/ChangeRequests/Edit" class="add-button">
-        + Add Request
-    </a>
-</div>
+        <a href="/ChangeRequests/Edit" class="add-button">
+            + Add Request
+        </a>
+    </header>
 
-<table class="request-table">
-    <thead>
-        <tr>
-            <th>Change Request</th>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Details</th>
-        </tr>
-    </thead>
+    <section class="card">
+        <div class="table-responsive">
+            <table class="request-table">
+                <thead>
+                    <tr>
+                        <th>Change Request</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
 
-    <tbody>
-        @if (Model.ChangeRequests.Count > 0)
-        {
-            @foreach (var request in Model.ChangeRequests)
-            {
-                <tr>
-                    <td>@request.Title</td>
-
-                    <td>
-                        @request.RequestedDate.ToString("dd-MM-yyyy")
-                    </td>
-
-                    <td>@request.ChangeType</td>
-
-                    <td>
-                        <button type="button"
-                                class="btn btn-primary btn-sm"
-                                data-bs-toggle="modal"
-                                data-bs-target="#changeRequestModal-@request.Id">
-                            View Details
-                        </button>
-                    </td>
-                </tr>
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="4" class="empty-message">
-                    No change requests found.
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                <tbody>
+                    @if (Model.ChangeRequests.Count > 0)
+                    {
+                        @foreach (var request in Model.ChangeRequests)
+                        {
+                            <tr>
+                                <td>@request.Title</td>
+                                <td>@request.RequestedDate.ToString("dd-MM-yyyy")</td>
+                                <td>@request.ChangeType</td>
+                                <td>
+                                    <button type="button"
+                                            class="btn btn-primary btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#changeRequestModal-@request.Id">
+                                        View Details
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="empty-message">
+                                No change requests found.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
 
 @* Details popups - one for each Change Request *@
 @if (Model.ChangeRequests.Count > 0)
