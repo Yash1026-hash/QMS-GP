@@ -697,6 +697,7 @@
                                     <td>
                                         @Model.GetPriorityText(deviation.Priority)
                                     </td>
+<<<<<<< Updated upstream
 
                                     <td>
                                         @deviation.CreatedBy
@@ -711,6 +712,12 @@
 
                                         <a href="/Operator/Deviations/Details?id=@deviation.Id"
                                            class="action-btn">
+=======
+                                    <td>@deviation.CreatedBy</td>
+                                    <td>@deviation.CreatedDate.ToString("yyyy-MM-dd")</td>
+                                    <td class="text-center">
+                                        <a asp-page="/Operator/Deviations/details" asp-route-id="@deviation.Id" class="btn btn-sm btn-outline-primary">
+>>>>>>> Stashed changes
                                             View
                                         </a>
 
