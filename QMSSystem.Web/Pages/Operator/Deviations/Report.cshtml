@@ -342,7 +342,10 @@
     }
 
     <form method="post" enctype="multipart/form-data" class="report-form">
-        <div asp-validation-summary="All" class="alert alert-danger m-3" role="alert"></div>
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="alert alert-danger m-3" role="alert"></div>
+        }
         <section class="form-section" aria-labelledby="deviation-details-heading">
             <div class="section-heading">
                 <span class="section-icon" aria-hidden="true">
