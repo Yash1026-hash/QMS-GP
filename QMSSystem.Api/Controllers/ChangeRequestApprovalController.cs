@@ -161,6 +161,7 @@ public class ChangeRequestApprovalController : ControllerBase
                 doc.Comment = $"Updated via approved Change Request #{existing.Id}: {existing.Title}";
                 doc.DecisionBy = existing.DecisionByUserId?.ToString();
                 doc.DecisionDate = DateTime.UtcNow;
+                doc.DecisionStatus = 1; // Approved / Active
             }
         }
 

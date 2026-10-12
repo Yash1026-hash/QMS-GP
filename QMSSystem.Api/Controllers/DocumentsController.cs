@@ -109,6 +109,19 @@ public async Task<IActionResult> GetDocument(int id)
         return NotFound();
     }
 
+    var decisionBy = document.Document.DecisionBy;
+    if (int.TryParse(decisionBy, out var decisionByUserId))
+    {
+        decisionBy = await _context.Users
+            .AsNoTracking()
+            .Where(user => user.UserId == decisionByUserId)
+            .Select(user => string.IsNullOrWhiteSpace(user.FullName)
+                ? user.Username
+                : user.FullName)
+            .FirstOrDefaultAsync()
+            ?? $"User #{decisionByUserId}";
+    }
+
     return Ok(new
     {
         document.Document.Id,
@@ -123,7 +136,7 @@ public async Task<IActionResult> GetDocument(int id)
         document.CreatedByName,
         document.Document.CreationOn,
         document.Document.Comment,
-        document.Document.DecisionBy,
+        DecisionBy = decisionBy,
         document.Document.DecisionDate,
         document.Document.Decision
     });

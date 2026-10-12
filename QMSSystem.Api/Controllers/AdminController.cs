@@ -82,7 +82,10 @@ public class AdminController : ControllerBase
                 ContentType = d.ContentType,
                 CreatedBy = d.CreatedBy,
                 CreationOn = d.CreationOn,
-                Comment = d.Comment
+                Comment = d.Comment,
+                Decision = d.DecisionStatus,
+                DecisionBy = d.DecisionBy,
+                DecisionDate = d.DecisionDate
             })
             .ToListAsync();
 
@@ -154,6 +157,17 @@ public class AdminController : ControllerBase
         if (changeRequest == null)
         {
             return NotFound(new { message = $"Change request #{id} not found." });
+        }
+
+        if (changeRequest.DecisionByUserId is int decisionByUserId)
+        {
+            changeRequest.DecisionByName = await _context.Users
+                .AsNoTracking()
+                .Where(user => user.UserId == decisionByUserId)
+                .Select(user => string.IsNullOrWhiteSpace(user.FullName)
+                    ? user.Username
+                    : user.FullName)
+                .FirstOrDefaultAsync();
         }
 
         var linkedDeviations = await _context.OperatorChangeRequestDeviations
@@ -372,6 +386,19 @@ public class AdminController : ControllerBase
             return NotFound(new { message = $"Document #{id} not found." });
         }
 
+        var decisionBy = doc.DecisionBy;
+        if (int.TryParse(doc.DecisionBy, out var decisionByUserId))
+        {
+            decisionBy = await _context.Users
+                .AsNoTracking()
+                .Where(user => user.UserId == decisionByUserId)
+                .Select(user => string.IsNullOrWhiteSpace(user.FullName)
+                    ? user.Username
+                    : user.FullName)
+                .FirstOrDefaultAsync()
+                ?? $"User #{decisionByUserId}";
+        }
+
         var dto = new Document
         {
             Id = doc.Id,
@@ -385,7 +412,10 @@ public class AdminController : ControllerBase
             FileData = doc.FileData,
             CreatedBy = doc.CreatedBy,
             CreationOn = doc.CreationOn,
-            Comment = doc.Comment
+            Comment = doc.Comment,
+            DecisionBy = decisionBy,
+            DecisionDate = doc.DecisionDate,
+            Decision = doc.DecisionStatus
         };
 
         return Ok(dto);
@@ -657,5 +687,3 @@ public class AdminController : ControllerBase
         return Ok(deviationReports);
     }
 }
-
-

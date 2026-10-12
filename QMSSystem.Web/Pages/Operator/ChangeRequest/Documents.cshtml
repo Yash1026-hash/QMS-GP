@@ -3,6 +3,21 @@
 
 <h2>Active Documents</h2>
 
+<form method="get" class="card card-body mb-3">
+    <label asp-for="SearchQuery" class="form-label">Search active documents</label>
+    <div class="input-group">
+        <input asp-for="SearchQuery"
+               class="form-control"
+               placeholder="Document number, title, or department"
+               maxlength="100" />
+        <button type="submit" class="btn btn-primary">Search</button>
+        @if (!string.IsNullOrWhiteSpace(Model.SearchQuery))
+        {
+            <a asp-page="/Operator/ChangeRequest/Documents" class="btn btn-outline-secondary">Clear</a>
+        }
+    </div>
+</form>
+
 <table class="table table-bordered">
 
     <thead>
@@ -11,6 +26,7 @@
             <th>Document Title</th>
             <th>Department</th>
             <th>Version</th>
+            <th>Actions</th>
         </tr>
     </thead>
 
@@ -19,7 +35,11 @@
         @if (Model.Documents == null || !Model.Documents.Any())
         {
             <tr>
-                <td colspan="4" class="text-center text-muted py-4">No active documents found.</td>
+                <td colspan="5" class="text-center text-muted py-4">
+                    @(string.IsNullOrWhiteSpace(Model.SearchQuery)
+                        ? "No active documents found."
+                        : "No active documents match your search.")
+                </td>
             </tr>
         }
         else
@@ -31,16 +51,39 @@
                     <td>@document.Id</td>
 
                     <td>
-                        <a asp-page="/Operator/ChangeRequest/Edit"
-                           asp-route-documentId="@document.Id">
-                            @document.Title
-                        </a>
+                        @document.Title
                     </td>
 
                     <td>@document.Department</td>
 
                     <td>
                         <span class="badge bg-light text-dark border">v@(document.DocumentVersion)</span>
+                    </td>
+                    <td>
+                        <div class="d-flex flex-wrap gap-2">
+                            @if (!string.IsNullOrWhiteSpace(document.FileName))
+                            {
+                                <a asp-page="/Documents/Details/Index"
+                                   asp-page-handler="Preview"
+                                   asp-route-id="@document.Id"
+                                   target="_blank"
+                                   rel="noopener"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Preview
+                                </a>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-sm btn-outline-secondary" disabled>
+                                    Preview unavailable
+                                </button>
+                            }
+                            <a asp-page="/Operator/ChangeRequest/Edit"
+                               asp-route-documentId="@document.Id"
+                               class="btn btn-sm btn-primary">
+                                Select document
+                            </a>
+                        </div>
                     </td>
 
                 </tr>

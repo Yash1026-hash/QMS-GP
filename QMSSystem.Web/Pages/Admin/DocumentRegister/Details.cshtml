@@ -95,20 +95,20 @@ else
             <div class="row g-3">
                 <div class="col-md-4">
                     <strong>Decision:</strong>
-                    @(Model.Document.Decision switch
+                    @(Model.DisplayDecision switch
                     {
                         1 => "Approved",
                         2 => "Rejected",
                         3 => "Returned for Revision",
                         null => "Pending",
-                        _ => Model.Document.Decision.ToString()
+                        _ => Model.DisplayDecision.ToString()
                     })
                 </div>
                 <div class="col-md-4">
                     <strong>Decision By:</strong> @(string.IsNullOrWhiteSpace(Model.Document.DecisionBy) ? "N/A" : Model.Document.DecisionBy)
                 </div>
                 <div class="col-md-4">
-                    <strong>Decision Date:</strong> @(Model.Document.DecisionDate.HasValue ? Model.Document.DecisionDate.Value.ToString("yyyy-MM-dd") : "N/A")
+                    <strong>Decision Date:</strong> @(Model.Document.DecisionDate.HasValue ? Model.Document.DecisionDate.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm") : "N/A")
                 </div>
             </div>
         </div>

@@ -31,7 +31,12 @@
 
         <p><strong>Decision Comment:</strong> @(Model.DecisionComment ?? "No Comments")</p>
 
-        <p><strong>Decision By User Id:</strong> @(Model.DecisionByUserId.HasValue? Model.DecisionByUserId.Value.ToString() : "N/A")</p>
+        <p>
+            <strong>Decision By:</strong>
+            @(string.IsNullOrWhiteSpace(Model.DecisionByName)
+                ? Model.DecisionByUserId.HasValue ? $"User #{Model.DecisionByUserId.Value}" : "N/A"
+                : $"{Model.DecisionByName} (User #{Model.DecisionByUserId})")
+        </p>
 
         <p><strong>Decision Date:</strong>  @(Model.DecisionDate.HasValue? Model.DecisionDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : "N/A")</p>
 

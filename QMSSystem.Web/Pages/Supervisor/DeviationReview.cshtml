@@ -83,6 +83,7 @@
                                 <td class="text-center">
                                     <a asp-page="/Supervisor/DeviationReview"
                                        asp-route-SearchId="@item.Id"
+                                       asp-fragment="deviationReviewForm"
                                        class="btn btn-sm @(isSelected ? "btn-primary" : "btn-outline-primary")">
                                         @(isSelected ? "Selected" : "Review")
                                     </a>
@@ -176,7 +177,7 @@
             <!-- DECISION FORM -->
             @if (Model.Deviation.Status == 0)
             {
-                <form method="post" id="deviationReviewForm" novalidate>
+                <form method="post" id="deviationReviewForm" tabindex="-1" novalidate>
                     <input type="hidden" asp-for="Approval.DeviationRequestId" value="@Model.Deviation.Id" />
 
                     <h5 class="h6 fw-bold mb-3">Supervisor Decision</h5>

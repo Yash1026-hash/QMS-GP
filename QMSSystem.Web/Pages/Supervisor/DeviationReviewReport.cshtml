@@ -86,6 +86,7 @@
                                     <td class="text-center">
                                         <a asp-page="/Supervisor/DeviationReviewReport"
                                            asp-route-ReportId="@report.Id"
+                                           asp-fragment="deviationReviewReportForm"
                                            class="btn btn-sm btn-outline-primary">
                                             Review
                                         </a>
@@ -207,7 +208,7 @@
                 }
                 else
                 {
-                    <form method="post" id="deviationReviewReportForm" novalidate>
+                    <form method="post" id="deviationReviewReportForm" tabindex="-1" novalidate>
                         <input type="hidden" asp-for="Report.Id" />
                         <input type="hidden" asp-for="Report.DeviationId" />
                         <input type="hidden" asp-for="ReportId" />

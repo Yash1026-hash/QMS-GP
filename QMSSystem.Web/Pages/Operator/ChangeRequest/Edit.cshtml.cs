@@ -41,6 +41,8 @@ public class EditModel : PageModel
     public List<DocumentCreation> ActiveDocuments { get; set; } = [];
     public List<DeviationRequestDto> Deviations { get; set; } = [];
     public string? ErrorMessage { get; set; }
+    public string? SelectedDocumentTitle =>
+        ActiveDocuments.FirstOrDefault(document => document.Id == DocumentId)?.Title;
 
     public async Task OnGetAsync(int? documentId)
     {
@@ -63,11 +65,9 @@ public class EditModel : PageModel
 
         if (documentId.HasValue && documentId.Value > 0)
         {
-            DocumentId = documentId.Value;
-        }
-        else if (ActiveDocuments.Count > 0)
-        {
-            DocumentId = ActiveDocuments[0].Id;
+            DocumentId = ActiveDocuments.Any(document => document.Id == documentId.Value)
+                ? documentId.Value
+                : 0;
         }
 
         if (DocumentId > 0)
@@ -98,6 +98,13 @@ public class EditModel : PageModel
         if (string.IsNullOrWhiteSpace(Description))
         {
             ModelState.AddModelError(nameof(Description), "Description is required.");
+        }
+
+        if (SelectedDeviationIds.Count == 0)
+        {
+            ModelState.AddModelError(
+                nameof(SelectedDeviationIds),
+                "Select at least one associated deviation.");
         }
 
         if (!ModelState.IsValid)

@@ -25,9 +25,6 @@
             <p class="mb-3">
                 Review pending document requests, record approval decisions, and return requests for changes.
             </p>
-            <a asp-page="/Documents/DocumentApproval" class="btn btn-primary">
-                Open Document Review Queue
-            </a>
         </div>
 
         <div class="card document-review-card">
@@ -217,7 +214,7 @@
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" asp-page-handler="Decision" id="approvalDecisionForm">
+            <form method="post" asp-page-handler="Decision" id="approvalDecisionForm" tabindex="-1">
                 <input type="hidden" name="documentId" id="approvalDocumentId" />
                 <input type="hidden" name="page" value="@Model.PageNumber" />
                 <input type="hidden" name="pageSize" value="@Model.PageSize" />
@@ -347,6 +344,13 @@
             const $comments = $('#comments014');
             const $commentsFeedback = $('#comments014Feedback');
             const $approvalValidationMessage = $('#approvalValidationMessage');
+
+            $approvalModal.on('shown.bs.modal', function () {
+                const form = document.getElementById('approvalDecisionForm');
+                if (form) {
+                    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
 
             function clearApprovalValidation() {
                 $approvalValidationMessage.addClass('d-none');
