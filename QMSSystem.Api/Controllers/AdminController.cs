@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using QMSSystem.Api.Data;
-using QMSSystem.Shared.Dtos;
+using QMSSystem.Api.Data; 
 using QMSSystem.Shared.Dtos.Deviations;
 using QMSSystem.Shared.DTOs;
 using QMSSystem.Shared.Models;

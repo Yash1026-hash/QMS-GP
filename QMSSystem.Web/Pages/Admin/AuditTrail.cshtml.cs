@@ -22,8 +22,18 @@ public class AuditTrailModel : PageModel
     [BindProperty(SupportsGet = true)]
     public string? DepartmentFilter { get; set; }
 
+    [BindProperty(SupportsGet = true)]
+    public int PageNumber { get; set; } = 1;
+
+    [BindProperty(SupportsGet = true)]
+    public int PageSize { get; set; } = 10;
+
+    public static readonly int[] AllowedPageSizes = [5, 10, 20, 50];
+
     public List<DocumentHistory> AuditRecords { get; set; } = [];
     public int TotalRecords { get; set; }
+    public int FilteredCount { get; set; }
+    public int TotalPages { get; set; }
     public string? ErrorMessage { get; set; }
 
     public async Task OnGetAsync()
@@ -51,7 +61,29 @@ public class AuditTrailModel : PageModel
                     (h.Comment != null && h.Comment.Contains(term, StringComparison.OrdinalIgnoreCase)));
             }
 
-            AuditRecords = query.OrderByDescending(h => h.ArchivedOn).ToList();
+            var filteredList = query.OrderByDescending(h => h.ArchivedOn).ToList();
+            FilteredCount = filteredList.Count;
+
+            if (!AllowedPageSizes.Contains(PageSize))
+            {
+                PageSize = 10;
+            }
+
+            TotalPages = Math.Max(1, (int)Math.Ceiling((double)FilteredCount / PageSize));
+
+            if (PageNumber < 1)
+            {
+                PageNumber = 1;
+            }
+            else if (PageNumber > TotalPages && FilteredCount > 0)
+            {
+                PageNumber = TotalPages;
+            }
+
+            AuditRecords = filteredList
+                .Skip((PageNumber - 1) * PageSize)
+                .Take(PageSize)
+                .ToList();
         }
         catch (Exception ex)
         {
@@ -60,4 +92,3 @@ public class AuditTrailModel : PageModel
         }
     }
 }
-

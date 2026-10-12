@@ -3,6 +3,11 @@
 @{
     ViewData["Title"] = "Document Audit Trail";
     ViewData["ActivePage"] = "AuditTrail";
+
+    var firstRow = Model.FilteredCount == 0 ? 0 : ((Model.PageNumber - 1) * Model.PageSize) + 1;
+    var lastRow = Math.Min(Model.PageNumber * Model.PageSize, Model.FilteredCount);
+    var firstPage = Math.Max(1, Model.PageNumber - 2);
+    var lastPage = Math.Min(Model.TotalPages, Model.PageNumber + 2);
 }
 
 <partial name="_AdminNav" />
@@ -26,13 +31,23 @@
 <div class="card mb-3">
     <div class="card-body">
         <form method="get" id="auditTrailFilterForm" class="row g-2 align-items-end" novalidate>
-            <div class="col-md-6">
+            <input type="hidden" name="PageNumber" value="1" />
+            <div class="col-md-5">
                 <label class="form-label small">Search</label>
                 <input type="text" name="SearchQuery" id="auditSearchInput" value="@Model.SearchQuery" class="form-control" placeholder="Search document number, title, comment..." maxlength="100" />
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label small">Department</label>
                 <input type="text" name="DepartmentFilter" id="auditDeptInput" value="@Model.DepartmentFilter" class="form-control" placeholder="Filter by department..." maxlength="100" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Per Page</label>
+                <select name="PageSize" id="auditPageSize" class="form-select" onchange="this.form.submit()">
+                    @foreach (var size in QMSSystem.Web.Pages.Admin.AuditTrailModel.AllowedPageSizes)
+                    {
+                        <option value="@size" selected="@(Model.PageSize == size ? "selected" : null)">@size rows</option>
+                    }
+                </select>
             </div>
             <div class="col-md-2 d-flex gap-2">
                 <button type="submit" class="btn btn-primary flex-grow-1">Filter</button>
@@ -43,9 +58,19 @@
 </div>
 
 <!-- Audit Trail Table -->
-<div class="card mb-4">
-    <div class="card-header bg-light">
-        <span class="fw-semibold">Historical Audit Log Entries (@Model.AuditRecords.Count)</span>
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+        <span class="fw-semibold">Historical Audit Log Entries</span>
+        <span class="badge bg-secondary">
+            @if (Model.FilteredCount == Model.TotalRecords)
+            {
+                <span>@Model.TotalRecords Total</span>
+            }
+            else
+            {
+                <span>@Model.FilteredCount of @Model.TotalRecords</span>
+            }
+        </span>
     </div>
     <div class="card-body p-0">
         @if (Model.AuditRecords.Count == 0)
@@ -101,6 +126,78 @@
             </div>
         }
     </div>
+    @if (Model.FilteredCount > 0)
+    {
+        <div class="card-footer bg-light d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+            <small class="text-muted">
+                Showing @firstRow to @lastRow of @Model.FilteredCount entries
+                @if (Model.FilteredCount != Model.TotalRecords)
+                {
+                    <span>(filtered from @Model.TotalRecords total)</span>
+                }
+            </small>
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="Audit trail table pagination">
+                    <ul class="pagination pagination-sm mb-0">
+                        <!-- First & Previous -->
+                        <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-page="/Admin/AuditTrail"
+                               asp-route-PageNumber="1"
+                               asp-route-PageSize="@Model.PageSize"
+                               asp-route-SearchQuery="@Model.SearchQuery"
+                               asp-route-DepartmentFilter="@Model.DepartmentFilter"
+                               aria-label="First page">&laquo;</a>
+                        </li>
+                        <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-page="/Admin/AuditTrail"
+                               asp-route-PageNumber="@(Model.PageNumber - 1)"
+                               asp-route-PageSize="@Model.PageSize"
+                               asp-route-SearchQuery="@Model.SearchQuery"
+                               asp-route-DepartmentFilter="@Model.DepartmentFilter"
+                               aria-label="Previous page">Previous</a>
+                        </li>
+
+                        <!-- Numbered page links -->
+                        @for (var p = firstPage; p <= lastPage; p++)
+                        {
+                            <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                                <a class="page-link"
+                                   asp-page="/Admin/AuditTrail"
+                                   asp-route-PageNumber="@p"
+                                   asp-route-PageSize="@Model.PageSize"
+                                   asp-route-SearchQuery="@Model.SearchQuery"
+                                   asp-route-DepartmentFilter="@Model.DepartmentFilter">@p</a>
+                            </li>
+                        }
+
+                        <!-- Next & Last -->
+                        <li class="page-item @(Model.PageNumber >= Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-page="/Admin/AuditTrail"
+                               asp-route-PageNumber="@(Model.PageNumber + 1)"
+                               asp-route-PageSize="@Model.PageSize"
+                               asp-route-SearchQuery="@Model.SearchQuery"
+                               asp-route-DepartmentFilter="@Model.DepartmentFilter"
+                               aria-label="Next page">Next</a>
+                        </li>
+                        <li class="page-item @(Model.PageNumber >= Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-page="/Admin/AuditTrail"
+                               asp-route-PageNumber="@Model.TotalPages"
+                               asp-route-PageSize="@Model.PageSize"
+                               asp-route-SearchQuery="@Model.SearchQuery"
+                               asp-route-DepartmentFilter="@Model.DepartmentFilter"
+                               aria-label="Last page">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
+    }
 </div>
 
 @section Scripts {
@@ -136,4 +233,3 @@
         });
     </script>
 }
-
