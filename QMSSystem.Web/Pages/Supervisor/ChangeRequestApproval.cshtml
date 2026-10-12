@@ -213,7 +213,7 @@
              aria-labelledby="changeRequestModalLabel-@request.Id"
              aria-hidden="true">
 
-            <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
 
                 <div class="modal-content">
 
@@ -339,7 +339,7 @@
                         </h5>
 
 
-                        <form method="post" class="change-request-approval-form" novalidate>
+                        <form method="post" class="change-request-approval-form" tabindex="-1" novalidate>
 
                             <!-- CHANGE REQUEST ID -->
                             <input type="hidden"
@@ -434,6 +434,13 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+            $(".modal[id^='changeRequestModal-']").on("shown.bs.modal", function () {
+                var form = this.querySelector(".change-request-approval-form");
+                if (form) {
+                    form.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+            });
+
             $(".change-request-approval-form").each(function () {
                 $(this).validate({
                     rules: {

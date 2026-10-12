@@ -62,5 +62,10 @@ public class IndexModel : PageModel
                     StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
+
+        Documents = Documents
+            .OrderByDescending(document => document.CreationOn)
+            .ThenByDescending(document => document.DocumentVersion)
+            .ToList();
     }
 }

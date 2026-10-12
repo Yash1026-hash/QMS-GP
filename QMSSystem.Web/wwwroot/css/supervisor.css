@@ -62,9 +62,9 @@
 .supervisor-card {
     background: #ffffff;
 
-    border: 1px solid #d9dde3;
+    border: 1px solid #dee2e6;
 
-    border-radius: 7px;
+    border-radius: 6px;
 
     padding: 18px;
 
@@ -74,8 +74,7 @@
 
     flex-direction: column;
 
-    box-shadow:
-        0 2px 5px rgba(0, 0, 0, 0.05);
+    box-shadow: none;
 
     transition:
         box-shadow 0.2s ease,
@@ -90,8 +89,7 @@
 .supervisor-card:hover {
     transform: translateY(-1px);
 
-    box-shadow:
-        0 4px 10px rgba(0, 0, 0, 0.08);
+    border-color: #adb5bd;
 }
 
 
@@ -186,7 +184,7 @@
 
     padding: 9px 10px;
 
-    background: #171717;
+    background: #0d6efd;
 
     color: #ffffff;
 
@@ -210,7 +208,7 @@
    ========================================================= */
 
 .supervisor-button:hover {
-    background: #333333;
+    background: #0b5ed7;
 
     color: #ffffff;
 
@@ -237,14 +235,13 @@
 
     background: #ffffff;
 
-    border: 1px solid #d9dde3;
+    border: 1px solid #dee2e6;
 
-    border-radius: 7px;
+    border-radius: 6px;
 
     padding: 25px;
 
-    box-shadow:
-        0 2px 5px rgba(0, 0, 0, 0.05);
+    box-shadow: none;
 }
 
 
@@ -278,7 +275,7 @@
 
     background: #f8f9fa;
 
-    border: 1px solid #e1e4e8;
+    border: 1px solid #dee2e6;
 
     border-radius: 6px;
 
@@ -534,9 +531,9 @@
 
 .review-card {
     background: #ffffff;
-    border: 1px solid #d9dde3;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    box-shadow: none;
     margin-bottom: 20px;
     overflow: hidden;
 }

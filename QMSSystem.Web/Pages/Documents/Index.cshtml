@@ -98,7 +98,7 @@
                                             "Rejected" => "bg-danger",
                                             _ => "bg-secondary"
                                         })">
-                                            @(document.Status == "Active" ? "Approved" : document.Status)
+                                            @document.Status
                                         </span>
                                     </td>
                                     <td>@document.CreationOn.ToString("yyyy-MM-dd")</td>

@@ -59,6 +59,36 @@ public class ChangeRequestDocumentController : ControllerBase
     public async Task<ActionResult<int>> FormSubmission(
         [FromBody] ChangeRequestForm formModel)
     {
+        if (formModel.SelectedDeviationIds is not { Count: > 0 })
+        {
+            return BadRequest(new
+            {
+                message = "At least one associated deviation must be selected."
+            });
+        }
+
+        var selectedDeviationIds = formModel.SelectedDeviationIds
+            .Distinct()
+            .ToList();
+        var eligibleDeviationIds = await _context.DeviationRequests
+            .Where(deviation =>
+                deviation.DocumentId == formModel.DocumentId &&
+                selectedDeviationIds.Contains(deviation.Id) &&
+                _context.DeviationReportRequests.Any(report =>
+                    report.DocumentId == formModel.DocumentId &&
+                    report.DeviationId == deviation.Id &&
+                    report.Status == 1))
+            .Select(deviation => deviation.Id)
+            .ToListAsync();
+
+        if (eligibleDeviationIds.Count != selectedDeviationIds.Count)
+        {
+            return BadRequest(new
+            {
+                message = "One or more selected deviations are not eligible for this document."
+            });
+        }
+
         OperatorChangeRequest OCR = new OperatorChangeRequest
         {
             DocumentId = formModel.DocumentId,
@@ -73,7 +103,7 @@ public class ChangeRequestDocumentController : ControllerBase
         _context.OperatorChangeRequests.Add(OCR);
         await _context.SaveChangesAsync();
 
-        foreach (var deviationId in formModel.SelectedDeviationIds)
+        foreach (var deviationId in selectedDeviationIds)
         {
             var mapping = new OperatorChangeRequestDeviation
             {
@@ -84,10 +114,7 @@ public class ChangeRequestDocumentController : ControllerBase
             _context.OperatorChangeRequestDeviations.Add(mapping);
         }
 
-        if (formModel.SelectedDeviationIds.Count > 0)
-        {
-            await _context.SaveChangesAsync();
-        }
+        await _context.SaveChangesAsync();
 
         return Ok(OCR.Id);
     }

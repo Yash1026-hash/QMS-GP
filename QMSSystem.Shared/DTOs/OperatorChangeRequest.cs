@@ -1,6 +1,7 @@
 namespace QMSSystem.Shared.DTOs;
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 public class OperatorChangeRequest
 {
@@ -33,6 +34,9 @@ public class OperatorChangeRequest
     public string? DecisionComment { get; set; }
 
     public int? DecisionByUserId { get; set; }
+
+    [NotMapped]
+    public string? DecisionByName { get; set; }
 
     public DateTime? DecisionDate { get; set; }
 

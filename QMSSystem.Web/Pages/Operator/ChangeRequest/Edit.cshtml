@@ -31,24 +31,22 @@
         <form method="post" id="changeRequestForm" novalidate>
             <div class="row g-3">
 
-                <!-- DOCUMENT SELECTION -->
+                <!-- SELECTED DOCUMENT -->
                 <div class="col-md-6">
                     <label asp-for="DocumentId" class="form-label fw-semibold">
-                        Controlled Document <span class="text-danger">*</span>
+                        Selected Document <span class="text-danger">*</span>
                     </label>
-                    <select asp-for="DocumentId" id="documentSelect" class="form-select" required>
-                        <option value="">-- Select Active Document --</option>
-                        @foreach (var doc in Model.ActiveDocuments)
-                        {
-                            <option value="@doc.Id" selected="@(doc.Id == Model.DocumentId ? "selected" : null)">
-                                #DOC-@doc.Id - @doc.Title (v@(doc.DocumentVersion) &bull; @doc.Department)
-                            </option>
-                        }
-                    </select>
+                    <input asp-for="DocumentId" type="hidden" />
+                    <div class="form-control bg-light" aria-live="polite">
+                        @(Model.SelectedDocumentTitle ?? "No document selected")
+                    </div>
                     <span asp-validation-for="DocumentId" class="text-danger small d-block"></span>
-                    @if (Model.ActiveDocuments.Count == 0)
+                    @if (Model.DocumentId == 0)
                     {
-                        <div class="form-text text-warning">No active documents found. Create an SOP first or enter document ID directly.</div>
+                        <div class="form-text text-warning">
+                            Select an active document from the
+                            <a asp-page="/Operator/ChangeRequest/Documents">document list</a>.
+                        </div>
                     }
                 </div>
 
@@ -79,25 +77,48 @@
 
                 <!-- ASSOCIATED DEVIATIONS -->
                 <div class="col-12">
-                    <label asp-for="SelectedDeviationIds" class="form-label fw-semibold">
-                        Associated Deviations (Optional)
+                    <label class="form-label fw-semibold" id="deviationsLabel">
+                        Associated Deviations <span class="text-danger">*</span>
                     </label>
                     @if (Model.Deviations.Count > 0)
                     {
-                        <select asp-for="SelectedDeviationIds" class="form-select" multiple size="3">
-                            @foreach (var deviation in Model.Deviations)
-                            {
-                                <option value="@deviation.Id">
-                                    #DEV-@deviation.Id - @deviation.Title
-                                </option>
-                            }
-                        </select>
-                        <div class="form-text">Hold Ctrl (Windows) or Cmd (Mac) to select multiple deviations.</div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
+                                    type="button"
+                                    id="deviationDropdown"
+                                    data-bs-toggle="dropdown"
+                                    data-bs-auto-close="outside"
+                                    aria-expanded="false"
+                                    aria-labelledby="deviationsLabel">
+                                <span id="deviationDropdownLabel">Select associated deviations</span>
+                            </button>
+                            <div class="dropdown-menu w-100 p-2 deviation-multiselect-menu"
+                                 aria-labelledby="deviationDropdown">
+                                @foreach (var deviation in Model.Deviations)
+                                {
+                                    var checkboxId = $"deviation-{deviation.Id}";
+                                    <label class="dropdown-item d-flex align-items-center gap-2 rounded"
+                                           for="@checkboxId">
+                                        <input class="form-check-input mt-0 deviation-checkbox"
+                                               type="checkbox"
+                                               name="SelectedDeviationIds"
+                                               id="@checkboxId"
+                                               value="@deviation.Id"
+                                               checked="@Model.SelectedDeviationIds.Contains(deviation.Id)" />
+                                        <span>#DEV-@deviation.Id - @deviation.Title</span>
+                                    </label>
+                                }
+                            </div>
+                        </div>
+                        <span asp-validation-for="SelectedDeviationIds"
+                              id="deviationSelectionFeedback"
+                              class="text-danger small d-block"></span>
+                        <div class="form-text">Select one or more associated deviations.</div>
                     }
                     else
                     {
-                        <div class="p-2 border rounded bg-light text-muted small">
-                            No approved deviation reports currently linked to the selected document.
+                        <div class="p-2 border rounded bg-light text-muted small" role="status">
+                            No eligible deviations are available for this document. An associated deviation is required to submit a change request.
                         </div>
                     }
                 </div>
@@ -154,15 +175,36 @@
                     DocumentId: { required: true, min: 1 },
                     Title: { required: true, maxlength: 200 },
                     ChangeType: { required: true },
-                    Description: { required: true, minlength: 10 }
+                    Description: { required: true, minlength: 10 },
+                    SelectedDeviationIds: { required: true }
                 },
                 messages: {
                     DocumentId: "Please select an active document.",
                     Title: "Please enter a change request title.",
                     ChangeType: "Please select a change type.",
-                    Description: "Please provide a detailed description of the proposed changes."
+                    Description: "Please provide a detailed description of the proposed changes.",
+                    SelectedDeviationIds: "Select at least one associated deviation."
+                },
+                errorPlacement: function (error, element) {
+                    if (element.attr("name") === "SelectedDeviationIds") {
+                        error.appendTo("#deviationSelectionFeedback");
+                    } else {
+                        error.insertAfter(element);
+                    }
                 }
             });
+
+            function updateDeviationSelection() {
+                const selectedCount = $(".deviation-checkbox:checked").length;
+                $("#deviationDropdownLabel").text(
+                    selectedCount === 0
+                        ? "Select associated deviations"
+                        : `${selectedCount} deviation${selectedCount === 1 ? "" : "s"} selected`);
+                $("#deviationSelectionFeedback").empty();
+            }
+
+            $(".deviation-checkbox").on("change", updateDeviationSelection);
+            updateDeviationSelection();
         });
     </script>
 }

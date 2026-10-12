@@ -1,17 +1,17 @@
 :root {
     --qms-ink: #183b56;
-    --qms-accent: #0d7184;
-    --qms-accent-hover: #095b6a;
+    --qms-accent: #0d6efd;
+    --qms-accent-hover: #0b5ed7;
     --qms-muted: #64748b;
-    --qms-border: #dce6eb;
+    --qms-border: #dee2e6;
     --qms-surface: #fff;
-    --qms-surface-muted: #f6f8fb;
-    --qms-shadow: 0 3px 12px rgba(24, 59, 86, .06);
+    --qms-surface-muted: #f8f9fa;
+    --qms-shadow: none;
 }
 
 .role-supervisor #main-content,
 .role-operator #main-content {
-    color: #243447;
+    color: #212529;
 }
 
 .role-supervisor #main-content h1,
@@ -82,7 +82,7 @@
 .role-operator #main-content .filter-card,
 .role-operator #main-content .list-card {
     border: 1px solid var(--qms-border);
-    border-radius: 10px;
+    border-radius: .375rem;
     background-color: var(--qms-surface);
     box-shadow: var(--qms-shadow);
 }
@@ -106,7 +106,7 @@
 .role-operator #main-content .deviation-card-heading {
     padding: 18px 22px;
     border-bottom: 1px solid var(--qms-border);
-    background: var(--qms-surface);
+    background: var(--qms-surface-muted);
 }
 
 .role-supervisor #main-content .review-card .card-body,
@@ -165,8 +165,8 @@
 .role-supervisor #main-content .operation-count,
 .role-supervisor #main-content .deviation-id,
 .role-operator #main-content .deviation-id-badge {
-    border-color: #d4e9ed;
-    background-color: #edf7f8;
+    border-color: #cfe2ff;
+    background-color: #e7f1ff;
     color: var(--qms-accent);
 }
 
@@ -212,9 +212,9 @@
 .role-operator #main-content .btn-clear,
 .role-operator #main-content .deviation-back-button,
 .role-operator #main-content .back-btn {
-    border-color: #cbd8e0;
+    border-color: #6c757d;
     background-color: #fff;
-    color: var(--qms-ink);
+    color: #6c757d;
 }
 
 .role-supervisor #main-content .btn-outline-secondary:hover,
@@ -224,9 +224,9 @@
 .role-operator #main-content .btn-clear:hover,
 .role-operator #main-content .deviation-back-button:hover,
 .role-operator #main-content .back-btn:hover {
-    border-color: #a8bdc8;
-    background-color: #f1f7f9;
-    color: var(--qms-ink);
+    border-color: #6c757d;
+    background-color: #6c757d;
+    color: #fff;
 }
 
 .role-supervisor #main-content .form-control,
@@ -248,7 +248,7 @@
 .role-operator #main-content select:focus,
 .role-operator #main-content textarea:focus {
     border-color: var(--qms-accent);
-    box-shadow: 0 0 0 .2rem rgba(13, 113, 132, .15);
+    box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .25);
 }
 
 .role-supervisor #main-content input[type="radio"],
@@ -271,12 +271,9 @@
 .role-operator #main-content .request-table th,
 .role-operator #main-content .sop-table th,
 .role-operator #main-content .deviation-table th {
-    background-color: #f2f7f9;
-    color: #42576a;
-    font-size: .75rem;
+    background-color: #f8f9fa;
+    color: #212529;
     font-weight: 700;
-    letter-spacing: .04em;
-    text-transform: uppercase;
 }
 
 .role-supervisor #main-content .table th,
@@ -297,7 +294,7 @@
 .role-operator #main-content .card-header,
 .role-operator #main-content .card-footer {
     border-color: var(--qms-border);
-    background-color: #f7fafb;
+    background-color: #f8f9fa;
 }
 
 .role-supervisor #main-content .alert,

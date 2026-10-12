@@ -77,7 +77,12 @@ else
                         <strong>Decision:</strong> @Model.ChangeRequest.Decision
                     </div>
                     <div class="col-md-4">
-                        <strong>Decision By:</strong> @(Model.ChangeRequest.DecisionByUserId.HasValue ? $"User #{Model.ChangeRequest.DecisionByUserId.Value}" : "N/A")
+                        <strong>Decision By:</strong>
+                        @(string.IsNullOrWhiteSpace(Model.ChangeRequest.DecisionByName)
+                            ? Model.ChangeRequest.DecisionByUserId.HasValue
+                                ? $"User #{Model.ChangeRequest.DecisionByUserId.Value}"
+                                : "N/A"
+                            : $"{Model.ChangeRequest.DecisionByName} (User #{Model.ChangeRequest.DecisionByUserId})")
                     </div>
                     <div class="col-md-4">
                         <strong>Decision Date:</strong> @(Model.ChangeRequest.DecisionDate?.ToString("yyyy-MM-dd HH:mm") ?? "N/A")

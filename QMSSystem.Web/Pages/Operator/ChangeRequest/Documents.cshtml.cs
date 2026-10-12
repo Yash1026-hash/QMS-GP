@@ -20,6 +20,9 @@ public class DocumentsModel : PageModel
 
     public List<DocumentCreation> Documents { get; private set; } = new();
 
+    [Microsoft.AspNetCore.Mvc.BindProperty(SupportsGet = true)]
+    public string SearchQuery { get; set; } = string.Empty;
+
     public int TotalCount => Documents.Count;
 
     public async Task OnGetAsync()
@@ -39,6 +42,16 @@ public class DocumentsModel : PageModel
         {
             _logger.LogError(exception, "The active change request documents API returned invalid data.");
             Documents = [];
+        }
+
+        if (!string.IsNullOrWhiteSpace(SearchQuery))
+        {
+            Documents = Documents
+                .Where(document =>
+                    document.DocumentNumber.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) ||
+                    document.Title.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) ||
+                    document.Department.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase))
+                .ToList();
         }
     }
 }

@@ -21,6 +21,8 @@ public class DetailsModel : PageModel
 
     public Document? Document { get; set; }
     public List<QMSSystem.Shared.DTOs.DocumentHistoryDto> History { get; set; } = [];
+    public int? DisplayDecision => Document?.Decision
+        ?? (string.Equals(Document?.Status, "Active", StringComparison.OrdinalIgnoreCase) ? 1 : null);
 
     public string? ErrorMessage { get; set; }
 
