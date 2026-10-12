@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+@{
+    var rolePageClass = User.IsInRole("Supervisor")
+        ? "role-supervisor"
+        : User.IsInRole("Operator")
+            ? "role-operator"
+            : string.Empty;
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -7,10 +14,11 @@
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/role-pages.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/QMSSystem.Web.styles.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="d-flex min-vh-100 flex-column">
+<body class="d-flex min-vh-100 flex-column @rolePageClass">
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <header>
         <partial name="_NavigationMenu" />
@@ -29,6 +37,9 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

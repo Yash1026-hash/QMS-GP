@@ -1,0 +1,267 @@
+.deviation-details-page {
+    color: #1e293b;
+}
+
+.deviation-details-container {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 36px 24px 48px;
+}
+
+.deviation-details-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 26px;
+}
+
+.deviation-eyebrow {
+    margin: 0 0 6px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.deviation-details-heading h1 {
+    margin: 0 0 8px;
+    color: #0f172a;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.deviation-subtitle {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.deviation-back-button {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background: #fff;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.deviation-back-button:hover {
+    border-color: #94a3b8;
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+.deviation-details-card {
+    margin-bottom: 20px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .05);
+}
+
+.deviation-card-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 19px 22px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.deviation-card-heading h2 {
+    margin: 0 0 5px;
+    color: #0f172a;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.deviation-card-heading p {
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.deviation-id-badge {
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.deviation-card-body {
+    padding: 22px;
+}
+
+.deviation-information-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 24px;
+}
+
+.deviation-info-item {
+    min-width: 0;
+}
+
+.deviation-info-full {
+    grid-column: 1 / -1;
+}
+
+.deviation-info-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.deviation-info-value {
+    min-height: 40px;
+    padding: 10px 12px;
+    overflow-wrap: anywhere;
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.deviation-description {
+    min-height: 96px;
+    white-space: pre-wrap;
+}
+
+.deviation-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.deviation-status.pending,
+.deviation-review-summary.pending {
+    background: #fffbeb;
+    color: #92400e;
+}
+
+.deviation-status.approved,
+.deviation-review-summary.approved {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.deviation-status.rejected,
+.deviation-review-summary.rejected {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.deviation-status.unknown {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.deviation-proof-note {
+    padding: 18px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 14px;
+    text-align: center;
+}
+
+.deviation-review-summary {
+    padding: 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.deviation-review-summary > strong {
+    font-size: 15px;
+}
+
+.deviation-review-summary p {
+    margin: 6px 0 0;
+    color: #475569;
+    font-size: 13px;
+}
+
+.deviation-review-summary dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 24px;
+    margin: 18px 0 0;
+}
+
+.deviation-review-summary dl div:last-child {
+    grid-column: 1 / -1;
+}
+
+.deviation-review-summary dt {
+    margin-bottom: 5px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.deviation-review-summary dd {
+    margin: 0;
+    color: #334155;
+    font-size: 14px;
+    white-space: pre-wrap;
+}
+
+.deviation-bottom-back {
+    margin-top: 2px;
+}
+
+@media (max-width: 640px) {
+    .deviation-details-container {
+        padding: 24px 16px 36px;
+    }
+
+    .deviation-details-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .deviation-details-heading h1 {
+        font-size: 25px;
+    }
+
+    .deviation-information-grid,
+    .deviation-review-summary dl {
+        grid-template-columns: 1fr;
+    }
+
+    .deviation-info-full,
+    .deviation-review-summary dl div:last-child {
+        grid-column: auto;
+    }
+
+    .deviation-card-heading,
+    .deviation-card-body {
+        padding: 17px;
+    }
+}

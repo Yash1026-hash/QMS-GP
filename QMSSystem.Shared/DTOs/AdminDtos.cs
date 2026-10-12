@@ -1,5 +1,6 @@
 namespace QMSSystem.Shared.DTOs;
 
+using System.ComponentModel.DataAnnotations;
 using QMSSystem.Shared.Dtos.Deviations;
 using QMSSystem.Shared.Models;
 
@@ -54,6 +55,8 @@ public class AdminDeviationDetailDto
 
 public class ChangeUserRoleRequest
 {
+    [Required(ErrorMessage = "Role name is required.")]
+    [StringLength(50, ErrorMessage = "Role name cannot exceed 50 characters.")]
     public string Role { get; set; } = string.Empty;
 }
 
@@ -65,12 +68,31 @@ public class UpdateUserStatusRequest
 
 public class CreateUserRequest
 {
+    [Required(ErrorMessage = "Username is required.")]
+    [StringLength(50, MinimumLength = 3, ErrorMessage = "Username must be between 3 and 50 characters.")]
+    [RegularExpression(@"^[a-zA-Z0-9_.-]+$", ErrorMessage = "Username can only contain letters, numbers, underscores, dots, or hyphens.")]
     public string Username { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Password is required.")]
+    [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters long.")]
     public string Password { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Full Name is required.")]
+    [StringLength(100, MinimumLength = 2, ErrorMessage = "Full Name must be between 2 and 100 characters.")]
     public string FullName { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Email address is required.")]
+    [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
+    [StringLength(150, ErrorMessage = "Email cannot exceed 150 characters.")]
     public string Email { get; set; } = string.Empty;
+
+    [StringLength(100, ErrorMessage = "Department cannot exceed 100 characters.")]
     public string Department { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Assigned Role is required.")]
+    [StringLength(50, ErrorMessage = "Role cannot exceed 50 characters.")]
     public string Role { get; set; } = string.Empty;
+
     public bool IsActive { get; set; } = true;
     public string RegistrationStatus { get; set; } = "Registered";
 }

@@ -66,14 +66,14 @@
 <!-- Filters -->
 <div class="card mb-3">
     <div class="card-body">
-        <form method="get" class="row g-2 align-items-end">
+        <form method="get" id="usersFilterForm" class="row g-2 align-items-end">
             <div class="col-md-4">
                 <label class="form-label small">Search</label>
-                <input type="text" name="SearchQuery" value="@Model.SearchQuery" class="form-control" placeholder="Search username, name, email..." />
+                <input type="text" name="SearchQuery" id="userSearchInput" value="@Model.SearchQuery" class="form-control" placeholder="Search username, name, email..." maxlength="100" />
             </div>
             <div class="col-md-3">
                 <label class="form-label small">Role</label>
-                <select name="RoleFilter" class="form-select">
+                <select name="RoleFilter" id="userRoleFilter" class="form-select">
                     <option value="">All Roles</option>
                     @foreach (var role in Model.AvailableRoles)
                     {
@@ -83,7 +83,7 @@
             </div>
             <div class="col-md-3">
                 <label class="form-label small">Department</label>
-                <input type="text" name="DepartmentFilter" value="@Model.DepartmentFilter" class="form-control" placeholder="Filter by department..." />
+                <input type="text" name="DepartmentFilter" id="userDepartmentFilter" value="@Model.DepartmentFilter" class="form-control" placeholder="Filter by department..." maxlength="100" />
             </div>
             <div class="col-md-2 d-flex gap-2">
                 <button type="submit" class="btn btn-primary flex-grow-1">Filter</button>
@@ -153,7 +153,7 @@
                                 <td>
                                     <div class="d-flex flex-column gap-2">
                                         <!-- Role change form -->
-                                        <form method="post" asp-page-handler="ChangeRole" class="d-flex gap-1 align-items-center">
+                                        <form method="post" asp-page-handler="ChangeRole" class="d-flex gap-1 align-items-center change-role-form">
                                             <input type="hidden" name="userId" value="@user.UserId" />
                                             <select name="newRole" class="form-select form-select-sm" style="width: 130px;">
                                                 @foreach (var role in Model.AvailableRoles)
@@ -161,13 +161,13 @@
                                                     <option value="@role.Name" selected="@(user.Role == role.Name)">@role.Name</option>
                                                 }
                                             </select>
-                                            <button type="submit" class="btn btn-sm btn-outline-primary text-nowrap" onclick="return confirm('Change role for @user.Username to the selected role?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary text-nowrap">
                                                 Update Role
                                             </button>
                                         </form>
 
                                         <!-- Status toggle form -->
-                                        <form method="post" asp-page-handler="ToggleStatus" class="d-inline">
+                                        <form method="post" asp-page-handler="ToggleStatus" class="d-inline change-status-form">
                                             <input type="hidden" name="userId" value="@user.UserId" />
                                             <input type="hidden" name="isActive" value="@(!user.IsActive ? "true" : "false")" />
                                             @if (user.IsActive)
@@ -198,54 +198,183 @@
 <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <form method="post" asp-page-handler="CreateUser">
+            <form method="post" asp-page-handler="CreateUser" id="addUserForm" novalidate>
                 <div class="modal-header">
                     <h5 class="modal-title" id="addUserModalLabel">Create New User Account</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-medium">Username <span class="text-danger">*</span></label>
-                        <input type="text" name="NewUser.Username" class="form-control" placeholder="e.g. jdoe" required />
+                        <label asp-for="NewUser.Username" class="form-label fw-medium">Username <span class="text-danger">*</span></label>
+                        <input asp-for="NewUser.Username" class="form-control" placeholder="e.g. jdoe" required minlength="3" maxlength="50" autocomplete="username" />
+                        <span asp-validation-for="NewUser.Username" class="invalid-feedback d-block"></span>
+                        <div class="form-text small">3-50 characters. Letters, numbers, underscores, dots, or hyphens.</div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-medium">Full Name <span class="text-danger">*</span></label>
-                        <input type="text" name="NewUser.FullName" class="form-control" placeholder="e.g. John Doe" required />
+                        <label asp-for="NewUser.FullName" class="form-label fw-medium">Full Name <span class="text-danger">*</span></label>
+                        <input asp-for="NewUser.FullName" class="form-control" placeholder="e.g. John Doe" required minlength="2" maxlength="100" />
+                        <span asp-validation-for="NewUser.FullName" class="invalid-feedback d-block"></span>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-medium">Email Address <span class="text-danger">*</span></label>
-                        <input type="email" name="NewUser.Email" class="form-control" placeholder="e.g. jdoe@example.com" required />
+                        <label asp-for="NewUser.Email" class="form-label fw-medium">Email Address <span class="text-danger">*</span></label>
+                        <input asp-for="NewUser.Email" type="email" class="form-control" placeholder="e.g. jdoe@example.com" required maxlength="150" />
+                        <span asp-validation-for="NewUser.Email" class="invalid-feedback d-block"></span>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-medium">Password <span class="text-danger">*</span></label>
-                        <input type="password" name="NewUser.Password" class="form-control" placeholder="Initial account password" required />
+                        <label asp-for="NewUser.Password" class="form-label fw-medium">Password <span class="text-danger">*</span></label>
+                        <input asp-for="NewUser.Password" type="password" class="form-control" placeholder="At least 6 characters" required minlength="6" maxlength="100" autocomplete="new-password" />
+                        <span asp-validation-for="NewUser.Password" class="invalid-feedback d-block"></span>
+                        <div class="form-text small">Minimum 6 characters.</div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-medium">Department</label>
-                        <input type="text" name="NewUser.Department" class="form-control" placeholder="e.g. Quality Assurance" />
+                        <label asp-for="NewUser.Department" class="form-label fw-medium">Department</label>
+                        <input asp-for="NewUser.Department" class="form-control" placeholder="e.g. Quality Assurance" maxlength="100" />
+                        <span asp-validation-for="NewUser.Department" class="invalid-feedback d-block"></span>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-medium">Assigned Role <span class="text-danger">*</span></label>
-                        <select name="NewUser.Role" class="form-select" required>
+                        <label asp-for="NewUser.Role" class="form-label fw-medium">Assigned Role <span class="text-danger">*</span></label>
+                        <select asp-for="NewUser.Role" class="form-select" required>
                             <option value="">-- Select Role --</option>
                             @foreach (var role in Model.AvailableRoles)
                             {
                                 <option value="@role.Name">@role.Name</option>
                             }
                         </select>
+                        <span asp-validation-for="NewUser.Role" class="invalid-feedback d-block"></span>
                     </div>
                     <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" name="NewUser.IsActive" value="true" checked id="isActiveSwitch">
+                        <input class="form-check-input" type="checkbox" asp-for="NewUser.IsActive" id="isActiveSwitch">
                         <label class="form-check-label" for="isActiveSwitch">Account Active Immediately</label>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create User</button>
+                    <button type="submit" id="submitUserBtn" class="btn btn-primary">Create User</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            // Custom jQuery validation method for username characters
+            $.validator.addMethod("usernameChars", function (value, element) {
+                return this.optional(element) || /^[a-zA-Z0-9_.-]+$/.test(value);
+            }, "Username can only contain letters, numbers, underscores, dots, or hyphens.");
+
+            // jQuery Validation on Add User Form
+            var $addUserForm = $("#addUserForm");
+            if ($addUserForm.length) {
+                $addUserForm.validate({
+                    errorElement: "span",
+                    errorClass: "invalid-feedback d-block",
+                    highlight: function (element) {
+                        $(element).addClass("is-invalid").removeClass("is-valid");
+                    },
+                    unhighlight: function (element) {
+                        $(element).removeClass("is-invalid is-valid");
+                    },
+                    rules: {
+                        "NewUser.Username": {
+                            required: true,
+                            minlength: 3,
+                            maxlength: 50,
+                            usernameChars: true
+                        },
+                        "NewUser.FullName": {
+                            required: true,
+                            minlength: 2,
+                            maxlength: 100
+                        },
+                        "NewUser.Email": {
+                            required: true,
+                            email: true,
+                            maxlength: 150
+                        },
+                        "NewUser.Password": {
+                            required: true,
+                            minlength: 6,
+                            maxlength: 100
+                        },
+                        "NewUser.Department": {
+                            maxlength: 100
+                        },
+                        "NewUser.Role": {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        "NewUser.Username": {
+                            required: "Please enter a username.",
+                            minlength: "Username must be at least 3 characters.",
+                            maxlength: "Username cannot exceed 50 characters."
+                        },
+                        "NewUser.FullName": {
+                            required: "Please enter the full name.",
+                            minlength: "Full name must be at least 2 characters.",
+                            maxlength: "Full name cannot exceed 100 characters."
+                        },
+                        "NewUser.Email": {
+                            required: "Please enter an email address.",
+                            email: "Please enter a valid email address (e.g. user@example.com).",
+                            maxlength: "Email cannot exceed 150 characters."
+                        },
+                        "NewUser.Password": {
+                            required: "Please provide a password.",
+                            minlength: "Password must be at least 6 characters.",
+                            maxlength: "Password cannot exceed 100 characters."
+                        },
+                        "NewUser.Department": {
+                            maxlength: "Department name cannot exceed 100 characters."
+                        },
+                        "NewUser.Role": {
+                            required: "Please select an assigned role."
+                        }
+                    },
+                    submitHandler: function (form) {
+                        $("#submitUserBtn").prop("disabled", true).text("Creating...");
+                        form.submit();
+                    }
+                });
+
+                // Reset validation state when modal is closed
+                $("#addUserModal").on("hidden.bs.modal", function () {
+                    $addUserForm.validate().resetForm();
+                    $addUserForm.find(".is-invalid, .is-valid").removeClass("is-invalid is-valid");
+                    $("#submitUserBtn").prop("disabled", false).text("Create User");
+                });
+            }
+
+            // jQuery validation for role change forms
+            $(".change-role-form").on("submit", function (e) {
+                var $select = $(this).find("select[name='newRole']");
+                var selectedRole = $.trim($select.val());
+                if (!selectedRole) {
+                    e.preventDefault();
+                    alert("Please select a valid role before submitting.");
+                    $select.addClass("is-invalid").focus();
+                    return false;
+                }
+                $select.removeClass("is-invalid");
+                return true;
+            });
+
+            // jQuery validation for user filter form
+            $("#usersFilterForm").on("submit", function () {
+                var $search = $("#userSearchInput");
+                var $dept = $("#userDepartmentFilter");
+                if ($search.val().length > 100) {
+                    $search.val($search.val().substring(0, 100));
+                }
+                if ($dept.val().length > 100) {
+                    $dept.val($dept.val().substring(0, 100));
+                }
+            });
+        });
+    </script>
+}
 
 

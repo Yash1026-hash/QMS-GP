@@ -2,23 +2,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using QMSSystem.Shared.Models;
 using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 
 namespace QMSSystem.Web.Pages.Documents.Create;
 
 public class IndexModel : PageModel
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILogger<IndexModel> _logger;
-    private readonly IWebHostEnvironment _environment;
 
-    public IndexModel(
-        IHttpClientFactory httpClientFactory,
-        ILogger<IndexModel> logger,
-        IWebHostEnvironment environment)
+    public IndexModel(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
-        _logger = logger;
-        _environment = environment;
     }
 
     [BindProperty]
@@ -29,12 +23,44 @@ public class IndexModel : PageModel
 
     public void OnGet()
     {
-        Document.DocumentVersion = 0;
+        Document.DocumentVersion = 1;
         Document.Status = "Pending";
+    }
+
+    public async Task<IActionResult> OnGetCheckNumberAsync(string documentNumber, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(documentNumber))
+        {
+            return new JsonResult(new CheckNumberResult { Exists = false });
+        }
+
+        var client = _httpClientFactory.CreateClient("QMSApi");
+        try
+        {
+            var response = await client.GetAsync(
+                $"api/Documents/check-number?documentNumber={Uri.EscapeDataString(documentNumber.Trim())}",
+                cancellationToken);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<CheckNumberResult>(cancellationToken: cancellationToken);
+                return new JsonResult(result ?? new CheckNumberResult { Exists = false });
+            }
+        }
+        catch
+        {
+            // Fall through on network error
+        }
+
+        return new JsonResult(new CheckNumberResult { Exists = false });
     }
 
     public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
+        Document.DocumentNumber = Document.DocumentNumber?.Trim() ?? string.Empty;
+        Document.Title = Document.Title?.Trim() ?? string.Empty;
+        Document.Department = Document.Department?.Trim() ?? string.Empty;
+
         if (string.IsNullOrWhiteSpace(Document.DocumentNumber))
         {
             ModelState.AddModelError("Document.DocumentNumber", "Enter a document number.");
@@ -60,17 +86,45 @@ public class IndexModel : PageModel
             return Page();
         }
 
+        var client = _httpClientFactory.CreateClient("QMSApi");
+
+        // Server-side uniqueness verification before upload
+        try
+        {
+            var checkResp = await client.GetAsync(
+                $"api/Documents/check-number?documentNumber={Uri.EscapeDataString(Document.DocumentNumber)}",
+                cancellationToken);
+
+            if (checkResp.IsSuccessStatusCode)
+            {
+                var checkResult = await checkResp.Content.ReadFromJsonAsync<CheckNumberResult>(cancellationToken: cancellationToken);
+                if (checkResult?.Exists == true)
+                {
+                    ModelState.AddModelError(
+                        "Document.DocumentNumber",
+                        $"Document number '{Document.DocumentNumber}' already exists. Document number must be unique.");
+                    return Page();
+                }
+            }
+        }
+        catch (HttpRequestException)
+        {
+            ModelState.AddModelError(
+                string.Empty,
+                "Could not connect to the API server. Check that the API is running and try again.");
+            return Page();
+        }
+
         using var stream = new MemoryStream();
         await DocumentFile!.CopyToAsync(stream, cancellationToken);
 
         Document.FileData = stream.ToArray();
         Document.FileName = DocumentFile.FileName;
         Document.ContentType = DocumentFile.ContentType;
-        Document.DocumentVersion = 0;
+        Document.DocumentVersion = 1;
         Document.Status = "Pending";
+        Document.CreatedBy = 1;
         Document.CreationOn = DateTime.UtcNow;
-
-        var client = _httpClientFactory.CreateClient("QMSApi");
 
         try
         {
@@ -82,46 +136,40 @@ public class IndexModel : PageModel
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync(cancellationToken);
-                var message = string.IsNullOrWhiteSpace(error)
-                    ? $"The API returned HTTP {(int)response.StatusCode} ({response.ReasonPhrase})."
-                    : $"The API returned HTTP {(int)response.StatusCode}: {error}";
+                if (error.Contains("already exists", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(
+                        "Document.DocumentNumber",
+                        $"Document number '{Document.DocumentNumber}' already exists. Document number must be unique.");
+                }
+                else
+                {
+                    var message = string.IsNullOrWhiteSpace(error)
+                        ? $"The API returned HTTP {(int)response.StatusCode} ({response.ReasonPhrase})."
+                        : $"The API returned HTTP {(int)response.StatusCode}: {error}";
 
-                ModelState.AddModelError(string.Empty, $"Failed to create document. {message}");
+                    ModelState.AddModelError(string.Empty, $"Failed to create document. {message}");
+                }
                 return Page();
             }
-
-            var createdDocument = await response.Content
-                .ReadFromJsonAsync<DocumentCreation>(cancellationToken);
-
-            if (createdDocument is null || createdDocument.Id <= 0)
-            {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "The API saved the document but did not return a valid document ID.");
-                return Page();
-            }
-
-            return RedirectToPage(
-                "/Documents/Details/Index",
-                new { id = createdDocument.Id });
         }
-        catch (HttpRequestException exception)
+        catch (HttpRequestException)
         {
-            _logger.LogError(
-                exception,
-                "Could not connect to the QMS API at {ApiBaseAddress}.",
-                client.BaseAddress);
-
-            var message = "Could not connect to the API server. Make sure QMSSystem.Api is running.";
-            if (_environment.IsDevelopment())
-            {
-                message += $" Address: {client.BaseAddress}. Details: {exception.Message}";
-            }
-
             ModelState.AddModelError(
                 string.Empty,
-                message);
+                "Could not connect to the API server. Check that the API is running and try again.");
             return Page();
         }
+
+        return RedirectToPage("/Documents/Index");
+    }
+
+    public class CheckNumberResult
+    {
+        [JsonPropertyName("exists")]
+        public bool Exists { get; set; }
+
+        [JsonPropertyName("documentNumber")]
+        public string? DocumentNumber { get; set; }
     }
 }

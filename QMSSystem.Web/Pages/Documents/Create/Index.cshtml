@@ -11,41 +11,50 @@
             <h1 class="h3 mb-1">Create Document Request</h1>
             <p class="text-muted mb-0">Submit a controlled document for registration.</p>
         </div>
-        <a asp-page="/Index" class="btn btn-outline-secondary">Cancel</a>
+        <a asp-page="/Documents/Index" class="btn btn-outline-secondary">&larr; Back to Documents</a>
     </div>
 
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" id="createDocumentForm" enctype="multipart/form-data" novalidate>
         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
-        <div class="card mb-4">
+        <div class="card shadow-sm mb-4">
             <div class="card-header bg-light">
                 <span class="fw-semibold">Document Details</span>
             </div>
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label asp-for="Document.DocumentNumber" class="form-label">Document Number</label>
-                        <input asp-for="Document.DocumentNumber" class="form-control" required
-                               placeholder="e.g. SOP-QA-001" />
+                        <label asp-for="Document.DocumentNumber" class="form-label fw-semibold">
+                            Document Number <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="Document.DocumentNumber" id="documentNumberInput" class="form-control" required
+                               placeholder="e.g. SOP-QA-001" autocomplete="off" />
                         <span asp-validation-for="Document.DocumentNumber" class="text-danger small"></span>
+                        <div id="docNumberDuplicateMsg" class="text-danger small mt-1 d-none fw-semibold">
+                            &times; Document number already exists. Document number must be unique.
+                        </div>
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="Document.Department" class="form-label">Department</label>
+                        <label asp-for="Document.Department" class="form-label fw-semibold">
+                            Department <span class="text-danger">*</span>
+                        </label>
                         <input asp-for="Document.Department" class="form-control" required
                                placeholder="e.g. Quality Assurance" />
                         <span asp-validation-for="Document.Department" class="text-danger small"></span>
                     </div>
 
                     <div class="col-12">
-                        <label asp-for="Document.Title" class="form-label">Title</label>
+                        <label asp-for="Document.Title" class="form-label fw-semibold">
+                            Title <span class="text-danger">*</span>
+                        </label>
                         <input asp-for="Document.Title" class="form-control" required
                                placeholder="Enter the document title" />
                         <span asp-validation-for="Document.Title" class="text-danger small"></span>
                     </div>
 
                     <div class="col-12">
-                        <label asp-for="Document.Comment" class="form-label">Scope / Change Summary</label>
+                        <label asp-for="Document.Comment" class="form-label fw-semibold">Scope / Change Summary</label>
                         <textarea asp-for="Document.Comment" class="form-control" rows="4"
                                   placeholder="Briefly describe the document purpose or changes."></textarea>
                     </div>
@@ -53,21 +62,139 @@
             </div>
         </div>
 
-        <div class="card mb-4">
+        <div class="card shadow-sm mb-4">
             <div class="card-header bg-light">
                 <span class="fw-semibold">File Attachment</span>
             </div>
             <div class="card-body">
-                <label asp-for="DocumentFile" class="form-label">Document File</label>
+                <label asp-for="DocumentFile" class="form-label fw-semibold">
+                    Document File <span class="text-danger">*</span>
+                </label>
                 <input asp-for="DocumentFile" type="file" class="form-control" required />
                 <span asp-validation-for="DocumentFile" class="text-danger small"></span>
-                <div class="form-text">Select the file to attach to this document request.</div>
+                <div class="form-text">Select the PDF, DOCX, or text file to attach to this document request.</div>
             </div>
         </div>
 
-        <div class="d-flex flex-wrap gap-2">
-            <button type="submit" class="btn btn-primary">Submit Document Request</button>
-            <a asp-page="/Index" class="btn btn-outline-secondary">Cancel</a>
+        <div class="d-flex justify-content-end gap-2">
+            <a asp-page="/Documents/Index" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" id="createDocSubmitBtn" class="btn btn-primary">Submit Document Request</button>
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var $createForm = $("#createDocumentForm");
+            var $docNumInput = $("#documentNumberInput");
+            var $dupMsg = $("#docNumberDuplicateMsg");
+            var $submitBtn = $("#createDocSubmitBtn");
+            var isDuplicateDocNumber = false;
+            var checkTimeout = null;
+
+            function checkDocNumberUnique() {
+                var val = $.trim($docNumInput.val());
+                if (val.length < 3) {
+                    $dupMsg.addClass("d-none");
+                    $docNumInput.removeClass("is-invalid");
+                    isDuplicateDocNumber = false;
+                    return;
+                }
+
+                $.ajax({
+                    url: "/documents/create?handler=CheckNumber",
+                    type: "GET",
+                    data: { documentNumber: val },
+                    success: function (res) {
+                        if (res && res.exists) {
+                            isDuplicateDocNumber = true;
+                            $dupMsg.removeClass("d-none");
+                            $docNumInput.addClass("is-invalid");
+                            $submitBtn.prop("disabled", true);
+                        } else {
+                            isDuplicateDocNumber = false;
+                            $dupMsg.addClass("d-none");
+                            $docNumInput.removeClass("is-invalid");
+                            $submitBtn.prop("disabled", false);
+                        }
+                    },
+                    error: function () {
+                        isDuplicateDocNumber = false;
+                        $dupMsg.addClass("d-none");
+                    }
+                });
+            }
+
+            $docNumInput.on("input", function () {
+                clearTimeout(checkTimeout);
+                checkTimeout = setTimeout(checkDocNumberUnique, 400);
+            });
+
+            $docNumInput.on("blur", function () {
+                clearTimeout(checkTimeout);
+                checkDocNumberUnique();
+            });
+
+            if ($createForm.length) {
+                $createForm.validate({
+                    rules: {
+                        "Document.DocumentNumber": {
+                            required: true,
+                            minlength: 3,
+                            maxlength: 50
+                        },
+                        "Document.Department": {
+                            required: true,
+                            minlength: 2,
+                            maxlength: 100
+                        },
+                        "Document.Title": {
+                            required: true,
+                            minlength: 3,
+                            maxlength: 200
+                        },
+                        "Document.Comment": {
+                            maxlength: 1000
+                        },
+                        "DocumentFile": {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        "Document.DocumentNumber": {
+                            required: "Please enter a document number (e.g. SOP-QA-001).",
+                            minlength: "Document number must be at least 3 characters.",
+                            maxlength: "Document number cannot exceed 50 characters."
+                        },
+                        "Document.Department": {
+                            required: "Please enter a department name.",
+                            minlength: "Department must be at least 2 characters.",
+                            maxlength: "Department cannot exceed 100 characters."
+                        },
+                        "Document.Title": {
+                            required: "Please enter the document title.",
+                            minlength: "Title must be at least 3 characters.",
+                            maxlength: "Title cannot exceed 200 characters."
+                        },
+                        "Document.Comment": {
+                            maxlength: "Comment cannot exceed 1000 characters."
+                        },
+                        "DocumentFile": {
+                            required: "Please select a file to upload."
+                        }
+                    },
+                    submitHandler: function (form) {
+                        if (isDuplicateDocNumber) {
+                            $docNumInput.focus();
+                            $dupMsg.removeClass("d-none");
+                            return false;
+                        }
+                        $submitBtn.prop("disabled", true).text("Submitting...");
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
+}

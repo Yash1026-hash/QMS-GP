@@ -1,148 +1,168 @@
 @page
 @model QMSSystem.Web.Pages.Operator.ChangeRequest.EditModel
+@{
+    ViewData["Title"] = "New Change Request";
+}
 
-<style>
-    .change-request-form {
-        max-width: 900px;
-        margin: 30px auto;
-    }
-
-    .change-request-form h1 {
-        margin-bottom: 30px;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 7px;
-        font-weight: bold;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        box-sizing: border-box;
-        font-size: 15px;
-    }
-
-    .form-group textarea {
-        resize: vertical;
-    }
-
-    .submit-section {
-        text-align: right;
-        margin-top: 30px;
-    }
-
-    .submit-button {
-        padding: 10px 25px;
-        background-color: #0d6efd;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        font-size: 15px;
-        cursor: pointer;
-    }
-
-    .submit-button:hover {
-        background-color: #0b5ed7;
-    }
-</style>
-
-<div class="change-request-form">
-
-    <h1>New Change Request</h1>
-
-    <form method="post">
-
-        <input type="hidden" asp-for="DocumentId" />
-
-        <div class="form-group">
-
-            <label>
-                Select Deviations For Selected Document
-            </label>
-
-            <select asp-for="SelectedDeviationIds"
-                    multiple
-                    size="6">
-
-                @foreach (var deviation in Model.Deviations)
-                {
-                    <option value="@deviation.Id">
-                        @deviation.Id - @deviation.Title
-                    </option>
-                }
-
-            </select>
-
-        </div>
-
-        <div class="form-group">
-            <label>Title</label>
-
-            <input asp-for="Title"
-                   placeholder="Enter change request title" />
-        </div>
-
-        <div class="form-group">
-            <label>Change Type</label>
-
-            <select asp-for="ChangeType">
-                <option value="">-- Select Change Type --</option>
-                <option value="Equipment">Equipment</option>
-                <option value="Software">Software</option>
-                <option value="Process">Process</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-
-            <label>Description of Proposed Changes</label>
-
-            <textarea asp-for="Description"
-                      rows="6">
-            </textarea>
-
-        </div>
-
-        <div class="form-group">
-
-            <label>Requested By</label>
-
-            <input asp-for="RequestedByUserId"
-                   readonly />
-
-        </div>
-
-        <div class="form-group">
-
-            <label>Requested Date</label>
-
-            <input asp-for="RequestedDate"
-                   type="date"
-                   readonly />
-
-        </div>
-
-        <div class="submit-section">
-
-            <button type="submit"
-                    class="submit-button">
-
-                Submit
-
-            </button>
-
-        </div>
-
-    </form>
-
+<!-- PAGE HEADER -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pt-2">
+    <div>
+        <h2 class="h4 mb-1">New Change Request</h2>
+        <p class="text-muted mb-0">Submit a formal request for document, software, or process modification.</p>
+    </div>
+    <a asp-page="/Operator/ChangeRequest/Index" class="btn btn-outline-secondary">
+        &larr; Cancel &amp; Back
+    </a>
 </div>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-light">
+        <span class="fw-semibold">Change Request Details</span>
+    </div>
+    <div class="card-body">
+        <form method="post" id="changeRequestForm" novalidate>
+            <div class="row g-3">
+
+                <!-- DOCUMENT SELECTION -->
+                <div class="col-md-6">
+                    <label asp-for="DocumentId" class="form-label fw-semibold">
+                        Controlled Document <span class="text-danger">*</span>
+                    </label>
+                    <select asp-for="DocumentId" id="documentSelect" class="form-select" required>
+                        <option value="">-- Select Active Document --</option>
+                        @foreach (var doc in Model.ActiveDocuments)
+                        {
+                            <option value="@doc.Id" selected="@(doc.Id == Model.DocumentId ? "selected" : null)">
+                                #DOC-@doc.Id - @doc.Title (v@(doc.DocumentVersion) &bull; @doc.Department)
+                            </option>
+                        }
+                    </select>
+                    <span asp-validation-for="DocumentId" class="text-danger small d-block"></span>
+                    @if (Model.ActiveDocuments.Count == 0)
+                    {
+                        <div class="form-text text-warning">No active documents found. Create an SOP first or enter document ID directly.</div>
+                    }
+                </div>
+
+                <!-- CHANGE TYPE -->
+                <div class="col-md-6">
+                    <label asp-for="ChangeType" class="form-label fw-semibold">
+                        Change Type <span class="text-danger">*</span>
+                    </label>
+                    <select asp-for="ChangeType" class="form-select" required>
+                        <option value="">-- Select Change Type --</option>
+                        <option value="Procedure">Procedure</option>
+                        <option value="Equipment">Equipment</option>
+                        <option value="Software">Software</option>
+                        <option value="Process">Process</option>
+                        <option value="Specification">Specification</option>
+                    </select>
+                    <span asp-validation-for="ChangeType" class="text-danger small d-block"></span>
+                </div>
+
+                <!-- TITLE -->
+                <div class="col-12">
+                    <label asp-for="Title" class="form-label fw-semibold">
+                        Change Request Title <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="Title" class="form-control" placeholder="Brief summary of what needs to be changed..." maxlength="200" required />
+                    <span asp-validation-for="Title" class="text-danger small d-block"></span>
+                </div>
+
+                <!-- ASSOCIATED DEVIATIONS -->
+                <div class="col-12">
+                    <label asp-for="SelectedDeviationIds" class="form-label fw-semibold">
+                        Associated Deviations (Optional)
+                    </label>
+                    @if (Model.Deviations.Count > 0)
+                    {
+                        <select asp-for="SelectedDeviationIds" class="form-select" multiple size="3">
+                            @foreach (var deviation in Model.Deviations)
+                            {
+                                <option value="@deviation.Id">
+                                    #DEV-@deviation.Id - @deviation.Title
+                                </option>
+                            }
+                        </select>
+                        <div class="form-text">Hold Ctrl (Windows) or Cmd (Mac) to select multiple deviations.</div>
+                    }
+                    else
+                    {
+                        <div class="p-2 border rounded bg-light text-muted small">
+                            No approved deviation reports currently linked to the selected document.
+                        </div>
+                    }
+                </div>
+
+                <!-- DESCRIPTION -->
+                <div class="col-12">
+                    <label asp-for="Description" class="form-label fw-semibold">
+                        Description of Proposed Changes <span class="text-danger">*</span>
+                    </label>
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="5"
+                              placeholder="Detail the rationale, proposed solution, and affected sections..."
+                              required></textarea>
+                    <span asp-validation-for="Description" class="text-danger small d-block"></span>
+                </div>
+
+                <div class="col-sm-6">
+                    <label class="form-label small text-muted">Requested By (User ID)</label>
+                    <input asp-for="RequestedByUserId" class="form-control bg-light" readonly />
+                </div>
+
+                <div class="col-sm-6">
+                    <label class="form-label small text-muted">Requested Date</label>
+                    <input asp-for="RequestedDate" type="date" class="form-control bg-light" readonly />
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                <a asp-page="/Operator/ChangeRequest/Index" class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+                <button type="submit" id="submitChangeRequestBtn" class="btn btn-primary px-4">
+                    Submit Change Request
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            $("#documentSelect").on("change", function () {
+                var docId = $(this).val();
+                if (docId) {
+                    window.location.href = window.location.pathname + "?documentId=" + docId;
+                }
+            });
+
+            $("#changeRequestForm").validate({
+                rules: {
+                    DocumentId: { required: true, min: 1 },
+                    Title: { required: true, maxlength: 200 },
+                    ChangeType: { required: true },
+                    Description: { required: true, minlength: 10 }
+                },
+                messages: {
+                    DocumentId: "Please select an active document.",
+                    Title: "Please enter a change request title.",
+                    ChangeType: "Please select a change type.",
+                    Description: "Please provide a detailed description of the proposed changes."
+                }
+            });
+        });
+    </script>
+}

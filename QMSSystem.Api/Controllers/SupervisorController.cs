@@ -176,13 +176,28 @@ public class SupervisorController : ControllerBase
                 "Decision must be approve, revision, or reject.");
         }
 
-        // Approved documents become active.
-        // Revision and rejection decisions leave documents inactive.
-        var documentStatus = decision == "Approved"
-            ? "Active"
-            : "Inactive";
+        string documentStatus;
+        int decisionStatus;
 
-        var decisionStatus = decision == "Approved" ? 1 : 2;
+        switch (decision)
+        {
+            case "Approved":
+                documentStatus = "Active";
+                decisionStatus = 1;
+                break;
+            case "Returned for revision":
+                documentStatus = "Revision Required";
+                decisionStatus = 3;
+                break;
+            case "Rejected":
+                documentStatus = "Rejected";
+                decisionStatus = 2;
+                break;
+            default:
+                documentStatus = "Inactive";
+                decisionStatus = 0;
+                break;
+        }
 
         if (string.IsNullOrWhiteSpace(decisionRequest.Comment) ||
             decisionRequest.Comment.Trim().Length > 1000)
@@ -218,17 +233,103 @@ public class SupervisorController : ControllerBase
 
         var decisionTime = DateTime.UtcNow;
         var comments = decisionRequest.Comment.Trim();
-
-        document.Status = documentStatus;
-        document.DecisionBy = reviewerIds[0].ToString();
-        document.DecisionDate = decisionTime;
-        document.DecisionStatus = decisionStatus;
-
         var reviewerNote = $"Reviewer decision ({decision}): {comments}";
 
-        document.Comment = string.IsNullOrWhiteSpace(document.Comment)
-            ? reviewerNote
-            : $"{document.Comment}{Environment.NewLine}{Environment.NewLine}{reviewerNote}";
+        // Check if this document has a pre-revision backup (uploaded revision pending review)
+        var backup = await _context.DocumentHistories
+            .FirstOrDefaultAsync(
+                h => h.DocumentId == document.Id && h.Status == "PendingRevisionBackup",
+                cancellationToken);
+
+        if (decision == "Approved")
+        {
+            document.Status = "Active";
+            document.DecisionBy = reviewerIds[0].ToString();
+            document.DecisionDate = decisionTime;
+            document.DecisionStatus = 1;
+
+            document.Comment = string.IsNullOrWhiteSpace(document.Comment)
+                ? reviewerNote
+                : $"{document.Comment}{Environment.NewLine}{Environment.NewLine}{reviewerNote}";
+
+            if (backup != null)
+            {
+                // Put the old version in the history table as Inactive
+                backup.Status = "Inactive";
+                backup.ArchivedOn = decisionTime;
+                backup.ArchivedBy = reviewerIds[0];
+                backup.Comment = $"Superseded upon approval of Revision v{document.DocumentVersion}.";
+            }
+        }
+        else if (decision == "Rejected")
+        {
+            if (backup != null)
+            {
+                // KEEP THE OLD DOCUMENT AS ACTIVE IF THE NEW UPLOAD REVISION IS REJECTED
+                var rejectedVersion = document.DocumentVersion;
+
+                document.FileName = backup.FileName;
+                document.ContentType = backup.ContentType;
+                document.FileData = backup.FileData;
+                document.DocumentNumber = backup.DocumentNumber;
+                document.Title = backup.Title;
+                document.Department = backup.Department;
+                document.DocumentVersion = backup.DocumentVersion; // Keep original active version
+                document.CreationOn = backup.CreationOn;
+                document.CreatedBy = backup.CreatedBy;
+                document.Status = "Active"; // Remains Active!
+                document.DecisionStatus = 1; // Approved / Active
+                document.DecisionBy = reviewerIds[0].ToString();
+                document.DecisionDate = decisionTime;
+
+                var rejectionNote = $"Uploaded revision v{rejectedVersion} was rejected by supervisor: {comments}. Document remains Active at v{backup.DocumentVersion}.";
+                document.Comment = string.IsNullOrWhiteSpace(document.Comment)
+                    ? rejectionNote
+                    : $"{document.Comment}{Environment.NewLine}{Environment.NewLine}{rejectionNote}";
+
+                // Remove the temporary backup so the active version is not flagged as inactive
+                _context.DocumentHistories.Remove(backup);
+
+                // Record the rejected revision in history
+                _context.DocumentHistories.Add(new DocumentHistory
+                {
+                    DocumentId = document.Id,
+                    DocumentNumber = document.DocumentNumber,
+                    Title = document.Title,
+                    Department = document.Department,
+                    DocumentVersion = rejectedVersion,
+                    Status = "Rejected",
+                    FileName = backup.FileName,
+                    ContentType = backup.ContentType,
+                    FileData = backup.FileData,
+                    CreatedBy = document.CreatedBy,
+                    CreationOn = decisionTime,
+                    Comment = $"Revision v{rejectedVersion} rejected by supervisor: {comments}. Prior v{backup.DocumentVersion} kept Active.",
+                    ArchivedOn = decisionTime,
+                    ArchivedBy = reviewerIds[0]
+                });
+            }
+            else
+            {
+                document.Status = "Rejected";
+                document.DecisionBy = reviewerIds[0].ToString();
+                document.DecisionDate = decisionTime;
+                document.DecisionStatus = 2;
+                document.Comment = string.IsNullOrWhiteSpace(document.Comment)
+                    ? reviewerNote
+                    : $"{document.Comment}{Environment.NewLine}{Environment.NewLine}{reviewerNote}";
+            }
+        }
+        else // "Returned for revision"
+        {
+            document.Status = "Revision Required";
+            document.DecisionBy = reviewerIds[0].ToString();
+            document.DecisionDate = decisionTime;
+            document.DecisionStatus = 3;
+            document.Comment = string.IsNullOrWhiteSpace(document.Comment)
+                ? reviewerNote
+                : $"{document.Comment}{Environment.NewLine}{Environment.NewLine}{reviewerNote}";
+        }
 
         await _context.SaveChangesAsync(cancellationToken);
 

@@ -5,9 +5,16 @@
     ViewData["Title"] = "Change Request Details";
 }
 
-<h2>Change Request Details</h2>
+<main class="change-request-index-page">
+    <header class="operator-page-heading mb-4">
+        <p class="eyebrow">Operator workspace</p>
+        <h1>Change Request Details</h1>
+    </header>
 
-@await Component.InvokeAsync(
-    "ChangeRequestDetails",
-    new { dto = Model.Dto }
-)
+    <section class="card p-4">
+        @await Component.InvokeAsync(
+            "ChangeRequestDetails",
+            new { dto = Model.Dto }
+        )
+    </section>
+</main>

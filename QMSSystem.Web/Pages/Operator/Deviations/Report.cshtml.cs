@@ -33,6 +33,8 @@ public sealed class ReportModel : PageModel
     public IReadOnlyList<DeviationRequestDto> ApprovedDeviations { get; private set; } =
         Array.Empty<DeviationRequestDto>();
 
+    public List<DeviationReportDto> SubmittedReports { get; private set; } = [];
+
     public int AttemptNumber { get; private set; } = 1;
 
     [BindProperty]
@@ -54,6 +56,7 @@ public sealed class ReportModel : PageModel
             : "Anonymous";
         CreatedDate = DateTime.UtcNow;
         await LoadApprovedDeviationsAsync();
+        await LoadSubmittedReportsAsync();
 
         if (DeviationId.HasValue &&
             ApprovedDeviations.Any(deviation => deviation.Id == DeviationId.Value))
@@ -65,6 +68,7 @@ public sealed class ReportModel : PageModel
     public async Task<IActionResult> OnPostAsync()
     {
         await LoadApprovedDeviationsAsync();
+        await LoadSubmittedReportsAsync();
 
         var selectedDeviation = SelectedDeviationId is > 0
             ? ApprovedDeviations.FirstOrDefault(deviation => deviation.Id == SelectedDeviationId.Value)
@@ -242,6 +246,24 @@ public sealed class ReportModel : PageModel
             ModelState.AddModelError(
                 string.Empty,
                 "The QMS API returned invalid deviation data. Approved deviations could not be loaded.");
+        }
+    }
+
+    private async Task LoadSubmittedReportsAsync()
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient("QMSApi");
+            using var response = await client.GetAsync("api/DeviationReports");
+            if (response.IsSuccessStatusCode)
+            {
+                var reports = await response.Content.ReadFromJsonAsync<List<DeviationReportDto>>();
+                SubmittedReports = reports?.OrderByDescending(r => r.CreatedDate).ToList() ?? [];
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Could not load submitted deviation reports.");
         }
     }
 }

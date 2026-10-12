@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QMSSystem.Api.Data;
@@ -8,6 +9,7 @@ namespace QMSSystem.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[AllowAnonymous]
 public class ChangeRequestDocumentController : ControllerBase
 {
     private readonly UserDbContext _context;
@@ -21,7 +23,7 @@ public class ChangeRequestDocumentController : ControllerBase
     public async Task<IActionResult> GetActiveDocuments()
     {
         var documents = await _context.DocumentCreations
-            .Where(document => document.Status == "Active")
+            .Where(document => document.Status == "Active" || document.Status == "Approved")
             .OrderBy(document => document.Id)
             .ToListAsync();
 

@@ -10,27 +10,41 @@
             <th>Document Id</th>
             <th>Document Title</th>
             <th>Department</th>
+            <th>Version</th>
         </tr>
     </thead>
 
     <tbody>
 
-        @foreach (var document in Model.Documents)
+        @if (Model.Documents == null || !Model.Documents.Any())
         {
             <tr>
-
-                <td>@document.Id</td>
-
-                <td>
-                    <a asp-page="/Operator/ChangeRequest/Edit"
-                       asp-route-documentId="@document.Id">
-                        @document.Title
-                    </a>
-                </td>
-
-                <td>@document.Department</td>
-
+                <td colspan="4" class="text-center text-muted py-4">No active documents found.</td>
             </tr>
+        }
+        else
+        {
+            @foreach (var document in Model.Documents)
+            {
+                <tr>
+
+                    <td>@document.Id</td>
+
+                    <td>
+                        <a asp-page="/Operator/ChangeRequest/Edit"
+                           asp-route-documentId="@document.Id">
+                            @document.Title
+                        </a>
+                    </td>
+
+                    <td>@document.Department</td>
+
+                    <td>
+                        <span class="badge bg-light text-dark border">v@(document.DocumentVersion)</span>
+                    </td>
+
+                </tr>
+            }
         }
 
     </tbody>

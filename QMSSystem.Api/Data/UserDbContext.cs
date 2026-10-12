@@ -432,7 +432,6 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
                 .IsRequired();
 
             entity.Property(deviation => deviation.Description)
-                .HasColumnType("nvarchar(max)")
                 .IsRequired();
 
             entity.Property(deviation => deviation.Priority)
@@ -449,7 +448,7 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
 
             entity.Property(deviation => deviation.CreatedDate)
                 .IsRequired()
-                .HasDefaultValueSql("SYSUTCDATETIME()");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.Property(deviation => deviation.Decision)
                 .IsRequired(false);
@@ -462,7 +461,6 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
                 .IsRequired(false);
 
             entity.Property(deviation => deviation.DecisionComments)
-                .HasColumnType("nvarchar(max)")
                 .IsRequired(false);
 
             entity.HasOne<DocumentCreation>()
@@ -489,7 +487,6 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
                 .IsRequired();
 
             entity.Property(report => report.Proof)
-                .HasColumnType("varbinary(max)")
                 .IsRequired(false);
 
             entity.Property(report => report.CreatedBy)
@@ -498,10 +495,9 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
 
             entity.Property(report => report.CreatedDate)
                 .IsRequired()
-                .HasDefaultValueSql("SYSUTCDATETIME()");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.Property(report => report.Summary)
-                .HasColumnType("nvarchar(max)")
                 .IsRequired();
 
             entity.Property(report => report.Status)
@@ -519,7 +515,6 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
                 .IsRequired(false);
 
             entity.Property(report => report.DecisionComments)
-                .HasColumnType("nvarchar(max)")
                 .IsRequired(false);
 
             entity.Ignore(report => report.AttemptNumber);

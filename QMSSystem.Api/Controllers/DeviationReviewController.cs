@@ -17,6 +17,14 @@ public class DeviationReviewController : ControllerBase
         _service = service;
     }
 
+    // GET: api/deviation-review/active
+    [HttpGet("active")]
+    public async Task<IActionResult> GetActiveDeviations()
+    {
+        var list = await _service.GetActiveDeviationsAsync();
+        return Ok(list);
+    }
+
     // GET: api/deviation-review/5
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetDeviation(int id)

@@ -10,6 +10,7 @@ public class ChangeRequestApprovalModel : PageModel
     private readonly IHttpClientFactory _httpClientFactory;
 
     public List<OperatorChangeRequest> ChangeRequests { get; set; } = new();
+    public List<OperatorChangeRequest> ClosedChangeRequests { get; set; } = new();
 
     public string ErrorMessage { get; set; } = string.Empty;
 
@@ -80,16 +81,13 @@ public class ChangeRequestApprovalModel : PageModel
         }
 
 
-        if (!Decision.Equals(
-                "accept",
-                StringComparison.OrdinalIgnoreCase)
-            &&
-            !Decision.Equals(
-                "reject",
-                StringComparison.OrdinalIgnoreCase))
+        var d = Decision.Trim().ToLowerInvariant();
+        bool isApproved = d == "accept" || d == "approve";
+        bool isRejected = d == "reject";
+
+        if (!isApproved && !isRejected)
         {
-            ErrorMessage =
-                "Invalid decision selected.";
+            ErrorMessage = "Please select either Approve or Reject.";
 
             await LoadPendingChangeRequestsAsync();
 
@@ -182,6 +180,8 @@ public class ChangeRequestApprovalModel : PageModel
             // CREATE COMPLETE REQUEST FOR POST
             // -------------------------------------------------
 
+            var outcome = isApproved ? "Approved" : "Rejected";
+
             var request = new OperatorChangeRequest
             {
                 Id = existingRequest.Id,
@@ -200,8 +200,7 @@ public class ChangeRequestApprovalModel : PageModel
                 RequestedDate =
                     existingRequest.RequestedDate,
 
-                Decision =
-                    Decision.ToLowerInvariant(),
+                Decision = outcome,
 
                 DecisionComment =
                     DecisionComment.Trim(),
@@ -210,14 +209,9 @@ public class ChangeRequestApprovalModel : PageModel
                     decisionByUserId,
 
                 DecisionDate =
-                    DateTime.Now,
+                    DateTime.UtcNow,
 
-                Status =
-                    Decision.Equals(
-                        "accept",
-                        StringComparison.OrdinalIgnoreCase)
-                        ? "Approved"
-                        : "Rejected"
+                Status = outcome
             };
 
 
@@ -237,6 +231,9 @@ public class ChangeRequestApprovalModel : PageModel
 
             if (response.IsSuccessStatusCode)
             {
+                TempData["SuccessMessage"] =
+                    $"Change request #{request.Id} has been successfully {outcome.ToLowerInvariant()}.";
+
                 return RedirectToPage(
                     "/Supervisor/ChangeRequestApproval");
             }
@@ -283,11 +280,9 @@ public class ChangeRequestApprovalModel : PageModel
             var client =
                 _httpClientFactory.CreateClient("ApiClient");
 
-
             var response =
                 await client.GetAsync(
                     "api/ChangeRequestApproval/pending");
-
 
             if (response.IsSuccessStatusCode)
             {
@@ -301,6 +296,19 @@ public class ChangeRequestApprovalModel : PageModel
             {
                 ErrorMessage =
                     "Unable to load pending change requests.";
+            }
+
+            var closedResponse =
+                await client.GetAsync(
+                    "api/ChangeRequestApproval/closed");
+
+            if (closedResponse.IsSuccessStatusCode)
+            {
+                ClosedChangeRequests =
+                    await closedResponse.Content
+                        .ReadFromJsonAsync<
+                            List<OperatorChangeRequest>>()
+                    ?? new List<OperatorChangeRequest>();
             }
         }
         catch (Exception)

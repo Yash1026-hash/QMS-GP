@@ -606,11 +606,39 @@ public class AdminController : ControllerBase
     {
         var auditRecords = await _context.DocumentHistories
             .AsNoTracking()
-            .Where(h => h.DocumentNumber != "string" && h.DocumentId > 0)
+            .Where(h => h.DocumentNumber != "string" && h.DocumentId > 0 && h.Status != "PendingRevisionBackup")
             .OrderByDescending(h => h.ArchivedOn)
             .ToListAsync();
 
-        return Ok(auditRecords);
+        var currentDocs = await _context.DocumentCreations
+            .AsNoTracking()
+            .Where(d => d.DocumentNumber != "string" && d.Id > 0)
+            .ToListAsync();
+
+        foreach (var doc in currentDocs)
+        {
+            auditRecords.Add(new DocumentHistory
+            {
+                Id = -doc.Id,
+                DocumentId = doc.Id,
+                DocumentNumber = doc.DocumentNumber,
+                Title = doc.Title,
+                Department = doc.Department,
+                DocumentVersion = doc.DocumentVersion,
+                Status = doc.Status,
+                FileName = doc.FileName,
+                ContentType = doc.ContentType,
+                CreatedBy = doc.CreatedBy,
+                CreationOn = doc.CreationOn,
+                Comment = string.IsNullOrWhiteSpace(doc.Comment)
+                    ? $"Current live version (Status: {doc.Status})"
+                    : doc.Comment,
+                ArchivedOn = doc.DecisionDate ?? doc.CreationOn,
+                ArchivedBy = int.TryParse(doc.DecisionBy, out var dBy) ? dBy : doc.CreatedBy
+            });
+        }
+
+        return Ok(auditRecords.OrderByDescending(h => h.ArchivedOn));
     }
 
     // =========================================================
