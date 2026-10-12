@@ -121,21 +121,23 @@ public class AdminController : ControllerBase
 
         if (!string.IsNullOrWhiteSpace(status))
         {
-            query = query.Where(c => c.Status.ToLower() == status.ToLower());
+            var s = status.Trim().ToLower();
+            query = query.Where(c => c.Status != null && c.Status.ToLower() == s);
         }
 
         if (!string.IsNullOrWhiteSpace(changeType))
         {
-            query = query.Where(c => c.ChangeType.ToLower() == changeType.ToLower());
+            var ct = changeType.Trim().ToLower();
+            query = query.Where(c => c.ChangeType != null && c.ChangeType.ToLower() == ct);
         }
 
         if (!string.IsNullOrWhiteSpace(search))
         {
             var term = search.Trim();
             query = query.Where(c =>
-                c.Title.Contains(term) ||
-                c.Description.Contains(term) ||
-                c.ChangeType.Contains(term));
+                (c.Title != null && c.Title.Contains(term)) ||
+                (c.Description != null && c.Description.Contains(term)) ||
+                (c.ChangeType != null && c.ChangeType.Contains(term)));
         }
 
         var result = await query

@@ -7,6 +7,8 @@ namespace QMSSystem.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Route("api/OperatorChangeRequests")]
+    [Route("api/ChangeRequestsIndex")]
     public class ChangeRequestController : ControllerBase
     {
         private readonly UserDbContext _context;

@@ -176,29 +176,6 @@ public class SupervisorController : ControllerBase
                 "Decision must be approve, revision, or reject.");
         }
 
-        string documentStatus;
-        int decisionStatus;
-
-        switch (decision)
-        {
-            case "Approved":
-                documentStatus = "Active";
-                decisionStatus = 1;
-                break;
-            case "Returned for revision":
-                documentStatus = "Revision Required";
-                decisionStatus = 3;
-                break;
-            case "Rejected":
-                documentStatus = "Rejected";
-                decisionStatus = 2;
-                break;
-            default:
-                documentStatus = "Inactive";
-                decisionStatus = 0;
-                break;
-        }
-
         if (string.IsNullOrWhiteSpace(decisionRequest.Comment) ||
             decisionRequest.Comment.Trim().Length > 1000)
         {

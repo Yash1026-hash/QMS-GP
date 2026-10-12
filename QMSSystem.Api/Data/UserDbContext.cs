@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using QMSSystem.Shared.Dtos;
 using QMSSystem.Shared.DTOs;
-using QMSSystem.Shared.Dtos;
 using QMSSystem.Shared.Models;
 
 namespace QMSSystem.Api.Data;
@@ -22,8 +21,6 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
     // =========================================================
     // DOCUMENTS
     // =========================================================
-
-    // public DbSet<DocumentCreation> DocumentCreations => Set<DocumentCreation>();
 
     public DbSet<DocumentHistory> DocumentHistories => Set<DocumentHistory>();
 
@@ -50,59 +47,6 @@ public sealed class UserDbContext(DbContextOptions<UserDbContext> options)
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // =====================================================
-        // OPERATOR CHANGE REQUEST
-        // =====================================================
-
-        modelBuilder.Entity<OperatorChangeRequest>(entity =>
-        {
-            entity.ToTable("OperatorChangeRequests", "dbo");
-
-            entity.HasKey(changeRequest => changeRequest.Id);
-
-            entity.Property(changeRequest => changeRequest.Title)
-                .HasMaxLength(200)
-                .IsRequired();
-
-            entity.Property(changeRequest => changeRequest.ChangeType)
-                .HasMaxLength(50)
-                .IsRequired();
-
-            entity.Property(changeRequest => changeRequest.Description)
-                .IsRequired();
-
-            entity.Property(changeRequest => changeRequest.Decision)
-                .HasMaxLength(20);
-
-            entity.Property(changeRequest => changeRequest.DecisionComment)
-                .HasMaxLength(1000);
-
-            entity.Property(changeRequest => changeRequest.Status)
-                .HasMaxLength(20)
-                .IsRequired();
-        });
-
-
-        // =====================================================
-        // OPERATOR CHANGE REQUEST DEVIATION
-        // =====================================================
-
-        modelBuilder.Entity<OperatorChangeRequestDeviation>(entity =>
-        {
-            entity.ToTable(
-                "OperatorChangeRequestDeviations",
-                "dbo");
-
-            entity.HasKey(deviation => deviation.Id);
-
-            entity.Property(deviation => deviation.ChangeRequestId)
-                .IsRequired();
-
-            entity.Property(deviation => deviation.DeviationId)
-                .IsRequired();
-        });
-
-
         // =====================================================
         // USERS
         // =====================================================

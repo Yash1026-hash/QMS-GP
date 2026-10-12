@@ -42,29 +42,29 @@ public class IndexModel : PageModel
             var allRequests = await client.GetFromJsonAsync<List<OperatorChangeRequest>>("api/admin/change-requests") ?? [];
 
             TotalCount = allRequests.Count;
-            ActiveCount = allRequests.Count(c => c.Status.Equals("active", StringComparison.OrdinalIgnoreCase) || c.Status.Equals("approved", StringComparison.OrdinalIgnoreCase));
-            PendingCount = allRequests.Count(c => c.Status.Equals("pending", StringComparison.OrdinalIgnoreCase));
-            InactiveCount = allRequests.Count(c => c.Status.Equals("inactive", StringComparison.OrdinalIgnoreCase) || c.Status.Equals("rejected", StringComparison.OrdinalIgnoreCase));
+            ActiveCount = allRequests.Count(c => c.Status != null && (c.Status.Equals("active", StringComparison.OrdinalIgnoreCase) || c.Status.Equals("approved", StringComparison.OrdinalIgnoreCase)));
+            PendingCount = allRequests.Count(c => c.Status != null && c.Status.Equals("pending", StringComparison.OrdinalIgnoreCase));
+            InactiveCount = allRequests.Count(c => c.Status != null && (c.Status.Equals("inactive", StringComparison.OrdinalIgnoreCase) || c.Status.Equals("rejected", StringComparison.OrdinalIgnoreCase)));
 
             var query = allRequests.AsEnumerable();
 
             if (!string.IsNullOrWhiteSpace(StatusFilter))
             {
-                query = query.Where(c => c.Status.Equals(StatusFilter, StringComparison.OrdinalIgnoreCase));
+                query = query.Where(c => c.Status != null && c.Status.Equals(StatusFilter, StringComparison.OrdinalIgnoreCase));
             }
 
             if (!string.IsNullOrWhiteSpace(ChangeTypeFilter))
             {
-                query = query.Where(c => c.ChangeType.Equals(ChangeTypeFilter, StringComparison.OrdinalIgnoreCase));
+                query = query.Where(c => c.ChangeType != null && c.ChangeType.Equals(ChangeTypeFilter, StringComparison.OrdinalIgnoreCase));
             }
 
             if (!string.IsNullOrWhiteSpace(SearchQuery))
             {
                 var term = SearchQuery.Trim();
                 query = query.Where(c =>
-                    c.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                    c.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                    c.ChangeType.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    (c.Title != null && c.Title.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    (c.Description != null && c.Description.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    (c.ChangeType != null && c.ChangeType.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
                     c.Id.ToString().Contains(term, StringComparison.OrdinalIgnoreCase));
             }
 

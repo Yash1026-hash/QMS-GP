@@ -23,14 +23,11 @@ public class DeviationReportDto
     public int Status { get; set; }
 
     // 1 = Approve, 2 = Reject
-   public int? Decision { get; set; }
+    public int? Decision { get; set; }
 
-    public string DecisionBy { get; set; } = string.Empty;
+    public string? DecisionBy { get; set; }
 
     public DateTime? DecisionOn { get; set; }
 
-    public string DecisionComments { get; set; } = string.Empty;
-
-
-    
+    public string? DecisionComments { get; set; }
 }
