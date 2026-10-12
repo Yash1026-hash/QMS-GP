@@ -222,14 +222,20 @@ public class AdminController : ControllerBase
         if (!string.IsNullOrWhiteSpace(search))
         {
             var term = search.Trim();
+            var cleanIdStr = term.TrimStart('#').Replace("DEV-", "", StringComparison.OrdinalIgnoreCase).Replace("DEV", "", StringComparison.OrdinalIgnoreCase).Trim();
+            int.TryParse(cleanIdStr, out var searchId);
+
             query = query.Where(d =>
+                (searchId > 0 && (d.Id == searchId || d.DocumentId == searchId)) ||
                 d.Title.Contains(term) ||
                 d.Description.Contains(term) ||
-                d.CreatedBy.Contains(term));
+                d.CreatedBy.Contains(term) ||
+                d.Priority.Contains(term));
         }
 
         var result = await query
             .OrderByDescending(d => d.CreatedDate)
+            .ThenByDescending(d => d.Id)
             .Select(d => new DeviationRequestDto
             {
                 Id = d.Id,

@@ -21,6 +21,7 @@ public class DeviationService
         return await _context.DeviationRequests
             .AsNoTracking()
             .OrderByDescending(d => d.CreatedDate)
+            .ThenByDescending(d => d.Id)
             .Select(d => new DeviationRequestDto
             {
                 Id = d.Id,

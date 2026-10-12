@@ -31,7 +31,7 @@
         <form method="get" id="deviationsFilterForm" class="row g-2 align-items-end" novalidate>
             <div class="col-md-3">
                 <label class="form-label small">Search</label>
-                <input type="text" name="SearchQuery" id="deviationSearchInput" value="@Model.SearchQuery" class="form-control" placeholder="Search title, description..." maxlength="100" />
+                <input type="text" name="SearchQuery" id="deviationSearchInput" value="@Model.SearchQuery" class="form-control" placeholder="Search by ID, title, doc, user, priority..." maxlength="100" />
             </div>
             <div class="col-md-2">
                 <label class="form-label small">Status</label>
@@ -69,9 +69,17 @@
 </div>
 
 <!-- Deviations Table -->
-<div class="card mb-4">
-    <div class="card-header bg-light">
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
         <span class="fw-semibold">Records (@Model.Deviations.Count)</span>
+        @if (Model.Deviations.Count != Model.TotalCount)
+        {
+            <span class="badge bg-secondary">Filtered from @Model.TotalCount total</span>
+        }
+        else if (Model.LatestDeviationId.HasValue)
+        {
+            <span class="badge bg-primary">Latest ID: #@Model.LatestDeviationId</span>
+        }
     </div>
     <div class="card-body p-0">
         @if (Model.Deviations.Count == 0)
@@ -102,22 +110,47 @@
                         @foreach (var dev in Model.Deviations)
                         {
                             <tr>
-                                <td>@dev.Id</td>
+                                <td>
+                                    <span class="fw-bold">#@dev.Id</span>
+                                    @if (dev.Id == Model.LatestDeviationId)
+                                    {
+                                        <span class="badge bg-primary ms-1">Latest</span>
+                                    }
+                                </td>
                                 <td>
                                     <div class="fw-semibold">@dev.Title</div>
                                     <div class="small text-muted text-truncate" style="max-width: 300px;">@dev.Description</div>
                                 </td>
-                                <td>@dev.DocumentId</td>
-                                <td>@dev.Priority</td>
+                                <td><span class="badge bg-light text-dark border">#@dev.DocumentId</span></td>
                                 <td>
-                                    @(dev.Status switch { 0 => "Pending", 1 => "Active", _ => "Inactive" })
+                                    <span class="badge @(dev.Priority switch {
+                                        "Critical" => "bg-danger",
+                                        "Major" => "bg-warning text-dark",
+                                        "Minor" => "bg-info text-dark",
+                                        _ => "bg-secondary"
+                                    })">@dev.Priority</span>
                                 </td>
                                 <td>
-                                    @(dev.Decision switch { 1 => "Approved", 2 => "Rejected", _ => "Pending" })
+                                    <span class="badge @(dev.Status switch {
+                                        1 => "bg-success",
+                                        0 => "bg-warning text-dark",
+                                        _ => "bg-secondary"
+                                    })">
+                                        @(dev.Status switch { 0 => "Pending", 1 => "Active", _ => "Inactive" })
+                                    </span>
                                 </td>
-                                <td>@dev.DecisionBy</td>
+                                <td>
+                                    <span class="badge @(dev.Decision switch {
+                                        1 => "bg-success",
+                                        2 => "bg-danger",
+                                        _ => "bg-secondary"
+                                    })">
+                                        @(dev.Decision switch { 1 => "Approved", 2 => "Rejected", _ => "Pending" })
+                                    </span>
+                                </td>
+                                <td>@(string.IsNullOrWhiteSpace(dev.DecisionBy) ? "-" : dev.DecisionBy)</td>
                                 <td>@dev.CreatedBy</td>
-                                <td>@dev.CreatedDate.ToString("yyyy-MM-dd")</td>
+                                <td>@dev.CreatedDate.ToString("yyyy-MM-dd HH:mm")</td>
                                 <td class="text-end">
                                     <a asp-page="/Admin/Deviations/Details" asp-route-id="@dev.Id" class="btn btn-sm btn-outline-secondary">Details</a>
                                 </td>

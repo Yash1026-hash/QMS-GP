@@ -34,6 +34,7 @@ public class IndexModel : PageModel
     public int InactiveCount { get; set; }
     public int ApprovedCount { get; set; }
     public int RejectedCount { get; set; }
+    public int? LatestDeviationId { get; set; }
 
     public List<DeviationRequestDto> Deviations { get; set; } = [];
     public string? ErrorMessage { get; set; }
@@ -58,6 +59,7 @@ public class IndexModel : PageModel
             allDeviations ??= [];
 
             TotalCount = allDeviations.Count;
+            LatestDeviationId = allDeviations.Count > 0 ? allDeviations.Max(d => d.Id) : null;
             PendingCount = allDeviations.Count(d => d.Status == 0);
             ActiveCount = allDeviations.Count(d => d.Status == 1);
             InactiveCount = allDeviations.Count(d => d.Status == 2);
@@ -73,7 +75,7 @@ public class IndexModel : PageModel
 
             if (!string.IsNullOrWhiteSpace(PriorityFilter))
             {
-                query = query.Where(d => d.Priority.Equals(PriorityFilter, StringComparison.OrdinalIgnoreCase));
+                query = query.Where(d => d.Priority != null && d.Priority.Equals(PriorityFilter, StringComparison.OrdinalIgnoreCase));
             }
 
             if (DecisionFilter.HasValue)
@@ -91,14 +93,30 @@ public class IndexModel : PageModel
             if (!string.IsNullOrWhiteSpace(SearchQuery))
             {
                 var term = SearchQuery.Trim();
+                var cleanId = term.TrimStart('#').Replace("DEV-", "", StringComparison.OrdinalIgnoreCase).Replace("DEV", "", StringComparison.OrdinalIgnoreCase).Trim();
+
                 query = query.Where(d =>
                     d.Id.ToString().Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                    d.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                    d.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                    d.CreatedBy.Contains(term, StringComparison.OrdinalIgnoreCase));
+                    (!string.IsNullOrEmpty(cleanId) && d.Id.ToString().Contains(cleanId, StringComparison.OrdinalIgnoreCase)) ||
+                    d.DocumentId.ToString().Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    (!string.IsNullOrEmpty(cleanId) && d.DocumentId.ToString().Contains(cleanId, StringComparison.OrdinalIgnoreCase)) ||
+                    (d.Title != null && d.Title.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    (d.Description != null && d.Description.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    (d.CreatedBy != null && d.CreatedBy.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    (d.Priority != null && d.Priority.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    (d.DecisionBy != null && d.DecisionBy.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    (d.DecisionComments != null && d.DecisionComments.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    (term.Equals("pending", StringComparison.OrdinalIgnoreCase) && (d.Status == 0 || !d.Decision.HasValue)) ||
+                    (term.Equals("active", StringComparison.OrdinalIgnoreCase) && d.Status == 1) ||
+                    (term.Equals("inactive", StringComparison.OrdinalIgnoreCase) && d.Status == 2) ||
+                    (term.Equals("approved", StringComparison.OrdinalIgnoreCase) && d.Decision == 1) ||
+                    (term.Equals("rejected", StringComparison.OrdinalIgnoreCase) && d.Decision == 2));
             }
 
-            Deviations = query.OrderByDescending(d => d.CreatedDate).ToList();
+            Deviations = query
+                .OrderByDescending(d => d.CreatedDate)
+                .ThenByDescending(d => d.Id)
+                .ToList();
         }
         catch (Exception ex)
         {
