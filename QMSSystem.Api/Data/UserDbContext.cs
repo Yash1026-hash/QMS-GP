@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using QMSSystem.Shared.Dtos;
 using QMSSystem.Shared.DTOs;
-using QMSSystem.Shared.Dtos;
 using QMSSystem.Shared.Models;
 
 namespace QMSSystem.Api.Data;
