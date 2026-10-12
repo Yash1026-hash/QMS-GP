@@ -25,10 +25,7 @@ public class AuditTrailModel : PageModel
     [BindProperty(SupportsGet = true)]
     public int PageNumber { get; set; } = 1;
 
-    [BindProperty(SupportsGet = true)]
-    public int PageSize { get; set; } = 10;
-
-    public static readonly int[] AllowedPageSizes = [5, 10, 20, 50];
+    public int PageSize => 10;
 
     public List<DocumentHistory> AuditRecords { get; set; } = [];
     public int TotalRecords { get; set; }
@@ -63,11 +60,6 @@ public class AuditTrailModel : PageModel
 
             var filteredList = query.OrderByDescending(h => h.ArchivedOn).ToList();
             FilteredCount = filteredList.Count;
-
-            if (!AllowedPageSizes.Contains(PageSize))
-            {
-                PageSize = 10;
-            }
 
             TotalPages = Math.Max(1, (int)Math.Ceiling((double)FilteredCount / PageSize));
 

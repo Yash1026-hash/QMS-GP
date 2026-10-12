@@ -32,22 +32,13 @@
     <div class="card-body">
         <form method="get" id="auditTrailFilterForm" class="row g-2 align-items-end" novalidate>
             <input type="hidden" name="PageNumber" value="1" />
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <label class="form-label small">Search</label>
                 <input type="text" name="SearchQuery" id="auditSearchInput" value="@Model.SearchQuery" class="form-control" placeholder="Search document number, title, comment..." maxlength="100" />
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <label class="form-label small">Department</label>
                 <input type="text" name="DepartmentFilter" id="auditDeptInput" value="@Model.DepartmentFilter" class="form-control" placeholder="Filter by department..." maxlength="100" />
-            </div>
-            <div class="col-md-2">
-                <label class="form-label small">Per Page</label>
-                <select name="PageSize" id="auditPageSize" class="form-select" onchange="this.form.submit()">
-                    @foreach (var size in QMSSystem.Web.Pages.Admin.AuditTrailModel.AllowedPageSizes)
-                    {
-                        <option value="@size" selected="@(Model.PageSize == size ? "selected" : null)">@size rows</option>
-                    }
-                </select>
             </div>
             <div class="col-md-2 d-flex gap-2">
                 <button type="submit" class="btn btn-primary flex-grow-1">Filter</button>
@@ -146,7 +137,6 @@
                             <a class="page-link"
                                asp-page="/Admin/AuditTrail"
                                asp-route-PageNumber="1"
-                               asp-route-PageSize="@Model.PageSize"
                                asp-route-SearchQuery="@Model.SearchQuery"
                                asp-route-DepartmentFilter="@Model.DepartmentFilter"
                                aria-label="First page">&laquo;</a>
@@ -155,7 +145,6 @@
                             <a class="page-link"
                                asp-page="/Admin/AuditTrail"
                                asp-route-PageNumber="@(Model.PageNumber - 1)"
-                               asp-route-PageSize="@Model.PageSize"
                                asp-route-SearchQuery="@Model.SearchQuery"
                                asp-route-DepartmentFilter="@Model.DepartmentFilter"
                                aria-label="Previous page">Previous</a>
@@ -168,7 +157,6 @@
                                 <a class="page-link"
                                    asp-page="/Admin/AuditTrail"
                                    asp-route-PageNumber="@p"
-                                   asp-route-PageSize="@Model.PageSize"
                                    asp-route-SearchQuery="@Model.SearchQuery"
                                    asp-route-DepartmentFilter="@Model.DepartmentFilter">@p</a>
                             </li>
@@ -179,7 +167,6 @@
                             <a class="page-link"
                                asp-page="/Admin/AuditTrail"
                                asp-route-PageNumber="@(Model.PageNumber + 1)"
-                               asp-route-PageSize="@Model.PageSize"
                                asp-route-SearchQuery="@Model.SearchQuery"
                                asp-route-DepartmentFilter="@Model.DepartmentFilter"
                                aria-label="Next page">Next</a>
@@ -188,7 +175,6 @@
                             <a class="page-link"
                                asp-page="/Admin/AuditTrail"
                                asp-route-PageNumber="@Model.TotalPages"
-                               asp-route-PageSize="@Model.PageSize"
                                asp-route-SearchQuery="@Model.SearchQuery"
                                asp-route-DepartmentFilter="@Model.DepartmentFilter"
                                aria-label="Last page">&raquo;</a>
